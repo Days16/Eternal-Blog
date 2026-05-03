@@ -139,6 +139,44 @@ export async function createAchievementAction(formData: FormData) {
   revalidatePath('/admin/logros')
 }
 
+const SYSTEM_ROLES = ['visitor', 'reader', 'scribe', 'moderator', 'admin']
+
+export async function createRoleAction(formData: FormData) {
+  await requireAdminUser()
+  const supabase = requireSupabase()
+  const name = slugify(text(formData, 'name'))
+  const label = text(formData, 'label')
+  const description = text(formData, 'description') || null
+  const color = text(formData, 'color') || 'var(--spore)'
+  if (!name || !label || SYSTEM_ROLES.includes(name)) return
+  await supabase.from('custom_roles').insert({ name, label, description, color })
+  revalidatePath('/admin/usuarios')
+}
+
+export async function updateRoleAction(formData: FormData) {
+  await requireAdminUser()
+  const supabase = requireSupabase()
+  const id = text(formData, 'id')
+  const label = text(formData, 'label')
+  const description = text(formData, 'description') || null
+  const color = text(formData, 'color') || 'var(--spore)'
+  if (!id || !label) return
+  await supabase.from('custom_roles').update({ label, description, color }).eq('id', id)
+  revalidatePath('/admin/usuarios')
+  redirect('/admin/usuarios')
+}
+
+export async function deleteRoleAction(formData: FormData) {
+  await requireAdminUser()
+  const supabase = requireSupabase()
+  const id = text(formData, 'id')
+  const name = text(formData, 'name')
+  if (!id || !name || SYSTEM_ROLES.includes(name)) return
+  await supabase.from('users').update({ role: 'reader', updated_at: new Date().toISOString() }).eq('role', name)
+  await supabase.from('custom_roles').delete().eq('id', id)
+  revalidatePath('/admin/usuarios')
+}
+
 export async function createMissionAction(formData: FormData) {
   await requireAdminUser()
   const supabase = requireSupabase()

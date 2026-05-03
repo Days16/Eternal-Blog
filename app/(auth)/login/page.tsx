@@ -1,9 +1,9 @@
 'use client'
 
-import { Suspense, useState, type FormEvent } from 'react'
+import { Suspense, useActionState } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import { useSearchParams } from 'next/navigation'
+import { loginAction } from '@/app/(auth)/actions'
 import { Mushroom } from '@/components/ui/Mushroom'
 import { RUNES } from '@/components/ui/constants'
 
@@ -16,37 +16,9 @@ export default function LoginPage() {
 }
 
 function LoginContent() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') ?? '/'
-  const [error, setError] = useState<string | null>(null)
-  const [isPending, setIsPending] = useState(false)
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError(null)
-    setIsPending(true)
-
-    const formData = new FormData(event.currentTarget)
-    const email = String(formData.get('email') ?? '').trim().toLowerCase()
-    const password = String(formData.get('password') ?? '')
-
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    })
-
-    setIsPending(false)
-
-    if (result?.error) {
-      setError('Credenciales incorrectas. Prueba de nuevo.')
-      return
-    }
-
-    router.push(callbackUrl)
-    router.refresh()
-  }
+  const [error, formAction, isPending] = useActionState(loginAction, null)
 
   return (
     <div style={{
@@ -101,7 +73,8 @@ function LoginContent() {
           Pronuncia tus credenciales y deja que las hojas se aparten.
         </p>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          <input type="hidden" name="callbackUrl" value={callbackUrl} />
           <Field label="Sello (correo)" name="email" type="email" placeholder="tu@reino.com" />
           <Field label="Palabra-llave" name="password" type="password" placeholder="••••••••••••" />
 

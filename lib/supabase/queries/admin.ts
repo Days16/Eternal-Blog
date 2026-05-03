@@ -116,6 +116,21 @@ export async function getAdminMissions() {
   }))
 }
 
+export async function getCustomRoles() {
+  const supabase = requireSupabase()
+  const { data } = await supabase
+    .from('custom_roles')
+    .select('id,name,label,description,color,created_at')
+    .order('created_at', { ascending: true })
+  return (data ?? []).map(row => ({
+    id: String(row.id ?? ''),
+    name: String(row.name ?? ''),
+    label: String(row.label ?? ''),
+    description: (row.description as string | null) ?? null,
+    color: String(row.color ?? 'var(--spore)'),
+  }))
+}
+
 async function attachCommentRelations(rows: CommentRow[]) {
   const supabase = requireSupabase()
   const userIds = [...new Set(rows.map(row => row.user_id).filter(Boolean))]

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useSession, signIn } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import { Mushroom } from '@/components/ui/Mushroom'
 import { LevelBadge } from '@/components/ui/LevelBadge'
 import { Btn } from '@/components/ui/Btn'
@@ -121,9 +121,9 @@ export function TopNav({ compact = false }: TopNavProps) {
           )}
         </div>
       ) : (
-        <Btn size="sm" variant="rune" onClick={() => signIn()}>
-          Invocar sesión
-        </Btn>
+        <Link href="/login" style={{ textDecoration: 'none' }}>
+          <Btn size="sm" variant="rune">Invocar sesión</Btn>
+        </Link>
       )}
     </header>
   )

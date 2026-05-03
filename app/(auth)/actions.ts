@@ -1,20 +1,25 @@
 'use server'
 
-import { signIn } from '@/auth'
+import { signIn, signOut } from '@/auth'
 import { AuthError } from 'next-auth'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+
+export async function signOutAction() {
+  await signOut({ redirectTo: '/login' })
+}
 
 export async function loginAction(
   _prev: string | null,
   formData: FormData,
 ): Promise<string | null> {
-  const email    = String(formData.get('email') ?? '').trim().toLowerCase()
-  const password = String(formData.get('password') ?? '')
+  const email       = String(formData.get('email') ?? '').trim().toLowerCase()
+  const password    = String(formData.get('password') ?? '')
+  const callbackUrl = String(formData.get('callbackUrl') ?? '/')
 
   if (!email || !password) return 'Rellena todos los campos.'
 
   try {
-    await signIn('credentials', { email, password, redirectTo: '/' })
+    await signIn('credentials', { email, password, redirectTo: callbackUrl })
   } catch (err) {
     if (err instanceof AuthError) {
       return 'Credenciales incorrectas. Prueba de nuevo.'

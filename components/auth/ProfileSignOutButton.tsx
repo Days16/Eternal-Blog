@@ -1,18 +1,17 @@
-'use client'
-
-import { signOut } from 'next-auth/react'
+import { signOutAction } from '@/app/(auth)/actions'
 import { Btn } from '@/components/ui/Btn'
 
 export function ProfileSignOutButton() {
   return (
-    <Btn
-      type="button"
-      variant="ghost"
-      size="sm"
-      onClick={() => signOut({ callbackUrl: '/login' })}
-      style={{ color: 'var(--ember)', borderColor: 'var(--ember)' }}
-    >
-      Cerrar sesión
-    </Btn>
+    <form action={signOutAction}>
+      <Btn
+        type="submit"
+        variant="ghost"
+        size="sm"
+        style={{ color: 'var(--ember)', borderColor: 'var(--ember)' }}
+      >
+        Cerrar sesión
+      </Btn>
+    </form>
   )
 }
