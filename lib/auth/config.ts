@@ -88,7 +88,7 @@ export const authConfig: NextAuthConfig = {
         return {
           id:       user.id,
           name:     user.name ?? name,
-          email:    user.email,
+          email:    user.email ?? data.user.email,
           level:    user.level,
           xp:       user.xp,
           role:     user.role ?? undefined,
@@ -110,6 +110,24 @@ export const authConfig: NextAuthConfig = {
     },
     async session({ session, token }) {
       if (token) {
+        // Obtenemos los datos frescos desde la base de datos para asegurar
+        // que el rol y otros campos cambien inmediatamente en la sesión tras recargar
+        const supabase = getSupabaseServerClient()
+        if (supabase && token.id) {
+          const { data } = await supabase
+            .from('users')
+            .select('role, level, xp, username')
+            .eq('id', token.id as string)
+            .maybeSingle()
+            
+          if (data) {
+            token.role = data.role
+            token.level = data.level
+            token.xp = data.xp
+            token.username = data.username
+          }
+        }
+
         session.user.id       = token.id as string
         session.user.level    = token.level as number
         session.user.xp       = token.xp as number
