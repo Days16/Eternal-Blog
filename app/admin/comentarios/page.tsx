@@ -14,7 +14,7 @@ export default async function AdminCommentsPage() {
               <span>{comment.author?.name ?? comment.author?.username} en <Link href={`/${comment.entry?.type === 'codex' ? 'codex' : 'cronicas'}/${comment.entry?.slug}`} style={{ color: 'var(--spore)' }}>{comment.entry?.title}</Link></span>
               <span>{formatDate(comment.createdAt)} · {comment.deleted ? 'eliminado' : comment.sealed ? 'sellado' : 'visible'}</span>
             </div>
-            <div style={{ fontFamily: 'var(--font-body)', color: 'var(--text-soft)' }} dangerouslySetInnerHTML={{ __html: comment.body }} />
+            <div style={{ fontFamily: 'var(--font-body)', color: 'var(--text-soft)' }} dangerouslySetInnerHTML={{ __html: comment.body ?? '' }} />
           </article>
         ))}
       </div>
