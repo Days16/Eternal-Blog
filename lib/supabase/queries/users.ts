@@ -27,7 +27,7 @@ export async function getUserProfile(username: string) {
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
   let query = supabase
     .from('users')
-    .select('id,name,username,bio,avatar_url,role,special_role,level,xp,created_at')
+    .select('id,name,username,email,bio,avatar_url,role,special_role,level,xp,created_at')
 
   query = isUuid ? query.or(`username.ilike.${value},id.eq.${value}`) : query.ilike('username', value)
 

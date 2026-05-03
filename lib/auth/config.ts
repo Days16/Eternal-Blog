@@ -1,5 +1,5 @@
 import Credentials from 'next-auth/providers/credentials'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getSupabaseAuthClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { mapUser } from '@/lib/supabase/helpers'
 import type { NextAuthConfig } from 'next-auth'
 
@@ -21,11 +21,16 @@ export const authConfig: NextAuthConfig = {
         if (!credentials?.email || !credentials?.password) return null
         const email = String(credentials.email).trim().toLowerCase()
         const password = String(credentials.password)
+
+        // anon key para autenticar — la service role key es rechazada por este endpoint
+        const authClient = getSupabaseAuthClient()
+        if (!authClient) return null
+        const { data, error } = await authClient.auth.signInWithPassword({ email, password })
+        if (error || !data.user?.email) return null
+
+        // service role para leer/escribir en la tabla users (bypassa RLS)
         const supabase = getSupabaseServerClient()
         if (!supabase) return null
-
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-        if (error || !data.user?.email) return null
 
         const username = String(data.user.user_metadata?.username ?? data.user.email.split('@')[0]).toLowerCase()
         const name = String(data.user.user_metadata?.name ?? username)
