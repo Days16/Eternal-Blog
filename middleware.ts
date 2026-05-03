@@ -8,7 +8,9 @@ export default async function middleware(req: NextRequest) {
 
   if (pathname.startsWith('/admin')) {
     if (!token) {
-      return NextResponse.redirect(new URL('/login', req.url))
+      const loginUrl = new URL('/login', req.url)
+      loginUrl.searchParams.set('callbackUrl', pathname)
+      return NextResponse.redirect(loginUrl)
     }
     if (role !== 'admin' && role !== 'moderator') {
       return NextResponse.redirect(new URL('/', req.url))
@@ -17,7 +19,9 @@ export default async function middleware(req: NextRequest) {
 
   if (pathname.startsWith('/perfil/editar')) {
     if (!token) {
-      return NextResponse.redirect(new URL('/login', req.url))
+      const loginUrl = new URL('/login', req.url)
+      loginUrl.searchParams.set('callbackUrl', pathname)
+      return NextResponse.redirect(loginUrl)
     }
   }
 

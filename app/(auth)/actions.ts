@@ -52,14 +52,18 @@ export async function registerAction(
 
   if (existing) return 'Ya existe una cuenta con ese correo o nombre de iniciado.'
 
-  const { data, error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.admin.createUser({
     email,
     password,
-    options: {
-      data: { username, name: username },
-    },
+    email_confirm: true,
+    user_metadata: { username, name: username },
   })
-  if (error) return error.message
+  if (error) {
+    if (error.message.includes('rate limit') || error.status === 429) {
+      return 'Demasiados intentos de registro. Espera unos minutos e inténtalo de nuevo.'
+    }
+    return error.message
+  }
 
   const userId = data.user?.id
   if (!userId) return 'Cuenta creada, revisa tu correo para confirmar el acceso.'
