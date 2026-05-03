@@ -19,6 +19,19 @@ export async function getTopReaders(limit = 3) {
   )().catch(() => [])
 }
 
+export async function repairUserProfile(
+  userId: string,
+  fields: { username?: string; name?: string; email?: string },
+) {
+  if (!userId || !Object.keys(fields).length) return
+  const supabase = requireSupabase()
+  const patch: Record<string, string> = {}
+  if (fields.username) patch.username = fields.username
+  if (fields.name)     patch.name     = fields.name
+  if (fields.email)    patch.email    = fields.email
+  await supabase.from('users').update(patch).eq('id', userId)
+}
+
 export async function getUserProfile(username: string) {
   const value = username.trim()
   if (!value) return undefined

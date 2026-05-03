@@ -15,6 +15,7 @@ import {
   getUserStats,
   getUserAchievements,
   getUserActivity,
+  repairUserProfile,
 } from '@/lib/supabase/queries/users'
 import { getXpProgress } from '@/lib/xp/events'
 import { relativeTime } from '@/lib/utils/dates'
@@ -28,9 +29,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params
   const user = await getUserProfile(username)
   if (!user) return {}
+  const displayName = user.name || user.username || user.email?.split('@')[0] || username
   return {
-    title: `${user.name ?? username} · Perfil`,
-    description: user.bio ?? `Perfil de ${user.name ?? username} en ETERNIDAD.`,
+    title: `${displayName} · Perfil`,
+    description: user.bio ?? `Perfil de ${displayName} en ETERNIDAD.`,
   }
 }
 
@@ -47,7 +49,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
   const { username } = await params
   const { tab = 'logros' } = await searchParams
 
-  const profile = await getUserProfile(username)
+  let profile = await getUserProfile(username)
   if (!profile) notFound()
   const session = await auth()
   const isOwnProfile = session?.user?.id === profile.id
@@ -58,10 +60,32 @@ export default async function ProfilePage({ params, searchParams }: Props) {
     getUserActivity(profile.id, 15),
   ])
 
+  // Auto-reparar fila si el propio usuario tiene name/username vacíos en DB
+  if (isOwnProfile && (!profile.name || !profile.username || !profile.email)) {
+    const sessionEmail    = session?.user?.email    ?? undefined
+    const sessionUsername = session?.user?.username ?? sessionEmail?.split('@')[0]
+    const sessionName     = session?.user?.name     ?? sessionUsername
+    const patch: { username?: string; name?: string; email?: string } = {}
+    if (!profile.username && sessionUsername) patch.username = sessionUsername
+    if (!profile.name     && sessionName)     patch.name     = sessionName
+    if (!profile.email    && sessionEmail)    patch.email    = sessionEmail
+    if (Object.keys(patch).length) {
+      await repairUserProfile(profile.id, patch)
+      profile = { ...profile, ...patch }
+    }
+  }
+
   const level = profile.level as LevelNumber
   const levelInfo = LEVELS[level - 1]
   const xpProgress = getXpProgress(profile.xp)
   const joinDate = profile.createdAt ? relativeTime(profile.createdAt) : '—'
+
+  const displayName =
+    profile.name ||
+    profile.username ||
+    profile.email?.split('@')[0] ||
+    (isOwnProfile ? (session?.user?.name || session?.user?.username || session?.user?.email?.split('@')[0] || null) : null) ||
+    username
 
   const unlockedCount = achievements.filter(a => a.unlocked).length
 
@@ -102,7 +126,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
           {/* Datos */}
           <div style={{ flex: '1 1 240px', minWidth: 0, maxWidth: '100%', paddingBottom: 12, overflow: 'visible' }}>
             <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(30px, 9vw, 44px)', fontWeight: 600, margin: '0 0 10px', letterSpacing: -0.8, lineHeight: 1.25, overflowWrap: 'anywhere', overflow: 'visible', paddingBottom: 4 }}>
-              {profile.name ?? profile.username ?? username}
+              {displayName}
             </h1>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
               {profile.role === 'admin' && (

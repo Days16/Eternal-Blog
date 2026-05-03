@@ -60,17 +60,18 @@ export const authConfig: NextAuthConfig = {
 
           profile = createdProfile
         } else if (!profile.email || !profile.username || !profile.name) {
-          const { data: updatedProfile } = await supabase
+          const { data: updatedProfile, error: updateError } = await supabase
             .from('users')
-            .update({
+            .upsert({
+              id: data.user.id,
               email: profile.email ?? data.user.email,
               username: profile.username ?? username,
               name: profile.name ?? name,
-            })
-            .eq('id', data.user.id)
+            }, { onConflict: 'id', ignoreDuplicates: false })
             .select('id,name,email,username,role,level,xp,special_role')
             .maybeSingle()
 
+          if (updateError) console.error('[auth] profile update error:', updateError)
           profile = updatedProfile ?? profile
         }
 
@@ -86,12 +87,12 @@ export const authConfig: NextAuthConfig = {
 
         return {
           id:       user.id,
-          name:     user.name,
+          name:     user.name ?? name,
           email:    user.email,
           level:    user.level,
           xp:       user.xp,
           role:     user.role ?? undefined,
-          username: user.username,
+          username: user.username ?? username,
         }
       },
     }),

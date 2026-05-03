@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, Fraunces, Inter, JetBrains_Mono } from 'next/font/google'
 import { Providers } from '@/components/Providers'
+import { auth } from '@/auth'
 import '@/styles/globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -48,14 +49,16 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth()
+
   return (
     <html
       lang="es"
       className={`${cormorant.variable} ${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="tex-canopy tex-grain">
-        <Providers>{children}</Providers>
+        <Providers session={session}>{children}</Providers>
       </body>
     </html>
   )
