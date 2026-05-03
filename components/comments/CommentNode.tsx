@@ -17,7 +17,7 @@ type CommentNodeProps = {
 }
 
 function canModerate(role?: string | null) {
-  return role === 'admin' || role === 'moderator'
+  return role === 'admin' || role === 'moderator' || role === 'dev'
 }
 
 export function CommentNode({ comment, entryId, currentUserId, currentUserRole }: CommentNodeProps) {
@@ -29,10 +29,18 @@ export function CommentNode({ comment, entryId, currentUserId, currentUserRole }
   const moderator = canModerate(currentUserRole)
   const hiddenBody = comment.deleted || comment.sealed
 
-  async function mutate(method: 'DELETE' | 'PATCH') {
+  if (comment.deleted && !moderator) return null
+
+  async function mutate(method: 'DELETE' | 'PATCH', options?: { currentState?: boolean, hard?: boolean }) {
     if (busy) return
+    const body = method === 'PATCH' ? JSON.stringify({ sealed: options?.currentState }) : undefined
+    const url = `/api/comments/${comment.id}${options?.hard ? '?hard=true' : ''}`
     setBusy(true)
-    await fetch(`/api/comments/${comment.id}`, { method })
+    await fetch(url, { 
+      method,
+      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      body 
+    })
     setBusy(false)
     router.refresh()
   }
@@ -64,11 +72,63 @@ export function CommentNode({ comment, entryId, currentUserId, currentUserRole }
           <div style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.65, color: 'var(--text-soft)' }} dangerouslySetInnerHTML={{ __html: comment.body }} />
         )}
 
-        <footer style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
+        <footer style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap', alignItems: 'center' }}>
           {currentUserId && !hiddenBody && <Btn type="button" variant="bare" size="sm" onClick={() => setReplying(value => !value)}>Responder</Btn>}
-          <Btn type="button" variant="bare" size="sm">Denunciar</Btn>
-          {(isAuthor || moderator) && !comment.deleted && <Btn type="button" variant="bare" size="sm" onClick={() => mutate('DELETE')} disabled={busy}>Eliminar</Btn>}
-          {moderator && !comment.sealed && !comment.deleted && <Btn type="button" variant="bare" size="sm" onClick={() => mutate('PATCH')} disabled={busy}>Sellar</Btn>}
+          {!comment.deleted && <Btn type="button" variant="bare" size="sm">Denunciar</Btn>}
+          
+          {moderator && (
+            <div style={{ display: 'flex', gap: 6, paddingLeft: 8, borderLeft: '1px solid var(--border-soft)', marginLeft: 'auto' }}>
+              {comment.deleted && (
+                <Btn 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  style={{ color: 'var(--ember)', borderColor: 'var(--ember)', fontSize: 10, height: 24, padding: '0 8px', background: 'var(--ember-dim)' }} 
+                  onClick={() => confirm('¿BORRAR DE LA BASE DE DATOS? Esta acción es irreversible.') && mutate('DELETE', { hard: true })} 
+                  disabled={busy}
+                >
+                  PURGAR
+                </Btn>
+              )}
+              {!comment.deleted && (
+                <Btn 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  style={{ color: 'var(--ember)', borderColor: 'var(--ember)', fontSize: 10, height: 24, padding: '0 8px' }} 
+                  onClick={() => confirm('¿Eliminar comentario?') && mutate('DELETE')} 
+                  disabled={busy}
+                >
+                  ELIMINAR
+                </Btn>
+              )}
+              {!comment.deleted && (
+                <Btn 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm" 
+                  style={{ color: 'var(--amethyst)', borderColor: 'var(--amethyst)', fontSize: 10, height: 24, padding: '0 8px' }} 
+                  onClick={() => mutate('PATCH', { currentState: comment.sealed })} 
+                  disabled={busy}
+                >
+                  {comment.sealed ? 'DESELLAR' : 'SELLAR'}
+                </Btn>
+              )}
+            </div>
+          )}
+
+          {isAuthor && !moderator && !comment.deleted && (
+            <Btn 
+              type="button" 
+              variant="bare" 
+              size="sm" 
+              style={{ color: 'var(--ember)', marginLeft: 'auto' }} 
+              onClick={() => confirm('¿Eliminar tu comentario?') && mutate('DELETE')} 
+              disabled={busy}
+            >
+              Eliminar
+            </Btn>
+          )}
         </footer>
 
         {replying && (

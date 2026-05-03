@@ -112,20 +112,24 @@ export const authConfig: NextAuthConfig = {
       if (token) {
         // Obtenemos los datos frescos desde la base de datos para asegurar
         // que el rol y otros campos cambien inmediatamente en la sesión tras recargar
-        const supabase = getSupabaseServerClient()
-        if (supabase && token.id) {
-          const { data } = await supabase
-            .from('users')
-            .select('role, level, xp, username')
-            .eq('id', token.id as string)
-            .maybeSingle()
-            
-          if (data) {
-            token.role = data.role
-            token.level = data.level
-            token.xp = data.xp
-            token.username = data.username
+        try {
+          const supabase = getSupabaseServerClient()
+          if (supabase && token.id) {
+            const { data } = await supabase
+              .from('users')
+              .select('role, level, xp, username')
+              .eq('id', token.id as string)
+              .maybeSingle()
+              
+            if (data) {
+              token.role = data.role
+              token.level = data.level
+              token.xp = data.xp
+              token.username = data.username
+            }
           }
+        } catch (error) {
+          console.error('[auth] Error sincronizando sesión:', error)
         }
 
         session.user.id       = token.id as string

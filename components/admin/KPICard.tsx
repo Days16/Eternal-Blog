@@ -1,8 +1,8 @@
 export function KPICard({ label, value, color = 'var(--spore)' }: { label: string; value: string | number; color?: string }) {
   return (
-    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)', padding: 22 }}>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: 34, color, fontWeight: 600 }}>{value}</div>
-      <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-mute)', textTransform: 'uppercase', letterSpacing: 1.5 }}>{label}</div>
+    <div className="glass-card" style={{ padding: '24px 28px', borderRadius: 'var(--r-lg)' }}>
+      <div style={{ fontFamily: 'var(--font-display)', fontSize: 38, color, fontWeight: 600, letterSpacing: -1, marginBottom: 4 }}>{value}</div>
+      <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, color: 'var(--text-mute)', textTransform: 'uppercase', letterSpacing: 2, fontWeight: 500 }}>{label}</div>
     </div>
   )
 }

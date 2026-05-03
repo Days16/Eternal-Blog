@@ -16,6 +16,8 @@ export function EntryBody({ body }: EntryBodyProps) {
         fontSize: 19,
         lineHeight: 1.75,
         color: 'var(--text-soft)',
+        overflowWrap: 'anywhere',
+        wordBreak: 'break-word',
       }}
     />
   )

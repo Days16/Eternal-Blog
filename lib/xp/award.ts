@@ -1,5 +1,6 @@
 import { requireSupabase } from '@/lib/supabase/helpers'
 import { getLevelForXp } from './events'
+import { evaluateAchievements } from '@/lib/achievements/evaluator'
 
 type ActivityKind = 'comment' | 'reaction' | 'entry_published' | 'achievement_unlocked' | 'easter_egg_found' | 'mission_completed'
 
@@ -43,6 +44,15 @@ export async function awardXP(
     ref_id: refId ?? null,
     xp_delta: amount,
   })
+
+  // Evitar bucles infinitos: no evaluar logros si el premio ya es por un logro
+  if (kind !== 'achievement_unlocked') {
+    try {
+      await evaluateAchievements(userId)
+    } catch (error) {
+      console.error('[xp] Error evaluando logros tras otorgar XP:', error)
+    }
+  }
 
   return { newXp, newLevel, leveledUp }
 }

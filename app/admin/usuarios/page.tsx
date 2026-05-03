@@ -16,13 +16,13 @@ const SYSTEM_ROLES = [
   { name: 'reader',    label: 'Lector',     color: 'var(--mist)' },
   { name: 'scribe',    label: 'Escriba',    color: 'var(--spore)' },
   { name: 'moderator', label: 'Moderador',  color: 'var(--amethyst)' },
+  { name: 'dev',       label: 'Dev',        color: 'var(--spore)' },
   { name: 'admin',     label: 'Admin',      color: 'var(--ember)' },
 ]
 
 export default async function AdminUsersPage({ searchParams }: Props) {
   const { edit } = await searchParams
   const [users, customRoles] = await Promise.all([getAdminUsers(), getCustomRoles()])
-  const allRoleNames = [...SYSTEM_ROLES.map(r => r.name), ...customRoles.map(r => r.name)]
 
   return (
     <div>
@@ -151,7 +151,8 @@ export default async function AdminUsersPage({ searchParams }: Props) {
               <form action={updateUserRoleAction} style={{ display: 'flex', gap: 8 }}>
                 <input type="hidden" name="id" value={user.id} />
                 <select name="role" defaultValue={user.role ?? undefined} style={{ ...inputStyle, flex: 1 }}>
-                  {allRoleNames.map(r => <option key={r}>{r}</option>)}
+                  {SYSTEM_ROLES.map(r => <option key={r.name} value={r.name}>{r.label}</option>)}
+                  {customRoles.map(r => <option key={r.name} value={r.name}>{r.label}</option>)}
                 </select>
                 <Btn type="submit" size="sm" variant="ghost">Guardar</Btn>
               </form>

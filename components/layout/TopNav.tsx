@@ -7,6 +7,8 @@ import { Mushroom } from '@/components/ui/Mushroom'
 import { LevelBadge } from '@/components/ui/LevelBadge'
 import { Btn } from '@/components/ui/Btn'
 import { TopNavSearch } from '@/components/search/TopNavSearch'
+import { NotificationBell } from '@/components/layout/NotificationBell'
+import { useUserStats } from '@/hooks/use-user-stats'
 import type { LevelNumber } from '@/components/ui/constants'
 
 const NAV_ITEMS = [
@@ -22,9 +24,12 @@ interface TopNavProps {
 export function TopNav({ compact = false }: TopNavProps) {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const { stats } = useUserStats(!!session?.user)
   const user = session?.user as { name?: string; level?: number; xp?: number; role?: string } | undefined
-  const canAccessAdmin = user?.role === 'admin' || user?.role === 'moderator'
-  const navItems = canAccessAdmin ? [...NAV_ITEMS, { href: '/admin', label: 'Admin' }] : NAV_ITEMS
+  const level = (stats?.level ?? user?.level ?? 1) as LevelNumber
+  const xp = stats?.xp ?? user?.xp ?? 0
+  const canAccessAdmin = user?.role === 'admin' || user?.role === 'moderator' || user?.role === 'dev'
+  const navItems = canAccessAdmin ? [...NAV_ITEMS, { href: '/admin', label: user?.role === 'moderator' ? 'Panel Mod' : (user?.role === 'dev' ? 'Panel Dev' : 'Admin') }] : NAV_ITEMS
 
   const isActive = (href: string) =>
     href === '/' ? pathname === href : pathname.startsWith(href)
@@ -107,15 +112,17 @@ export function TopNav({ compact = false }: TopNavProps) {
         <TopNavSearch />
       )}
 
+      <NotificationBell />
+
       {/* Usuario / Sesión */}
       {user ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <LevelBadge level={(user.level ?? 1) as LevelNumber} size={28} />
+          <LevelBadge level={level} size={28} />
           {!compact && (
             <Link href="/perfil" style={{ textDecoration: 'none' }}>
               <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12 }}>
                 <div style={{ color: 'var(--text)', fontWeight: 500 }}>{user.name}</div>
-                <div style={{ color: 'var(--text-mute)', fontSize: 10 }}>{user.xp ?? 0} XP</div>
+                <div style={{ color: 'var(--text-mute)', fontSize: 10 }}>{xp.toLocaleString('es-ES')} XP</div>
               </div>
             </Link>
           )}

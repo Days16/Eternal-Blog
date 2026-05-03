@@ -26,7 +26,7 @@ function wordCount(value: string) {
 async function requireAdminUser() {
   const session = await auth()
   const role = session?.user?.role
-  if (!session?.user?.id || (role !== 'admin' && role !== 'moderator')) redirect('/login')
+  if (!session?.user?.id || (role !== 'admin' && role !== 'moderator' && role !== 'dev')) redirect('/login')
   return session.user
 }
 
@@ -106,9 +106,23 @@ export async function updateUserRoleAction(formData: FormData) {
   await requireAdminUser()
   const supabase = requireSupabase()
   const id = text(formData, 'id')
-  const role = text(formData, 'role') as 'visitor' | 'reader' | 'scribe' | 'moderator' | 'admin'
-  if (!id || !['visitor', 'reader', 'scribe', 'moderator', 'admin'].includes(role)) return
-  await supabase.from('users').update({ role, updated_at: new Date().toISOString() }).eq('id', id)
+  const role = text(formData, 'role')
+  
+  if (!id || !role) return
+
+  try {
+    const { error } = await supabase
+      .from('users')
+      .update({ role, updated_at: new Date().toISOString() })
+      .eq('id', id)
+    
+    if (error) throw error
+  } catch (error: any) {
+    console.error('[admin] Error actualizando rol:', error)
+    const message = error.message || (error instanceof Error ? error.message : 'Error desconocido')
+    throw new Error(`No se pudo actualizar el rol del usuario: ${message}`)
+  }
+
   revalidatePath('/admin/usuarios')
 }
 
@@ -139,7 +153,7 @@ export async function createAchievementAction(formData: FormData) {
   revalidatePath('/admin/logros')
 }
 
-const SYSTEM_ROLES = ['visitor', 'reader', 'scribe', 'moderator', 'admin']
+const SYSTEM_ROLES = ['visitor', 'reader', 'scribe', 'moderator', 'dev', 'admin']
 
 export async function createRoleAction(formData: FormData) {
   await requireAdminUser()
@@ -193,3 +207,23 @@ export async function createMissionAction(formData: FormData) {
   })
   revalidatePath('/admin/misiones')
 }
+
+export async function deleteCommentAction(formData: FormData) {
+  await requireAdminUser()
+  const supabase = requireSupabase()
+  const id = text(formData, 'id')
+  if (!id) return
+  await supabase.from('comments').update({ deleted: true, updated_at: new Date().toISOString() }).eq('id', id)
+  revalidatePath('/admin/comentarios')
+}
+
+export async function sealCommentAction(formData: FormData) {
+  await requireAdminUser()
+  const supabase = requireSupabase()
+  const id = text(formData, 'id')
+  const currentState = formData.get('sealed') === 'true'
+  if (!id) return
+  await supabase.from('comments').update({ sealed: !currentState, updated_at: new Date().toISOString() }).eq('id', id)
+  revalidatePath('/admin/comentarios')
+}
+

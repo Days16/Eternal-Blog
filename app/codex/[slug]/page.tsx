@@ -11,6 +11,7 @@ import { Rune } from '@/components/ui/Rune'
 import { RuneDivider } from '@/components/ui/RuneDivider'
 import { Btn } from '@/components/ui/Btn'
 import { ImagePlaceholder } from '@/components/ui/ImagePlaceholder'
+import { ReactionControl } from '@/components/content/ReactionControl'
 import {
   getCodexArticle,
   getRelatedCodexEntries,
@@ -164,6 +165,10 @@ export default async function CodexArticlePage({ params }: Props) {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div style={{ marginTop: 32 }}>
+            <ReactionControl entryId={entry.id} currentUserId={session?.user?.id} />
           </div>
 
           <div style={{ marginTop: 16, padding: 16, background: 'var(--moss-800)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-md)' }}>

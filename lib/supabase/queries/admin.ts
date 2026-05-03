@@ -55,6 +55,9 @@ export async function getAdminEntries(params?: { type?: string; status?: string 
 }
 
 export async function getEntryForAdmin(id: string) {
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)
+  if (!isUuid) return undefined
+
   const supabase = requireSupabase()
   const { data } = await supabase
     .from('entries')

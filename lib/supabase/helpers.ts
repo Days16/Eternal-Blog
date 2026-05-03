@@ -7,7 +7,9 @@ export function requireSupabase() {
 }
 
 export function toDate(value: unknown) {
-  return typeof value === 'string' || value instanceof Date ? new Date(value) : null
+  if (!value) return null
+  const d = new Date(value as string | number | Date)
+  return isNaN(d.getTime()) ? null : d
 }
 
 export interface UserRow {

@@ -12,6 +12,7 @@ import { RuneDivider } from '@/components/ui/RuneDivider'
 import { LevelBadge } from '@/components/ui/LevelBadge'
 import { Btn } from '@/components/ui/Btn'
 import { ImagePlaceholder } from '@/components/ui/ImagePlaceholder'
+import { ReactionControl } from '@/components/content/ReactionControl'
 import { getEntryBySlug, getAllPublishedSlugs } from '@/lib/supabase/queries/entries'
 import { getCommentTree } from '@/lib/supabase/queries/comments'
 import { formatDateLong, readingTime } from '@/lib/utils/dates'
@@ -41,13 +42,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
   }
 }
-
-const REACTIONS = [
-  { icon: '🍄', label: 'Magia',    color: 'var(--spore)' },
-  { icon: '✦',  label: 'Brillante', color: 'var(--rune)' },
-  { icon: '◊',  label: 'Inquieta', color: 'var(--mist)' },
-  { icon: '☾',  label: 'Soñador',  color: 'var(--amethyst)' },
-]
 
 export default async function EntryPage({ params }: Props) {
   const { slug } = await params
@@ -88,7 +82,25 @@ export default async function EntryPage({ params }: Props) {
             </div>
           </div>
           <div style={{ flex: 1 }} />
-          <Btn size="sm" variant="ghost">Compartir</Btn>
+          <div style={{ flex: 1 }} />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <a 
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(entry.title)}&url=${encodeURIComponent(`https://eternidad.blog/cronicas/${entry.slug}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: 'none' }}
+            >
+              <Btn size="sm" variant="ghost" style={{ fontSize: 10, letterSpacing: 1 }}>TWITTER</Btn>
+            </a>
+            <a 
+              href={`https://wa.me/?text=${encodeURIComponent(`${entry.title} - https://eternidad.blog/cronicas/${entry.slug}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: 'none' }}
+            >
+              <Btn size="sm" variant="ghost" style={{ fontSize: 10, letterSpacing: 1 }}>WHATSAPP</Btn>
+            </a>
+          </div>
         </div>
 
         <ImagePlaceholder height={360} tone="mist" label={`ilustración · ${entry.title}`} />
@@ -131,34 +143,7 @@ export default async function EntryPage({ params }: Props) {
         </main>
 
         {/* Reacciones — margen derecho */}
-        <div style={{ paddingRight: 64, paddingLeft: 32, position: 'sticky', top: 100 }}>
-          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, color: 'var(--text-mute)', marginBottom: 16 }}>
-            Reacciona
-          </div>
-          {REACTIONS.map(r => (
-            <button
-              key={r.label}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                width: '100%',
-                padding: '10px 14px',
-                background: 'var(--moss-800)',
-                border: '1px solid var(--border-soft)',
-                borderRadius: 'var(--r-md)',
-                cursor: 'pointer',
-                marginBottom: 8,
-                fontFamily: 'var(--font-ui)',
-                color: 'var(--text)',
-              }}
-            >
-              <span style={{ fontSize: 18 }}>{r.icon}</span>
-              <span style={{ fontSize: 13, flex: 1, textAlign: 'left' }}>{r.label}</span>
-              <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: r.color }}>0</span>
-            </button>
-          ))}
-        </div>
+        <ReactionControl entryId={entry.id} currentUserId={session?.user?.id} />
       </div>
 
       {/* ── Comentarios ───────────────────────────────────── */}

@@ -11,8 +11,19 @@ export default auth(function middleware(req) {
       loginUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(loginUrl)
     }
-    if (role !== 'admin' && role !== 'moderator') {
+    if (role !== 'admin' && role !== 'moderator' && role !== 'dev') {
       return NextResponse.redirect(new URL('/', req.url))
+    }
+
+    if (role === 'moderator') {
+      const isAllowedModRoute =
+        pathname === '/admin' ||
+        pathname.startsWith('/admin/entradas') ||
+        pathname.startsWith('/admin/comentarios')
+
+      if (!isAllowedModRoute) {
+        return NextResponse.redirect(new URL('/admin', req.url))
+      }
     }
   }
 

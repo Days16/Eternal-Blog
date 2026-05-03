@@ -135,6 +135,9 @@ export default async function ProfilePage({ params, searchParams }: Props) {
               {profile.role === 'admin' && (
                 <Tag color="var(--ember)">Admin</Tag>
               )}
+              {profile.role === 'dev' && (
+                <Tag color="var(--spore)">Developer</Tag>
+              )}
               {profile.role === 'moderator' && (
                 <Tag color="var(--mist)">Moderador</Tag>
               )}

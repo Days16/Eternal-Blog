@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { auth } from '@/auth'
 
 const ITEMS = [
   { href: '/admin', label: 'Dashboard', rune: 'ᚨ' },
@@ -9,23 +10,58 @@ const ITEMS = [
   { href: '/admin/misiones', label: 'Misiones', rune: 'ᛞ' },
 ]
 
-export function AdminSidebar() {
+export async function AdminSidebar() {
+  const session = await auth()
+  const isMod = session?.user?.role === 'moderator'
+  const isDev = session?.user?.role === 'dev'
+  const visibleItems = isMod
+    ? ITEMS.filter(item => ['/admin', '/admin/entradas', '/admin/comentarios'].includes(item.href))
+    : ITEMS
+
   return (
-    <aside style={{ width: 240, minHeight: '100vh', background: 'var(--moss-950)', borderRight: '1px solid var(--border-soft)', padding: 24, position: 'sticky', top: 0 }}>
-      <Link href="/admin" style={{ fontFamily: 'var(--font-display)', fontSize: 22, color: 'var(--rune)', textDecoration: 'none', letterSpacing: 3 }}>
-        ADMIN
-      </Link>
-      <nav style={{ display: 'grid', gap: 8, marginTop: 32 }}>
-        {ITEMS.map(item => (
-          <Link key={item.href} href={item.href} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 'var(--r-md)', color: 'var(--text-soft)', textDecoration: 'none', fontFamily: 'var(--font-ui)', fontSize: 13, border: '1px solid var(--border-soft)' }}>
-            <span style={{ color: 'var(--spore)', fontFamily: 'var(--font-display)' }}>{item.rune}</span>
+    <aside style={{ 
+      width: 260, 
+      minHeight: '100vh', 
+      background: 'var(--moss-950)', 
+      borderRight: '1px solid var(--border-soft)', 
+      padding: '48px 24px', 
+      position: 'sticky', 
+      top: 0, 
+      display: 'flex', 
+      flexDirection: 'column' 
+    }}>
+      <div style={{ marginBottom: 48, padding: '0 8px' }}>
+        <Link href="/admin" style={{ textDecoration: 'none' }}>
+          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, letterSpacing: 4, color: 'var(--spore)', fontWeight: 700, marginBottom: 4 }}>ETERNIDAD</div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--text)', fontWeight: 600 }}>{isDev ? 'Dev Sanctum' : (isMod ? 'Moderación' : 'Administración')}</div>
+        </Link>
+      </div>
+
+      <nav style={{ display: 'grid', gap: 4, flex: 1 }}>
+        {visibleItems.map(item => (
+          <Link key={item.href} href={item.href} style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 12, 
+            padding: '10px 16px', 
+            borderRadius: 'var(--r-md)', 
+            color: 'var(--text-soft)', 
+            textDecoration: 'none', 
+            fontFamily: 'var(--font-ui)', 
+            fontSize: 13,
+            transition: 'all 0.2s'
+          }} className="hover-glow">
+            <span style={{ color: 'var(--spore)', fontFamily: 'var(--font-display)', fontSize: 18, width: 20 }}>{item.rune}</span>
             {item.label}
           </Link>
         ))}
       </nav>
-      <Link href="/cronicas" style={{ display: 'block', marginTop: 32, color: 'var(--text-mute)', fontFamily: 'var(--font-ui)', fontSize: 12, textDecoration: 'none' }}>
-        ← Volver al sitio
-      </Link>
+
+      <div style={{ marginTop: 'auto', padding: '24px 8px 0', borderTop: '1px solid var(--border-soft)' }}>
+        <Link href="/cronicas" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-mute)', fontFamily: 'var(--font-ui)', fontSize: 11, textDecoration: 'none', textTransform: 'uppercase', letterSpacing: 1.5 }}>
+          ← Salir al Bosque
+        </Link>
+      </div>
     </aside>
   )
 }

@@ -5,6 +5,9 @@ export type CommentFlat = Awaited<ReturnType<typeof getCommentTree>>[number]
 export type CommentTreeNode = CommentFlat & { replies: CommentTreeNode[] }
 
 export async function getCommentTree(entryId: string) {
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(entryId)
+  if (!isUuid) return []
+
   const supabase = requireSupabase()
   const { data } = await supabase
     .from('comments')
@@ -122,7 +125,7 @@ export async function createComment(input: { entryId: string; userId: string; bo
   }
 }
 
-export async function deleteComment(id: string, userId: string, canModerate = false) {
+export async function deleteComment(id: string, userId: string, canModerate = false, hard = false) {
   const supabase = requireSupabase()
   const { data: comment } = await supabase
     .from('comments')
@@ -132,6 +135,16 @@ export async function deleteComment(id: string, userId: string, canModerate = fa
 
   if (!comment) return null
   if (!canModerate && comment.user_id !== userId) throw new Error('No puedes eliminar este comentario')
+
+  if (hard && canModerate) {
+    const { data: deleted } = await supabase
+      .from('comments')
+      .delete()
+      .eq('id', id)
+      .select('id')
+      .maybeSingle()
+    return deleted
+  }
 
   const { data: updated } = await supabase
     .from('comments')
@@ -143,13 +156,13 @@ export async function deleteComment(id: string, userId: string, canModerate = fa
   return updated
 }
 
-export async function sealComment(id: string) {
+export async function toggleSealComment(id: string, currentState: boolean) {
   const supabase = requireSupabase()
   const { data: updated } = await supabase
     .from('comments')
-    .update({ sealed: true, updated_at: new Date().toISOString() })
+    .update({ sealed: !currentState, updated_at: new Date().toISOString() })
     .eq('id', id)
-    .select('id')
+    .select('id,sealed')
     .maybeSingle()
 
   return updated ?? null
