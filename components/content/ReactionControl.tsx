@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
 
@@ -52,7 +52,7 @@ export function ReactionControl({ entryId, currentUserId }: ReactionControlProps
       <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, color: 'var(--text-mute)', marginBottom: 16 }}>
         Reacciona
       </div>
-      {REACTION_TYPES.map((r, i) => {
+      {REACTION_TYPES.map((r) => {
         const count = counts?.[r.kind] ?? 0
         const isActive = counts?.userReactions?.includes(r.kind)
         

@@ -66,5 +66,4 @@ export default async function AdminPage() {
 
 const titleStyle: React.CSSProperties = { fontFamily: 'var(--font-display)', fontSize: 42, margin: '0 0 24px' }
 const sectionStyle: React.CSSProperties = { fontFamily: 'var(--font-display)', fontSize: 24, margin: '0 0 16px' }
-const panelStyle: React.CSSProperties = { background: 'var(--bg-card)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)', padding: 20 }
 const rowStyle: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', gap: 16, padding: '12px 0', borderBottom: '1px solid var(--border-soft)', color: 'var(--text-soft)', textDecoration: 'none', fontFamily: 'var(--font-body)', fontSize: 14 }

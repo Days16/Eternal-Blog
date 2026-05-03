@@ -7,12 +7,19 @@ import { formatDate } from '@/lib/utils/dates'
 
 const fetcher = (url: string) => fetch(url).then(res => res.json())
 
+interface Notification {
+  id: string
+  kind: string
+  createdAt: string
+  xpDelta: number
+}
+
 export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false)
   const [hasNew, setHasNew] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   
-  const { data: notifications, mutate } = useSWR<any[]>('/api/notifications', fetcher, {
+  const { data: notifications, mutate } = useSWR<Notification[]>('/api/notifications', fetcher, {
     refreshInterval: 60000 // Refrescar cada minuto
   })
 
@@ -139,7 +146,7 @@ export function NotificationBell() {
   )
 }
 
-function getNotificationText(n: any) {
+function getNotificationText(n: Notification) {
   switch (n.kind) {
     case 'achievement_unlocked':
       return <span>¡Has desbloqueado un nuevo <strong>Logro</strong>! <br/>Premio: +{n.xpDelta} XP</span>

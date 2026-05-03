@@ -117,9 +117,9 @@ export async function updateUserRoleAction(formData: FormData) {
       .eq('id', id)
     
     if (error) throw error
-  } catch (error: any) {
+  } catch (error) {
     console.error('[admin] Error actualizando rol:', error)
-    const message = error.message || (error instanceof Error ? error.message : 'Error desconocido')
+    const message = error instanceof Error ? error.message : 'Error desconocido'
     throw new Error(`No se pudo actualizar el rol del usuario: ${message}`)
   }
 

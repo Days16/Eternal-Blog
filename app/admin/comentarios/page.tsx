@@ -55,7 +55,7 @@ export default async function AdminCommentsPage() {
                       {comment.sealed ? 'Desellar' : 'Sellar'}
                     </Btn>
                   </form>
-                  <form action={deleteCommentAction} onAction={() => confirm('¿Eliminar este comentario para siempre?')}>
+                  <form action={deleteCommentAction}>
                     <input type="hidden" name="id" value={comment.id} />
                     <Btn type="submit" size="sm" variant="ghost" style={{ borderColor: 'var(--ember)', color: 'var(--ember)' }}>
                       Eliminar

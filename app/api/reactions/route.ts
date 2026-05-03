@@ -105,10 +105,11 @@ export async function POST(request: Request) {
       
       return NextResponse.json({ toggled: 'on' })
     }
-  } catch (error: any) {
-    console.error('[reactions] Server Error Full Details:', JSON.stringify(error, null, 2))
+  } catch (error) {
+    console.error('[reactions] Server Error Full Details:', error)
+    const message = error instanceof Error ? error.message : 'Error interno del servidor'
     return NextResponse.json({ 
-      error: error.message || 'Error interno del servidor',
+      error: message,
       details: error 
     }, { status: 500 })
   }

@@ -37,7 +37,7 @@ export async function PATCH(request: Request, { params }: Context) {
     const comment = await toggleSealComment(id, !!sealed)
     if (!comment) return NextResponse.json({ error: 'Comentario no encontrado' }, { status: 404 })
     return NextResponse.json({ comment })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Error al actualizar comentario' }, { status: 400 })
   }
 }
