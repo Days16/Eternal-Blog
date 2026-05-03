@@ -1,0 +1,96 @@
+/* ETERNIDAD — Sistema de diseño "Bosque Encantado"
+   Verdes profundos, hongos luminosos, runas, naturaleza mística
+   Original — no se basa en ninguna marca registrada
+*/
+
+:root {
+  /* ── Paleta · Salón nocturno arcano ─────────────────────
+     Negro-añil profundo + dorado pergamino + oxblood + ciruela.
+     Inspirado en el mood "dark academia / biblioteca antigua a
+     la luz de las velas". Tokens siguen llamándose moss-* para
+     no romper componentes. */
+  --moss-950: #050709;       /* tinta · casi negro azulado */
+  --moss-900: #0b1119;       /* fondo principal · noche profunda */
+  --moss-800: #131b27;       /* fondo elevado · añil oscuro */
+  --moss-700: #1c2638;       /* tarjetas · azul-pizarra */
+  --moss-600: #2c3a52;       /* bordes · pizarra media */
+  --moss-500: #4a5a78;       /* hover · pizarra clara */
+  --moss-400: #8290ad;       /* texto secundario · pizarra polvo */
+  --moss-300: #bac3d4;       /* texto suave · niebla fría */
+  --moss-200: #dde1ea;       /* texto sobre oscuro */
+  --moss-100: #eef0f4;       /* texto principal */
+
+  /* ── Pergamino · Tono cálido para superficies claras ──── */
+  --vellum-50:  #f6f1e4;
+  --vellum-100: #ede4cc;
+  --vellum-200: #d9c89e;
+  --vellum-700: #5a4a2c;
+  --vellum-900: #2c2418;
+
+  /* ── Acentos místicos ──────────────────────────────────── */
+  --spore: #d4a64a;          /* dorado pergamino · acento principal */
+  --spore-dim: #a07d2e;
+  --spore-glow: rgba(212, 166, 74, 0.32);
+
+  --rune: #c89b3c;           /* dorado runa · profundo */
+  --rune-dim: #8a6a26;
+
+  --ember: #a83232;          /* oxblood · sello de cera, alertas */
+  --mist: #6e8bb8;           /* azul-pizarra · enlaces */
+  --amethyst: #7c4a8e;       /* ciruela · roles especiales */
+
+  /* ── Semánticos ────────────────────────────────────────── */
+  --bg: var(--moss-900);
+  --bg-elev: var(--moss-800);
+  --bg-card: var(--moss-700);
+  --border: var(--moss-600);
+  --border-soft: rgba(168, 201, 182, 0.12);
+  --text: var(--moss-100);
+  --text-soft: var(--moss-300);
+  --text-mute: var(--moss-400);
+  --accent: var(--spore);
+  --accent-ink: var(--moss-950);
+
+  /* ── Tipografía ────────────────────────────────────────── */
+  --font-display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+  --font-body: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --font-ui: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+  --font-rune: 'Cormorant Garamond', serif; /* small caps para runas */
+
+  /* ── Espaciado ─────────────────────────────────────────── */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px;  --s-4: 16px;
+  --s-5: 24px; --s-6: 32px; --s-7: 48px;  --s-8: 64px;
+  --s-9: 96px;
+
+  /* ── Radios ────────────────────────────────────────────── */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+  --r-xl: 24px;
+
+  /* ── Sombras ───────────────────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.35);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,.5);
+  --glow-spore: 0 0 24px var(--spore-glow);
+
+  /* ── Transiciones ──────────────────────────────────────── */
+  --ease: cubic-bezier(.2,.7,.3,1);
+  --t-fast: 120ms;
+  --t-med: 220ms;
+  --t-slow: 480ms;
+}
+
+/* ── Texturas y patrones reutilizables ─────────────────── */
+.tex-canopy {
+  /* puntos de luz tenues · simula velas y reflejo dorado de pergamino */
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(212,166,74,0.05), transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(168,50,50,0.035), transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(124,74,142,0.03), transparent 60%);
+}
+.tex-grain {
+  /* grano sutil */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='0.05'/></svg>");
+}
