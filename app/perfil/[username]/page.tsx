@@ -268,7 +268,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--text)' }}>
-                    {ACTIVITY_LABELS[item.kind] ?? item.kind}
+                    {ACTIVITY_LABELS[item.kind ?? ''] ?? item.kind}
                   </div>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-mute)', marginTop: 2 }}>
                     {item.createdAt ? relativeTime(item.createdAt) : ''}

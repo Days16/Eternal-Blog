@@ -85,7 +85,7 @@ export const authConfig: NextAuthConfig = {
           email:    user.email,
           level:    user.level,
           xp:       user.xp,
-          role:     user.role,
+          role:     user.role ?? undefined,
           username: user.username,
         }
       },

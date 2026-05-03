@@ -67,7 +67,7 @@ export async function getUserAchievements(userId: string) {
         return new Date(b.unlockedAt).getTime() - new Date(a.unlockedAt).getTime()
       }
       if (a.unlocked !== b.unlocked) return a.unlocked ? -1 : 1
-      return a.name.localeCompare(b.name)
+      return (a.name ?? '').localeCompare(b.name ?? '')
     })
 }
 
