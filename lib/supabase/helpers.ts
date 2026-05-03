@@ -36,7 +36,7 @@ export interface EntryRow {
   excerpt?: string | null
   body?: string | null
   cover_url?: string | null
-  tags?: string[] | null
+  tags?: string | string[] | null
   category?: string | null
   status?: string | null
   word_count?: number | null
@@ -84,17 +84,17 @@ export interface CommentRow {
 
 export function mapUser(row: UserRow) {
   return {
-    id: row.id,
-    name: row.name,
-    email: row.email,
+    id: row.id ?? '',
+    name: row.name ?? null,
+    email: row.email ?? null,
     emailVerified: toDate(row.email_verified),
-    image: row.image,
-    passwordHash: row.password_hash,
-    username: row.username,
-    bio: row.bio,
-    avatarUrl: row.avatar_url,
-    role: row.role,
-    specialRole: row.special_role,
+    image: row.image ?? null,
+    passwordHash: row.password_hash ?? null,
+    username: row.username ?? null,
+    bio: row.bio ?? null,
+    avatarUrl: row.avatar_url ?? null,
+    role: row.role ?? null,
+    specialRole: row.special_role ?? null,
     level: row.level ?? 1,
     xp: row.xp ?? 0,
     createdAt: toDate(row.created_at),
@@ -104,19 +104,19 @@ export function mapUser(row: UserRow) {
 
 export function mapEntry(row: EntryRow) {
   return {
-    id: row.id,
-    slug: row.slug,
-    type: row.type,
-    title: row.title,
-    excerpt: row.excerpt,
-    body: row.body,
-    coverUrl: row.cover_url,
-    tags: row.tags,
-    category: row.category,
-    status: row.status,
+    id: row.id ?? '',
+    slug: row.slug ?? '',
+    type: (row.type ?? 'chronicle') as 'chronicle' | 'codex',
+    title: row.title ?? '',
+    excerpt: row.excerpt ?? null,
+    body: row.body ?? '',
+    coverUrl: row.cover_url ?? null,
+    tags: Array.isArray(row.tags) ? JSON.stringify(row.tags) : (row.tags ?? '[]'),
+    category: row.category ?? null,
+    status: (row.status ?? 'draft') as 'draft' | 'published' | 'archived',
     wordCount: row.word_count ?? 0,
     publishedAt: toDate(row.published_at),
-    authorId: row.author_id,
+    authorId: row.author_id ?? null,
     createdAt: toDate(row.created_at),
     updatedAt: toDate(row.updated_at),
   }
@@ -124,14 +124,14 @@ export function mapEntry(row: EntryRow) {
 
 export function mapAchievement(row: AchievementRow) {
   return {
-    id: row.id,
-    slug: row.slug,
-    name: row.name,
-    description: row.description,
-    runeGlyph: row.rune_glyph,
-    color: row.color,
-    criteriaType: row.criteria_type,
-    criteriaValue: row.criteria_value,
+    id: row.id ?? '',
+    slug: row.slug ?? null,
+    name: row.name ?? null,
+    description: row.description ?? null,
+    runeGlyph: row.rune_glyph ?? null,
+    color: row.color ?? null,
+    criteriaType: row.criteria_type ?? null,
+    criteriaValue: row.criteria_value ?? null,
     xpReward: row.xp_reward ?? 0,
     createdAt: toDate(row.created_at),
   }
@@ -139,10 +139,10 @@ export function mapAchievement(row: AchievementRow) {
 
 export function mapActivity(row: ActivityRow) {
   return {
-    id: row.id,
-    userId: row.user_id,
-    kind: row.kind,
-    refId: row.ref_id,
+    id: row.id ?? '',
+    userId: row.user_id ?? null,
+    kind: row.kind ?? null,
+    refId: row.ref_id ?? null,
     xpDelta: row.xp_delta ?? 0,
     createdAt: toDate(row.created_at),
   }

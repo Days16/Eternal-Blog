@@ -1,7 +1,7 @@
 import { getToken } from 'next-auth/jwt'
-import { NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
-export default async function middleware(req: Request & { nextUrl: URL; url: string }) {
+export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
   const token = await getToken({ req, secret: process.env.AUTH_SECRET })
   const role = token?.role
