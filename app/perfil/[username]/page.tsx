@@ -102,7 +102,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
           {/* Datos */}
           <div style={{ flex: '1 1 240px', minWidth: 0, maxWidth: '100%', paddingBottom: 12, overflow: 'visible' }}>
             <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(30px, 9vw, 44px)', fontWeight: 600, margin: '0 0 10px', letterSpacing: -0.8, lineHeight: 1.25, overflowWrap: 'anywhere', overflow: 'visible', paddingBottom: 4 }}>
-              {profile.name ?? profile.username}
+              {profile.name ?? profile.username ?? username}
             </h1>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
               {profile.role === 'admin' && (

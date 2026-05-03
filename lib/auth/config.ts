@@ -54,7 +54,7 @@ export const authConfig: NextAuthConfig = {
             .maybeSingle()
 
           profile = createdProfile
-        } else if (!profile.email || !profile.username) {
+        } else if (!profile.email || !profile.username || !profile.name) {
           const { data: updatedProfile } = await supabase
             .from('users')
             .update({
