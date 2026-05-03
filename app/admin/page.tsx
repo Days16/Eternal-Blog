@@ -21,7 +21,7 @@ export default async function AdminPage() {
         </section>
         <section style={panelStyle}>
           <h2 style={sectionStyle}>Cola de moderación</h2>
-          {data.recentComments.map(comment => <div key={comment.id} style={rowStyle}><span dangerouslySetInnerHTML={{ __html: comment.deleted ? 'Comentario eliminado' : comment.body.slice(0, 90) }} /><small>{relativeTime(comment.createdAt)}</small></div>)}
+          {data.recentComments.map(comment => <div key={comment.id} style={rowStyle}><span dangerouslySetInnerHTML={{ __html: comment.deleted ? 'Comentario eliminado' : (comment.body ?? '').slice(0, 90) }} /><small>{relativeTime(comment.createdAt)}</small></div>)}
         </section>
       </div>
     </div>
