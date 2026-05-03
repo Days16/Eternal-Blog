@@ -1,6 +1,6 @@
-import { mapAchievement, mapEntry, mapUser, requireSupabase, toDate } from '@/lib/supabase/helpers'
+import { type CommentRow, type EntryRow, mapAchievement, mapEntry, mapUser, requireSupabase, toDate } from '@/lib/supabase/helpers'
 
-async function attachEntryAuthors(rows: any[]) {
+async function attachEntryAuthors(rows: EntryRow[]) {
   const supabase = requireSupabase()
   const authorIds = [...new Set(rows.map(row => row.author_id).filter(Boolean))]
   const { data: authors } = authorIds.length
@@ -116,7 +116,7 @@ export async function getAdminMissions() {
   }))
 }
 
-async function attachCommentRelations(rows: any[]) {
+async function attachCommentRelations(rows: CommentRow[]) {
   const supabase = requireSupabase()
   const userIds = [...new Set(rows.map(row => row.user_id).filter(Boolean))]
   const entryIds = [...new Set(rows.map(row => row.entry_id).filter(Boolean))]

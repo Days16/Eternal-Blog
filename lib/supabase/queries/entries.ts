@@ -1,9 +1,9 @@
 import { unstable_cache } from 'next/cache'
-import { mapEntry, mapUser, requireSupabase } from '@/lib/supabase/helpers'
+import { type EntryRow, mapEntry, mapUser, requireSupabase } from '@/lib/supabase/helpers'
 
 export type EntryWithAuthor = Awaited<ReturnType<typeof getEntryBySlug>>
 
-async function attachAuthors(rows: any[]) {
+async function attachAuthors(rows: EntryRow[]) {
   const supabase = requireSupabase()
   const authorIds = [...new Set(rows.map(row => row.author_id).filter(Boolean))]
   if (authorIds.length === 0) return rows.map(row => ({ ...mapEntry(row), author: null }))

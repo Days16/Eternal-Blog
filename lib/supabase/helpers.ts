@@ -10,7 +10,79 @@ export function toDate(value: unknown) {
   return typeof value === 'string' || value instanceof Date ? new Date(value) : null
 }
 
-export function mapUser(row: any) {
+export interface UserRow {
+  id?: string
+  name?: string | null
+  email?: string | null
+  email_verified?: string | null
+  image?: string | null
+  password_hash?: string | null
+  username?: string | null
+  bio?: string | null
+  avatar_url?: string | null
+  role?: string | null
+  special_role?: string | null
+  level?: number | null
+  xp?: number | null
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+export interface EntryRow {
+  id?: string
+  slug?: string | null
+  type?: string | null
+  title?: string | null
+  excerpt?: string | null
+  body?: string | null
+  cover_url?: string | null
+  tags?: string[] | null
+  category?: string | null
+  status?: string | null
+  word_count?: number | null
+  published_at?: string | null
+  author_id?: string | null
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+export interface AchievementRow {
+  id?: string
+  slug?: string | null
+  name?: string | null
+  description?: string | null
+  rune_glyph?: string | null
+  color?: string | null
+  criteria_type?: string | null
+  criteria_value?: unknown
+  xp_reward?: number | null
+  created_at?: string | null
+}
+
+export interface ActivityRow {
+  id?: string
+  user_id?: string | null
+  kind?: string | null
+  ref_id?: string | null
+  xp_delta?: number | null
+  created_at?: string | null
+}
+
+export interface CommentRow {
+  id?: string
+  user_id?: string | null
+  entry_id?: string | null
+  body?: string | null
+  parent_id?: string | null
+  depth?: number | null
+  path?: string | null
+  sealed?: boolean | null
+  deleted?: boolean | null
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+export function mapUser(row: UserRow) {
   return {
     id: row.id,
     name: row.name,
@@ -30,7 +102,7 @@ export function mapUser(row: any) {
   }
 }
 
-export function mapEntry(row: any) {
+export function mapEntry(row: EntryRow) {
   return {
     id: row.id,
     slug: row.slug,
@@ -50,7 +122,7 @@ export function mapEntry(row: any) {
   }
 }
 
-export function mapAchievement(row: any) {
+export function mapAchievement(row: AchievementRow) {
   return {
     id: row.id,
     slug: row.slug,
@@ -65,7 +137,7 @@ export function mapAchievement(row: any) {
   }
 }
 
-export function mapActivity(row: any) {
+export function mapActivity(row: ActivityRow) {
   return {
     id: row.id,
     userId: row.user_id,
