@@ -21,7 +21,7 @@ export default async function AdminAchievementsPage() {
         <Btn variant="rune">Crear logro</Btn>
       </form>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
-        {achievements.map(a => <div key={a.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)', padding: 16 }}><div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: a.color ?? 'var(--spore)' }}>{a.runeGlyph}</div><strong>{a.name}</strong><p style={{ color: 'var(--text-mute)', fontSize: 13 }}>{a.description}</p><small>{a.criteriaType} · {a.criteriaValue}</small></div>)}
+        {achievements.map(a => <div key={a.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)', padding: 16 }}><div style={{ fontFamily: 'var(--font-display)', fontSize: 28, color: a.color ?? 'var(--spore)' }}>{a.runeGlyph}</div><strong>{a.name}</strong><p style={{ color: 'var(--text-mute)', fontSize: 13 }}>{a.description}</p><small>{a.criteriaType} · {a.criteriaValue != null ? String(a.criteriaValue) : ''}</small></div>)}
       </div>
     </div>
   )
