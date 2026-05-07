@@ -39,27 +39,52 @@ export default async function CronicasPage({ searchParams }: { searchParams: Sea
       <TopNav />
 
       {/* ── Hero ──────────────────────────────────────────── */}
-      <section style={{ padding: '72px 64px 56px', position: 'relative' }}>
-        <div style={{ position: 'absolute', top: 80, right: 80, opacity: 0.2, fontFamily: 'var(--font-display)', color: 'var(--rune)', fontSize: 56, lineHeight: 1 }}>
+      <section style={{ padding: 'clamp(40px, 7vw, 72px) clamp(20px, 5vw, 64px) clamp(32px, 5vw, 56px)', position: 'relative' }}>
+        <div style={{
+          position: 'absolute', top: 80, right: 'clamp(20px, 5vw, 80px)',
+          opacity: 0.2, fontFamily: 'var(--font-display)',
+          color: 'var(--rune)', fontSize: 'clamp(36px, 6vw, 56px)', lineHeight: 1,
+        }}>
           ᛉ
         </div>
-        <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, textTransform: 'uppercase', letterSpacing: 3, color: 'var(--spore)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{
+          fontFamily: 'var(--font-ui)', fontSize: 11, textTransform: 'uppercase',
+          letterSpacing: 3, color: 'var(--spore)', marginBottom: 16,
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
           <span style={{ width: 24, height: 1, background: 'var(--spore)', display: 'inline-block' }} />
           Bitácora arcana de un escritor en formación
         </div>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 88, fontWeight: 500, color: 'var(--text)', lineHeight: 0.95, letterSpacing: -2, margin: '0 0 20px', maxWidth: 880 }}>
+        <h1 style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 'clamp(42px, 9vw, 88px)',
+          fontWeight: 500,
+          color: 'var(--text)',
+          lineHeight: 0.95,
+          letterSpacing: -2,
+          margin: '0 0 20px',
+          maxWidth: 880,
+        }}>
           Notas del bosque<br />
           <em style={{ fontStyle: 'italic', color: 'var(--moss-300)' }}>donde las palabras germinan</em>
         </h1>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: 19, color: 'var(--text-soft)', maxWidth: 620, lineHeight: 1.55, fontStyle: 'italic', margin: 0 }}>
+        <p style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: 'clamp(15px, 2.5vw, 19px)',
+          color: 'var(--text-soft)',
+          maxWidth: 620,
+          lineHeight: 1.55,
+          fontStyle: 'italic',
+          margin: 0,
+        }}>
           Aquí guardo lo que aprendo escribiendo · borradores, criaturas, mapas mentales y los caminos sin salida que también enseñan.
         </p>
       </section>
 
       {/* ── Main grid ─────────────────────────────────────── */}
-      <div style={{ display: 'flex', gap: 48, padding: '0 64px 96px', alignItems: 'flex-start' }}>
+      <div className="page-with-sidebar">
         {/* Feed */}
-        <main style={{ flex: 1, minWidth: 0 }}>
+        <main className="page-main">
           <RuneDivider char="✦ ÚLTIMAS CRÓNICAS ✦" />
 
           {chronicles.length === 0 ? (
@@ -79,7 +104,6 @@ export default async function CronicasPage({ searchParams }: { searchParams: Sea
             </div>
           )}
 
-          {/* Paginación */}
           {chronicles.length === 10 && (
             <div style={{ marginTop: 40, textAlign: 'center' }}>
               <Link href={`/cronicas?page=${page + 1}${tag ? `&tag=${tag}` : ''}`}>
@@ -90,7 +114,7 @@ export default async function CronicasPage({ searchParams }: { searchParams: Sea
         </main>
 
         {/* Sidebar */}
-        <aside style={{ width: 320, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <aside className="page-sidebar">
 
           {/* Grimorio en curso */}
           <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)', padding: 24 }}>
@@ -106,7 +130,6 @@ export default async function CronicasPage({ searchParams }: { searchParams: Sea
             <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--text-mute)', fontStyle: 'italic', marginBottom: 20 }}>
               Tomo I · novela en progreso
             </div>
-
             <div style={{ marginBottom: 16 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-mute)', marginBottom: 6 }}>
                 <span>{authorWords.toLocaleString('es-ES')} palabras</span>

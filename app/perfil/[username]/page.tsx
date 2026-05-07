@@ -60,7 +60,6 @@ export default async function ProfilePage({ params, searchParams }: Props) {
     getUserActivity(profile.id, 15),
   ])
 
-  // Auto-reparar fila si el propio usuario tiene name/username vacíos en DB
   if (isOwnProfile && (!profile.name || !profile.username || !profile.email)) {
     const sessionEmail    = session?.user?.email    ?? undefined
     const sessionUsername = session?.user?.username ?? sessionEmail?.split('@')[0]
@@ -75,10 +74,10 @@ export default async function ProfilePage({ params, searchParams }: Props) {
     }
   }
 
-  const level = profile.level as LevelNumber
+  const level     = profile.level as LevelNumber
   const levelInfo = LEVELS[level - 1]
   const xpProgress = getXpProgress(profile.xp)
-  const joinDate = profile.createdAt ? relativeTime(profile.createdAt) : '—'
+  const joinDate  = profile.createdAt ? relativeTime(profile.createdAt) : '—'
 
   const displayName =
     profile.name ||
@@ -96,10 +95,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
       {/* ── Banner ─────────────────────────────────────────── */}
       <section style={{ position: 'relative' }}>
         <ImagePlaceholder height={200} tone="forest" label="" />
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(180deg, rgba(11,17,25,0) 0%, rgba(11,17,25,1) 100%)',
-        }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(11,17,25,0) 0%, rgba(11,17,25,1) 100%)' }} />
       </section>
 
       <div style={{ padding: '0 clamp(16px, 5vw, 64px)', marginTop: -70 }}>
@@ -107,13 +103,17 @@ export default async function ProfilePage({ params, searchParams }: Props) {
         {/* ── Cabecera de usuario ──────────────────────────── */}
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 24, marginBottom: 32, flexWrap: 'wrap' }}>
           {/* Avatar */}
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', flexShrink: 0 }}>
             <div style={{
-              width: 140, height: 140, borderRadius: '50%',
-              background: 'var(--moss-700)', border: '4px solid var(--bg)',
+              width: 'clamp(100px, 20vw, 140px)',
+              height: 'clamp(100px, 20vw, 140px)',
+              borderRadius: '50%',
+              background: 'var(--moss-700)',
+              border: '4px solid var(--bg)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: `0 0 32px ${levelInfo.color}44`,
-              fontFamily: 'var(--font-display)', fontSize: 64,
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(40px, 10vw, 64px)',
               color: levelInfo.color,
             }}>
               {levelInfo.rune}
@@ -124,26 +124,18 @@ export default async function ProfilePage({ params, searchParams }: Props) {
           </div>
 
           {/* Datos */}
-          <div style={{ flex: '1 1 240px', minWidth: 0, maxWidth: '100%', paddingBottom: 12, overflow: 'visible' }}>
-            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(30px, 9vw, 44px)', fontWeight: 600, margin: '0 0 4px', letterSpacing: -0.8, lineHeight: 1.25, overflowWrap: 'anywhere', overflow: 'visible', paddingBottom: 4 }}>
+          <div style={{ flex: '1 1 240px', minWidth: 0, maxWidth: '100%', paddingBottom: 12 }}>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(26px, 7vw, 44px)', fontWeight: 600, margin: '0 0 4px', letterSpacing: -0.8, lineHeight: 1.25, overflowWrap: 'anywhere' }}>
               {displayName}
             </h1>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 16, color: 'var(--spore)', opacity: 0.8, marginBottom: 12 }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(13px, 2.5vw, 16px)', color: 'var(--spore)', opacity: 0.8, marginBottom: 12 }}>
               @{profile.username}
             </div>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
-              {profile.role === 'admin' && (
-                <Tag color="var(--ember)">Admin</Tag>
-              )}
-              {profile.role === 'dev' && (
-                <Tag color="var(--spore)">Developer</Tag>
-              )}
-              {profile.role === 'moderator' && (
-                <Tag color="var(--mist)">Moderador</Tag>
-              )}
-              {profile.specialRole && (
-                <Tag color="var(--amethyst)">{profile.specialRole}</Tag>
-              )}
+              {profile.role === 'admin'     && <Tag color="var(--ember)">Admin</Tag>}
+              {profile.role === 'dev'       && <Tag color="var(--spore)">Developer</Tag>}
+              {profile.role === 'moderator' && <Tag color="var(--mist)">Moderador</Tag>}
+              {profile.specialRole          && <Tag color="var(--amethyst)">{profile.specialRole}</Tag>}
               <Tag color={levelInfo.color}>{levelInfo.name}</Tag>
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-mute)' }}>
                 · se unió {joinDate}
@@ -163,10 +155,10 @@ export default async function ProfilePage({ params, searchParams }: Props) {
         </div>
 
         {/* ── Stats ───────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 32, maxWidth: 760 }}>
-          <StatCard value={profile.xp.toLocaleString('es-ES')} label="XP totales" color="var(--spore)" />
-          <StatCard value={profileStats.commentCount.toString()} label="comentarios" color="var(--mist)" />
-          <StatCard value={unlockedCount.toString()} label={`logros · de ${achievements.length}`} color="var(--amethyst)" />
+        <div className="grid-profile-stats">
+          <StatCard value={profile.xp.toLocaleString('es-ES')} label="XP totales"                      color="var(--spore)" />
+          <StatCard value={profileStats.commentCount.toString()} label="comentarios"                    color="var(--mist)" />
+          <StatCard value={unlockedCount.toString()} label={`logros · de ${achievements.length}`}       color="var(--amethyst)" />
         </div>
 
         {/* ── Barra de nivel ──────────────────────────────── */}
@@ -175,17 +167,13 @@ export default async function ProfilePage({ params, searchParams }: Props) {
           borderRadius: 'var(--r-lg)', padding: 24, marginBottom: 32,
           position: 'relative', overflow: 'hidden', maxWidth: 760,
         }}>
-          <div style={{
-            position: 'absolute', right: 24, top: 12,
-            fontFamily: 'var(--font-display)', fontSize: 120,
-            color: levelInfo.color, opacity: 0.08, lineHeight: 1,
-          }}>
+          <div style={{ position: 'absolute', right: 24, top: 12, fontFamily: 'var(--font-display)', fontSize: 120, color: levelInfo.color, opacity: 0.08, lineHeight: 1 }}>
             {levelInfo.rune}
           </div>
           <span style={{ fontFamily: 'var(--font-ui)', fontSize: 11, textTransform: 'uppercase', letterSpacing: 2, color: levelInfo.color }}>
             Nivel actual
           </span>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 600, margin: '4px 0 14px' }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 600, margin: '4px 0 14px' }}>
             {level} · {levelInfo.name}
           </div>
           <div style={{ height: 8, background: 'var(--moss-800)', borderRadius: 99, marginBottom: 8, overflow: 'hidden' }}>
@@ -196,7 +184,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
               transition: 'width 0.6s ease',
             }} />
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-mute)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-mute)', flexWrap: 'wrap', gap: 4 }}>
             <span>{profile.xp.toLocaleString('es-ES')} XP</span>
             {xpProgress.xpToNext !== null
               ? <span>· {xpProgress.xpToNext.toLocaleString('es-ES')} para {xpProgress.next?.name}</span>
@@ -228,7 +216,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
 
         {/* ── Logros ──────────────────────────────────────── */}
         {tab === 'logros' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 64, maxWidth: 900 }}>
+          <div className="grid-achievements">
             {achievements.length === 0 ? (
               <p style={{ gridColumn: '1/-1', fontFamily: 'var(--font-body)', color: 'var(--text-mute)', fontStyle: 'italic' }}>
                 Los logros aún no están disponibles.
@@ -252,7 +240,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
                 }}>
                   {a.runeGlyph ?? 'ᛟ'}
                 </div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 600, marginBottom: 4, lineHeight: 1.2 }}>
                   {a.name}
                 </div>
                 <div style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--text-mute)', fontStyle: 'italic' }}>
@@ -296,7 +284,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
                 }}>
                   {item.kind === 'comment' ? '✦' : item.kind === 'achievement_unlocked' ? 'ᛟ' : '◊'}
                 </div>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--text)' }}>
                     {ACTIVITY_LABELS[item.kind ?? ''] ?? item.kind}
                   </div>
@@ -305,7 +293,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
                   </div>
                 </div>
                 {item.xpDelta > 0 && (
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--spore)' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--spore)', flexShrink: 0 }}>
                     +{item.xpDelta} XP
                   </span>
                 )}
@@ -327,7 +315,7 @@ function StatCard({ value, label, color }: { value: string; label: string; color
       padding: 20, background: 'var(--bg-card)',
       border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)',
     }}>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 600, color, lineHeight: 1 }}>
+      <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 600, color, lineHeight: 1 }}>
         {value}
       </div>
       <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-mute)', textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 6 }}>

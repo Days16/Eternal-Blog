@@ -1,6 +1,6 @@
 export default function AdminTemaPage() {
   return (
-    <div style={{ padding: '36px 40px', maxWidth: 800 }}>
+    <div className="admin-page">
       <p style={{
         fontFamily: 'var(--font-ui)',
         fontSize: 10,

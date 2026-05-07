@@ -11,67 +11,90 @@ export default async function AdminCommentsPage({ searchParams }: Props) {
   const { page: pageStr } = await searchParams
   const page = Math.max(1, Number(pageStr) || 1)
   const { rows: comments, total, pageSize } = await getAdminComments({ page })
+
   return (
     <div>
-      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 42, margin: '0 0 24px' }}>Moderación de Comentarios</h1>
+      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 5vw, 42px)', margin: '0 0 24px' }}>
+        Moderación de Comentarios
+      </h1>
+
       <div style={{ display: 'grid', gap: 16 }}>
         {comments.map(comment => (
-          <article key={comment.id} style={{ 
-            background: 'var(--bg-card)', 
-            border: '1px solid var(--border-soft)', 
-            borderRadius: 'var(--r-lg)', 
-            padding: 20,
+          <article key={comment.id} style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-soft)',
+            borderRadius: 'var(--r-lg)',
+            padding: '20px',
             opacity: comment.deleted ? 0.6 : 1,
-            position: 'relative'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-mute)', marginBottom: 12 }}>
-              <span>
-                <strong style={{ color: 'var(--text)' }}>{comment.author?.name ?? comment.author?.username}</strong> 
-                {' '}en <Link href={`/${comment.entry?.type === 'codex' ? 'codex' : 'cronicas'}/${comment.entry?.slug}`} style={{ color: 'var(--spore)', fontWeight: 600 }}>{comment.entry?.title}</Link>
+            {/* Meta row */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: 12,
+              fontFamily: 'var(--font-ui)',
+              fontSize: 12,
+              color: 'var(--text-mute)',
+              marginBottom: 12,
+              flexWrap: 'wrap',
+            }}>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <strong style={{ color: 'var(--text)' }}>
+                  {comment.author?.name ?? comment.author?.username}
+                </strong>{' '}
+                en{' '}
+                <Link
+                  href={`/${comment.entry?.type === 'codex' ? 'codex' : 'cronicas'}/${comment.entry?.slug}`}
+                  style={{ color: 'var(--spore)', fontWeight: 600 }}
+                >
+                  {comment.entry?.title}
+                </Link>
               </span>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexShrink: 0, flexWrap: 'wrap' }}>
                 <span>{formatDate(comment.createdAt)}</span>
-                <span style={{ 
-                  padding: '2px 8px', 
-                  borderRadius: 4, 
+                <span style={{
+                  padding: '2px 8px',
+                  borderRadius: 4,
                   background: comment.deleted ? 'var(--ember-dim)' : comment.sealed ? 'var(--amethyst-dim)' : 'var(--moss-900)',
                   color: comment.deleted ? 'var(--ember)' : comment.sealed ? 'var(--amethyst)' : 'var(--spore)',
                   fontSize: 10,
                   textTransform: 'uppercase',
-                  fontWeight: 600
+                  fontWeight: 600,
                 }}>
                   {comment.deleted ? 'Eliminado' : comment.sealed ? 'Sellado' : 'Visible'}
                 </span>
               </div>
             </div>
 
-            <div 
-              style={{ fontFamily: 'var(--font-body)', color: 'var(--text-soft)', fontSize: 14, lineHeight: 1.6, marginBottom: 20 }} 
-              dangerouslySetInnerHTML={{ __html: comment.body ?? '' }} 
+            {/* Body */}
+            <div
+              style={{ fontFamily: 'var(--font-body)', color: 'var(--text-soft)', fontSize: 14, lineHeight: 1.6, marginBottom: 16 }}
+              dangerouslySetInnerHTML={{ __html: comment.body ?? '' }}
             />
 
-            <div style={{ display: 'flex', gap: 8 }}>
-              {!comment.deleted && (
-                <>
-                  <form action={sealCommentAction}>
-                    <input type="hidden" name="id" value={comment.id} />
-                    <input type="hidden" name="sealed" value={String(comment.sealed)} />
-                    <Btn type="submit" size="sm" variant="ghost" style={{ borderColor: 'var(--amethyst)', color: 'var(--amethyst)' }}>
-                      {comment.sealed ? 'Desellar' : 'Sellar'}
-                    </Btn>
-                  </form>
-                  <form action={deleteCommentAction}>
-                    <input type="hidden" name="id" value={comment.id} />
-                    <Btn type="submit" size="sm" variant="ghost" style={{ borderColor: 'var(--ember)', color: 'var(--ember)' }}>
-                      Eliminar
-                    </Btn>
-                  </form>
-                </>
-              )}
-            </div>
+            {/* Acciones */}
+            {!comment.deleted && (
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <form action={sealCommentAction}>
+                  <input type="hidden" name="id"     value={comment.id} />
+                  <input type="hidden" name="sealed" value={String(comment.sealed)} />
+                  <Btn type="submit" size="sm" variant="ghost" style={{ borderColor: 'var(--amethyst)', color: 'var(--amethyst)' }}>
+                    {comment.sealed ? 'Desellar' : 'Sellar'}
+                  </Btn>
+                </form>
+                <form action={deleteCommentAction}>
+                  <input type="hidden" name="id" value={comment.id} />
+                  <Btn type="submit" size="sm" variant="ghost" style={{ borderColor: 'var(--ember)', color: 'var(--ember)' }}>
+                    Eliminar
+                  </Btn>
+                </form>
+              </div>
+            )}
           </article>
         ))}
       </div>
+
       <Pagination page={page} total={total} pageSize={pageSize} basePath="/admin/comentarios" />
     </div>
   )

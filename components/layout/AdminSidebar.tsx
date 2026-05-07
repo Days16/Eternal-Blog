@@ -65,7 +65,7 @@ export async function AdminSidebar() {
       display: 'flex',
       flexDirection: 'column',
       flexShrink: 0,
-    }}>
+    }} className="admin-sidebar">
       {/* Cabecera */}
       <div style={{ padding: '0 4px', marginBottom: 28 }}>
         <div style={{

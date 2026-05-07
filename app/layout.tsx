@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, Fraunces, Inter, JetBrains_Mono } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Providers } from '@/components/Providers'
 import { auth } from '@/auth'
 import '@/styles/globals.css'
@@ -59,6 +61,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <body className="tex-canopy tex-grain">
         <Providers session={session}>{children}</Providers>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )

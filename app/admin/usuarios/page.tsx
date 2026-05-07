@@ -29,13 +29,13 @@ export default async function AdminUsersPage({ searchParams }: Props) {
 
   return (
     <div>
-      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 42, margin: '0 0 32px' }}>Usuarios</h1>
+      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 5vw, 42px)', margin: '0 0 32px' }}>Usuarios</h1>
 
       {/* ── Gestión de roles ──────────────────────────────── */}
       <section style={{ marginBottom: 48 }}>
         <h2 style={sectionHeadStyle}>Roles</h2>
 
-        {/* Roles del sistema (sólo lectura) */}
+        {/* Roles del sistema */}
         <div style={{ marginBottom: 20 }}>
           <p style={mutedLabel}>Roles del sistema · no editables</p>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -54,9 +54,18 @@ export default async function AdminUsersPage({ searchParams }: Props) {
             <p style={mutedLabel}>Roles personalizados</p>
             {customRoles.map(role => (
               edit === role.id ? (
-                /* Formulario de edición inline */
+                /* Formulario edición */
                 <form key={role.id} action={updateRoleAction}
-                  style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 140px auto auto', gap: 8, alignItems: 'end', background: 'var(--moss-700)', border: '1px solid var(--spore)', borderRadius: 'var(--r-lg)', padding: '12px 16px' }}>
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                    gap: 8,
+                    alignItems: 'end',
+                    background: 'var(--moss-700)',
+                    border: '1px solid var(--spore)',
+                    borderRadius: 'var(--r-lg)',
+                    padding: '12px 16px',
+                  }}>
                   <input type="hidden" name="id" value={role.id} />
                   <label style={labelStyle}>
                     Nombre visible
@@ -74,50 +83,65 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                     Identificador
                     <input value={role.name} disabled style={{ ...inputStyle, opacity: 0.5, cursor: 'not-allowed' }} />
                   </label>
-                  <Btn type="submit" variant="rune" size="sm">Guardar</Btn>
-                  <Link href="/admin/usuarios">
-                    <Btn variant="ghost" size="sm">Cancelar</Btn>
-                  </Link>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+                    <Btn type="submit" variant="rune" size="sm">Guardar</Btn>
+                    <Link href="/admin/usuarios"><Btn variant="ghost" size="sm">Cancelar</Btn></Link>
+                  </div>
                 </form>
               ) : (
                 /* Vista de rol */
                 <div key={role.id}
-                  style={{ display: 'grid', gridTemplateColumns: '160px 1fr auto auto', gap: 16, alignItems: 'center', background: 'var(--bg-card)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)', padding: '12px 16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 12,
+                    alignItems: 'center',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border-soft)',
+                    borderRadius: 'var(--r-lg)',
+                    padding: '12px 16px',
+                  }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 140 }}>
                     <span style={{ width: 10, height: 10, borderRadius: '50%', background: role.color, flexShrink: 0, display: 'inline-block' }} />
                     <span style={{ fontWeight: 600, fontSize: 14 }}>{role.label}</span>
                   </div>
-                  <div>
+                  <div style={{ flex: 1, minWidth: 120 }}>
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-mute)' }}>{role.name}</span>
                     {role.description && (
                       <span style={{ marginLeft: 12, fontSize: 12, color: 'var(--text-soft)' }}>{role.description}</span>
                     )}
                   </div>
-                  <Link href={`/admin/usuarios?edit=${role.id}`}>
-                    <Btn variant="ghost" size="sm">Editar</Btn>
-                  </Link>
-                  <form action={deleteRoleAction} onSubmit={undefined}
-                    style={{ display: 'contents' }}>
-                    <input type="hidden" name="id" value={role.id} />
-                    <input type="hidden" name="name" value={role.name} />
-                    <Btn type="submit" variant="ghost" size="sm"
-                      style={{ color: 'var(--ember)', borderColor: 'var(--ember)' }}>
-                      Eliminar
-                    </Btn>
-                  </form>
+                  <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                    <Link href={`/admin/usuarios?edit=${role.id}`}>
+                      <Btn variant="ghost" size="sm">Editar</Btn>
+                    </Link>
+                    <form action={deleteRoleAction} style={{ display: 'contents' }}>
+                      <input type="hidden" name="id"   value={role.id} />
+                      <input type="hidden" name="name" value={role.name} />
+                      <Btn type="submit" variant="ghost" size="sm" style={{ color: 'var(--ember)', borderColor: 'var(--ember)' }}>
+                        Eliminar
+                      </Btn>
+                    </form>
+                  </div>
                 </div>
               )
             ))}
           </div>
         )}
 
-        {/* Formulario: nuevo rol */}
+        {/* Formulario nuevo rol */}
         <details style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)', padding: '12px 16px' }}>
           <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 13, fontWeight: 600, color: 'var(--spore)', userSelect: 'none' }}>
             + Añadir nuevo rol
           </summary>
           <form action={createRoleAction}
-            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 140px auto', gap: 8, alignItems: 'end', marginTop: 16 }}>
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+              gap: 8,
+              alignItems: 'end',
+              marginTop: 16,
+            }}>
             <label style={labelStyle}>
               Identificador <span style={{ color: 'var(--ember)' }}>*</span>
               <input name="name" placeholder="oraculo" required style={inputStyle} />
@@ -134,7 +158,9 @@ export default async function AdminUsersPage({ searchParams }: Props) {
               Color
               <input name="color" placeholder="var(--spore)" defaultValue="var(--spore)" style={inputStyle} />
             </label>
-            <Btn type="submit" variant="rune" size="sm">Crear</Btn>
+            <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+              <Btn type="submit" variant="rune" size="sm">Crear</Btn>
+            </div>
           </form>
         </details>
       </section>
@@ -144,26 +170,39 @@ export default async function AdminUsersPage({ searchParams }: Props) {
         <h2 style={sectionHeadStyle}>Cuentas</h2>
         <div style={{ display: 'grid', gap: 12 }}>
           {users.map(user => (
-            <div key={user.id} style={{ display: 'grid', gridTemplateColumns: '1fr 240px 200px', gap: 16, alignItems: 'center', background: 'var(--bg-card)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)', padding: 16 }}>
+            <div key={user.id} style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-soft)',
+              borderRadius: 'var(--r-lg)',
+              padding: 16,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+            }}>
+              {/* Info del usuario */}
               <div>
                 <strong style={{ fontFamily: 'var(--font-body)' }}>{user.name ?? user.username}</strong>
                 <div style={{ color: 'var(--text-mute)', fontFamily: 'var(--font-mono)', fontSize: 11, marginTop: 2 }}>
                   {user.email} · Nv.{user.level} · {user.xp} XP
                 </div>
               </div>
-              <form action={updateUserRoleAction} style={{ display: 'flex', gap: 8 }}>
-                <input type="hidden" name="id" value={user.id} />
-                <select name="role" defaultValue={user.role ?? undefined} style={{ ...inputStyle, flex: 1 }}>
-                  {SYSTEM_ROLES.map(r => <option key={r.name} value={r.name}>{r.label}</option>)}
-                  {customRoles.map(r => <option key={r.name} value={r.name}>{r.label}</option>)}
-                </select>
-                <Btn type="submit" size="sm" variant="ghost">Guardar</Btn>
-              </form>
-              <form action={adjustUserXpAction} style={{ display: 'flex', gap: 8 }}>
-                <input type="hidden" name="id" value={user.id} />
-                <input name="delta" type="number" placeholder="+/- XP" style={{ ...inputStyle, flex: 1 }} />
-                <Btn type="submit" size="sm" variant="rune">Ajustar</Btn>
-              </form>
+
+              {/* Formularios side-by-side en tablet+, stack en móvil */}
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <form action={updateUserRoleAction} style={{ display: 'flex', gap: 8, flex: '1 1 200px', minWidth: 0 }}>
+                  <input type="hidden" name="id" value={user.id} />
+                  <select name="role" defaultValue={user.role ?? undefined} style={{ ...inputStyle, flex: 1 }}>
+                    {SYSTEM_ROLES.map(r => <option key={r.name} value={r.name}>{r.label}</option>)}
+                    {customRoles.map(r => <option key={r.name} value={r.name}>{r.label}</option>)}
+                  </select>
+                  <Btn type="submit" size="sm" variant="ghost">Guardar</Btn>
+                </form>
+                <form action={adjustUserXpAction} style={{ display: 'flex', gap: 8, flex: '1 1 160px', minWidth: 0 }}>
+                  <input type="hidden" name="id" value={user.id} />
+                  <input name="delta" type="number" placeholder="+/- XP" style={{ ...inputStyle, flex: 1, minWidth: 80 }} />
+                  <Btn type="submit" size="sm" variant="rune">Ajustar</Btn>
+                </form>
+              </div>
             </div>
           ))}
         </div>
@@ -179,7 +218,6 @@ const sectionHeadStyle: React.CSSProperties = {
   margin: '0 0 16px',
   letterSpacing: -0.3,
 }
-
 const mutedLabel: React.CSSProperties = {
   fontFamily: 'var(--font-ui)',
   fontSize: 11,
@@ -188,7 +226,6 @@ const mutedLabel: React.CSSProperties = {
   letterSpacing: 1,
   margin: '0 0 8px',
 }
-
 const rolePill: React.CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
@@ -198,7 +235,6 @@ const rolePill: React.CSSProperties = {
   border: '1px solid',
   borderRadius: 'var(--r-md)',
 }
-
 const labelStyle: React.CSSProperties = {
   display: 'grid',
   gap: 4,
@@ -208,7 +244,6 @@ const labelStyle: React.CSSProperties = {
   textTransform: 'uppercase',
   letterSpacing: 1,
 }
-
 const inputStyle: React.CSSProperties = {
   background: 'var(--moss-950)',
   border: '1px solid var(--border)',

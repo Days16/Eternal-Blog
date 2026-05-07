@@ -48,25 +48,25 @@ export default async function EntryPage({ params }: Props) {
   const entry = await getEntryBySlug(slug)
   if (!entry) notFound()
 
-  const session = await auth()
+  const session  = await auth()
   const comments = await getCommentTree(entry.id)
-  const tags: string[]  = (() => { try { return JSON.parse(entry.tags) } catch { return [] } })()
-  const headings        = extractHeadings(entry.body)
+  const tags: string[] = (() => { try { return JSON.parse(entry.tags) } catch { return [] } })()
+  const headings = extractHeadings(entry.body)
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', minHeight: '100vh' }} className="tex-canopy">
       <TopNav />
 
       {/* ── Cabecera ─────────────────────────────────────── */}
-      <article style={{ maxWidth: 760, margin: '0 auto', padding: '64px 32px 0' }}>
+      <article style={{ maxWidth: 760, margin: '0 auto', padding: 'clamp(32px, 5vw, 64px) clamp(16px, 4vw, 32px) 0' }}>
         {/* Breadcrumb */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-mute)', marginBottom: 32, textTransform: 'uppercase', letterSpacing: 1.5 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-mute)', marginBottom: 32, textTransform: 'uppercase', letterSpacing: 1.5, flexWrap: 'wrap' }}>
           <Link href="/cronicas" style={{ color: 'inherit', textDecoration: 'none' }}>Crónicas</Link>
           <span>›</span>
           {tags[0] && <Tag color="var(--mist)">{tags[0]}</Tag>}
         </div>
 
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 56, fontWeight: 500, lineHeight: 1.05, margin: '0 0 24px', letterSpacing: -1.2 }}>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px, 7vw, 56px)', fontWeight: 500, lineHeight: 1.05, margin: '0 0 24px', letterSpacing: -1.2 }}>
           {entry.title}
         </h1>
 
@@ -82,20 +82,17 @@ export default async function EntryPage({ params }: Props) {
             </div>
           </div>
           <div style={{ flex: 1 }} />
-          <div style={{ flex: 1 }} />
-          <div style={{ display: 'flex', gap: 8 }}>
-            <a 
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <a
               href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(entry.title)}&url=${encodeURIComponent(`https://eternidad.blog/cronicas/${entry.slug}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
+              target="_blank" rel="noopener noreferrer"
               style={{ textDecoration: 'none' }}
             >
               <Btn size="sm" variant="ghost" style={{ fontSize: 10, letterSpacing: 1 }}>TWITTER</Btn>
             </a>
-            <a 
+            <a
               href={`https://wa.me/?text=${encodeURIComponent(`${entry.title} - https://eternidad.blog/cronicas/${entry.slug}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
+              target="_blank" rel="noopener noreferrer"
               style={{ textDecoration: 'none' }}
             >
               <Btn size="sm" variant="ghost" style={{ fontSize: 10, letterSpacing: 1 }}>WHATSAPP</Btn>
@@ -107,51 +104,52 @@ export default async function EntryPage({ params }: Props) {
       </article>
 
       {/* ── Cuerpo + márgenes ─────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 760px 1fr', padding: '56px 32px', alignItems: 'start' }}>
+      <div className="entry-layout">
 
-        {/* TOC — margen izquierdo */}
-        {headings.length > 0 && (
-          <div style={{ paddingLeft: 64, paddingRight: 32, position: 'sticky', top: 100 }}>
-            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, color: 'var(--text-mute)', marginBottom: 16 }}>
-              Índice del pergamino
-            </div>
-            {headings.map((h, i) => (
-              <a
-                key={i}
-                href={`#${h.id}`}
-                style={{
-                  display: 'block',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 13,
-                  padding: `8px 0 8px ${(h.level - 2) * 12 + 14}px`,
-                  borderLeft: '2px solid var(--border-soft)',
-                  color: 'var(--text-mute)',
-                  textDecoration: 'none',
-                  paddingLeft: (h.level - 2) * 12 + 14,
-                }}
-              >
-                {h.text}
-              </a>
-            ))}
-          </div>
-        )}
-        {headings.length === 0 && <div />}
+        {/* TOC — solo desktop */}
+        <div className="entry-toc" style={{ paddingLeft: 64, paddingRight: 32, position: 'sticky', top: 100 }}>
+          {headings.length > 0 && (
+            <>
+              <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, color: 'var(--text-mute)', marginBottom: 16 }}>
+                Índice del pergamino
+              </div>
+              {headings.map((h, i) => (
+                <a
+                  key={i}
+                  href={`#${h.id}`}
+                  style={{
+                    display: 'block',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 13,
+                    padding: `8px 0 8px ${(h.level - 2) * 12 + 14}px`,
+                    borderLeft: '2px solid var(--border-soft)',
+                    color: 'var(--text-mute)',
+                    textDecoration: 'none',
+                    paddingLeft: (h.level - 2) * 12 + 14,
+                  }}
+                >
+                  {h.text}
+                </a>
+              ))}
+            </>
+          )}
+        </div>
 
         {/* Cuerpo principal */}
-        <main style={{ maxWidth: 760, margin: '0 auto' }}>
+        <main style={{ maxWidth: 760, margin: '0 auto', width: '100%' }}>
           <EntryBody body={entry.body} />
         </main>
 
-        {/* Reacciones — margen derecho */}
-        <div style={{ position: 'sticky', top: 100, alignSelf: 'flex-start' }}>
+        {/* Reacciones */}
+        <div className="entry-reactions">
           <ReactionControl entryId={entry.id} currentUserId={session?.user?.id} />
         </div>
       </div>
 
       {/* ── Comentarios ───────────────────────────────────── */}
-      <section style={{ maxWidth: 760, margin: '0 auto', padding: '32px 32px 96px' }}>
+      <section style={{ maxWidth: 760, margin: '0 auto', padding: 'clamp(24px, 4vw, 32px) clamp(16px, 4vw, 32px) clamp(64px, 8vw, 96px)' }}>
         <RuneDivider char="✦ HILO DE LA TABERNA ✦" />
-        <div style={{ marginTop: 32, marginBottom: 24, display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
+        <div style={{ marginTop: 32, marginBottom: 24, display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
           <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 600, margin: 0 }}>
             Comentarios
           </h3>
