@@ -8,6 +8,7 @@ import { Tag } from '@/components/ui/Tag'
 import { LevelBadge } from '@/components/ui/LevelBadge'
 import { ImagePlaceholder } from '@/components/ui/ImagePlaceholder'
 import { ProfileSignOutButton } from '@/components/auth/ProfileSignOutButton'
+import { MissionsWidget } from '@/components/gamification/MissionsWidget'
 import { LEVELS } from '@/components/ui/constants'
 import type { LevelNumber } from '@/components/ui/constants'
 import {
@@ -43,6 +44,7 @@ const ACTIVITY_LABELS: Record<string, string> = {
   achievement_unlocked: 'Desbloqueó un logro',
   easter_egg_found:     'Encontró un huevo de pascua',
   mission_completed:    'Completó una misión',
+  daily_streak:         'Reavivó su racha diaria',
 }
 
 export default async function ProfilePage({ params, searchParams }: Props) {
@@ -205,6 +207,8 @@ export default async function ProfilePage({ params, searchParams }: Props) {
           </div>
         </div>
 
+        {isOwnProfile && <MissionsWidget userId={profile.id} />}
+
         {/* ── Tabs ─────────────────────────────────────────── */}
         <div style={{ display: 'flex', gap: 28, borderBottom: '1px solid var(--border)', marginBottom: 32, maxWidth: 900 }}>
           {(['logros', 'actividad'] as const).map(t => (
@@ -294,7 +298,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontFamily: 'var(--font-display)', fontSize: 16, color: 'var(--spore)',
                 }}>
-                  {item.kind === 'comment' ? '✦' : item.kind === 'achievement_unlocked' ? 'ᛟ' : '◊'}
+                  {item.kind === 'comment' ? '✦' : item.kind === 'achievement_unlocked' ? 'ᛟ' : item.kind === 'daily_streak' ? '☾' : '◊'}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--text)' }}>

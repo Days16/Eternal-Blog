@@ -41,6 +41,7 @@ export function EntryCard({ entry, index = 0, isLast = false }: EntryCardProps) 
 
   return (
     <article
+      className="entry-card-transition"
       style={{
         display: 'grid',
         gridTemplateColumns: '200px 1fr',

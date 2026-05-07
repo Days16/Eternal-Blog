@@ -16,10 +16,10 @@ export default function SobrePage() {
     <div style={{ background: 'var(--bg)', color: 'var(--text)', minHeight: '100vh' }} className="tex-canopy">
       <TopNav />
 
-      <div style={{ maxWidth: 880, margin: '0 auto', padding: '80px 32px 96px' }}>
+      <div className="page-layout" style={{ maxWidth: 880, margin: '0 auto', paddingTop: 80 }}>
 
         {/* Cabecera */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 48, marginBottom: 56 }}>
+        <div className="main-flex page-hero-transition" style={{ alignItems: 'center', marginBottom: 56 }}>
           <ImagePlaceholder width={220} height={280} tone="forest" label="retrato del autor" />
           <div style={{ flex: 1 }}>
             <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--spore)', marginBottom: 14 }}>

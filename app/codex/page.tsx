@@ -33,11 +33,11 @@ export default async function CodexPage({ searchParams }: { searchParams: Search
       <TopNav />
 
       {/* ── Hero ──────────────────────────────────────────── */}
-      <section style={{ padding: '64px 64px 40px', textAlign: 'center' }}>
+      <section className="page-hero page-hero-transition" style={{ textAlign: 'center' }}>
         <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--rune)', marginBottom: 16 }}>
           ✦ EL CODEX ✦
         </div>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 72, fontWeight: 500, letterSpacing: -1.5, margin: '0 0 16px', lineHeight: 1 }}>
+        <h1 className="hero-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 500, letterSpacing: -1.5, margin: '0 0 16px', lineHeight: 1 }}>
           Toda la <em style={{ fontStyle: 'italic', color: 'var(--moss-300)' }}>memoria</em> del bosque
         </h1>
         <p style={{ fontFamily: 'var(--font-body)', fontSize: 17, fontStyle: 'italic', color: 'var(--text-soft)', maxWidth: 580, margin: '0 auto', lineHeight: 1.5 }}>
@@ -73,7 +73,7 @@ export default async function CodexPage({ searchParams }: { searchParams: Search
       </section>
 
       {/* ── Categorías ────────────────────────────────────── */}
-      <section style={{ padding: '32px 64px' }}>
+      <section className="page-layout" style={{ paddingTop: 32, paddingBottom: 32 }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
           {CODEX_CATEGORIES.map(c => (
             <CategoryCard
@@ -91,7 +91,7 @@ export default async function CodexPage({ searchParams }: { searchParams: Search
 
       {/* ── Featured ──────────────────────────────────────── */}
       {featured.length > 0 && (
-        <section style={{ padding: '56px 64px 96px' }}>
+        <section className="page-layout" style={{ paddingTop: 56 }}>
           <RuneDivider char="✦ DESTACADAS ESTA LUNA ✦" />
           <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
             {featured.map(entry => (

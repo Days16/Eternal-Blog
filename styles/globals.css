@@ -200,3 +200,70 @@ code, pre {
   text-transform: uppercase;
 }
 
+/* ── Responsive utilities ────────────────────────────── */
+.page-layout {
+  padding: 0 64px 96px;
+}
+.page-hero {
+  padding: 72px 64px 56px;
+}
+.hero-title {
+  font-size: 88px;
+}
+.sidebar-col {
+  width: 320px;
+  flex-shrink: 0;
+}
+.main-flex {
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
+}
+
+@media (max-width: 1024px) {
+  .page-layout { padding: 0 32px 64px; }
+  .page-hero   { padding: 48px 32px 40px; }
+  .hero-title  { font-size: 64px; }
+  .sidebar-col { width: 280px; }
+}
+
+@media (max-width: 768px) {
+  .page-layout { padding: 0 20px 48px; }
+  .page-hero   { padding: 36px 20px 32px; }
+  .hero-title  { font-size: 44px; letter-spacing: -0.5px; }
+  .main-flex   { flex-direction: column; }
+  .sidebar-col { width: 100%; }
+  .sidebar-hide-mobile { display: none; }
+}
+
+@media (max-width: 480px) {
+  .hero-title { font-size: 34px; }
+  .page-hero  { padding: 24px 16px 24px; }
+  .page-layout { padding: 0 16px 32px; }
+}
+
+/* ── View Transitions ────────────────────────────────── */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-8px); }
+}
+
+::view-transition-old(root) {
+  animation: 200ms ease fade-out;
+}
+::view-transition-new(root) {
+  animation: 300ms ease fade-in;
+}
+
+/* Elementos con transición nombrada para mayor suavidad */
+.entry-card-transition {
+  view-transition-name: entry-card;
+}
+.page-hero-transition {
+  view-transition-name: page-hero;
+}
+

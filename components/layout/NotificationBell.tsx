@@ -120,8 +120,8 @@ export function NotificationBell() {
                   transition: 'background 0.2s'
                 }}>
                   <div style={{ display: 'flex', gap: 12 }}>
-                    <span style={{ color: n.kind === 'achievement_unlocked' ? 'var(--amethyst)' : 'var(--spore)', fontSize: 16 }}>
-                      {n.kind === 'achievement_unlocked' ? '✦' : 'ᛗ'}
+                    <span style={{ color: n.kind === 'achievement_unlocked' ? 'var(--amethyst)' : n.kind === 'daily_streak' ? 'var(--ember)' : 'var(--spore)', fontSize: 16 }}>
+                      {n.kind === 'achievement_unlocked' ? '✦' : n.kind === 'daily_streak' ? '☾' : 'ᛗ'}
                     </span>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, color: 'var(--text)', marginBottom: 4, lineHeight: 1.4 }}>
@@ -158,6 +158,8 @@ function getNotificationText(n: Notification) {
       return <span>¡Tu entrada ha sido publicada! <br/>Ganaste +{n.xpDelta} XP</span>
     case 'mission_completed':
       return <span>Has completado una misión. <br/>Recompensa: +{n.xpDelta} XP</span>
+    case 'daily_streak':
+      return <span>Tu racha diaria sigue viva. <br/>Bendición: +{n.xpDelta} XP</span>
     default:
       return <span>Actividad registrada: {n.kind} (+{n.xpDelta} XP)</span>
   }

@@ -73,10 +73,54 @@ Historial de cambios significativos ordenado de más reciente a más antiguo.
 
 ### Deuda técnica registrada
 
-| ID  | Descripción                                          | Prioridad |
-|-----|------------------------------------------------------|-----------|
-| M-2 | Migrar rate-limit in-memory a Upstash Redis          | Media     |
-| B-2 | Migrar `sanitizeForDisplay` a `isomorphic-dompurify` | Baja      |
+| ID  | Descripción                                          | Prioridad | Estado |
+|-----|------------------------------------------------------|-----------|--------|
+| M-2 | Migrar rate-limit in-memory a Upstash Redis          | Media     | Pendiente (requiere credenciales externas) |
+| B-2 | Migrar `sanitizeForDisplay` a `isomorphic-dompurify` | Baja      | ✅ Resuelto en ciclo de mejoras siguiente  |
+
+---
+
+*Generado por el ciclo 01_Arquitecto → 02_Programador → 03_QA_Inspector → 04_Documentador*
+
+---
+
+## [Feature] Ciclo de mejoras del proyecto — 10 mejoras implementadas
+
+**Rol ejecutor:** 01_Arquitecto → 02_Programador → 03_QA_Inspector → 04_Documentador
+
+### Mejoras implementadas
+
+| # | Área                    | Descripción                                               | Archivos principales                                       |
+|---|-------------------------|-----------------------------------------------------------|------------------------------------------------------------|
+| 1 | Gamificación            | Racha diaria (+10 XP por actividad consecutiva)           | `lib/xp/streak.ts`, `supabase/migrations/002_streak_columns.sql` |
+| 2 | Gamificación            | Sistema de misiones con evaluador y widget SWR            | `lib/missions/evaluator.ts`, `app/api/missions/route.ts`, `components/gamification/MissionsWidget.tsx` |
+| 3 | Gamificación            | Toast enriquecido (title, xpDelta, runeGlyph)             | `components/gamification/AchievementToast.tsx`             |
+| 4 | Paginación              | Paginación real en crónicas (Prev/Next, total)            | `lib/supabase/queries/entries.ts`, `app/cronicas/page.tsx` |
+| 5 | Validación API          | Zod schema en `/api/comments`                             | `app/api/comments/route.ts`                                |
+| 6 | Variables de entorno    | `NEXT_PUBLIC_AUTHOR_ID` y `NEXT_PUBLIC_WORD_GOAL` tipadas | `lib/env.ts`, `.env.local`, `.env.local.example`           |
+| 7 | Seguridad (B-2)         | `sanitizeForDisplay` migrada a `isomorphic-dompurify`     | `lib/utils/sanitize.ts`                                    |
+| 8 | CSS Responsive          | Clases utilitarias responsivas + View Transitions         | `styles/globals.css`                                       |
+| 9 | Tests                   | Nuevas suites: `award.test.ts`, `xp-events.test.ts`       | `__tests__/unit/award.test.ts`, `__tests__/unit/xp-events.test.ts` |
+| 10| EasterEgg               | Dispatch de toast con shape enriquecido                   | `components/gamification/EasterEggClient.tsx`              |
+
+### Resultado QA
+
+- ✅ Build: `✓ Compiled successfully`
+- ✅ Tests: 27/27 passing
+- ✅ Sin errores de TypeScript
+
+### ⚠️ Migraciones pendientes (ejecutar en Supabase Dashboard)
+
+```
+supabase/migrations/001_add_xp_rpc.sql   — función add_xp atómica (ciclo anterior)
+supabase/migrations/002_streak_columns.sql — columnas streak + last_activity_date en users
+supabase/migrations/003_user_missions.sql  — tabla user_missions
+```
+
+### Cambio de firma (breaking change interno)
+
+`getPublishedChronicles()` ahora retorna `{ rows: Entry[], total: number }` en lugar de `Entry[]`.
+Todos los callers actualizados. Si se añaden nuevos callers, usar `.rows` para acceder a las entradas.
 
 ---
 
