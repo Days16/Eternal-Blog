@@ -7,9 +7,10 @@ import {
   updateUserRoleAction,
 } from '@/app/admin/actions'
 import { Btn } from '@/components/ui/Btn'
+import { Pagination } from '@/components/admin/Pagination'
 import { getAdminUsers, getCustomRoles } from '@/lib/supabase/queries/admin'
 
-type Props = { searchParams: Promise<{ edit?: string }> }
+type Props = { searchParams: Promise<{ edit?: string; page?: string }> }
 
 const SYSTEM_ROLES = [
   { name: 'visitor',   label: 'Visitante',  color: 'var(--text-mute)' },
@@ -21,8 +22,10 @@ const SYSTEM_ROLES = [
 ]
 
 export default async function AdminUsersPage({ searchParams }: Props) {
-  const { edit } = await searchParams
-  const [users, customRoles] = await Promise.all([getAdminUsers(), getCustomRoles()])
+  const { edit, page: pageStr } = await searchParams
+  const page = Math.max(1, Number(pageStr) || 1)
+  const [usersResult, customRoles] = await Promise.all([getAdminUsers({ page }), getCustomRoles()])
+  const { rows: users, total, pageSize } = usersResult
 
   return (
     <div>
@@ -164,6 +167,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
             </div>
           ))}
         </div>
+        <Pagination page={page} total={total} pageSize={pageSize} basePath="/admin/usuarios" />
       </section>
     </div>
   )

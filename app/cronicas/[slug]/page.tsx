@@ -143,7 +143,9 @@ export default async function EntryPage({ params }: Props) {
         </main>
 
         {/* Reacciones — margen derecho */}
-        <ReactionControl entryId={entry.id} currentUserId={session?.user?.id} />
+        <div style={{ position: 'sticky', top: 100, alignSelf: 'flex-start' }}>
+          <ReactionControl entryId={entry.id} currentUserId={session?.user?.id} />
+        </div>
       </div>
 
       {/* ── Comentarios ───────────────────────────────────── */}

@@ -1,5 +1,6 @@
 import { sanitizeCommentHtml, stripHtml } from '@/lib/utils/sanitize'
 import { mapUser, requireSupabase, toDate } from '@/lib/supabase/helpers'
+import { COMMENT_MAX_DEPTH } from '@/lib/constants'
 
 export type CommentFlat = Awaited<ReturnType<typeof getCommentTree>>[number]
 export type CommentTreeNode = CommentFlat & { replies: CommentTreeNode[] }
@@ -87,6 +88,7 @@ export async function createComment(input: { entryId: string; userId: string; bo
 
     if (!parent) throw new Error('Comentario padre no encontrado')
     if (parent.sealed || parent.deleted) throw new Error('No se puede responder a este comentario')
+    if ((parent.depth ?? 0) >= COMMENT_MAX_DEPTH) throw new Error('Profundidad máxima de respuesta alcanzada')
     depth = parent.depth + 1
     pathPrefix = `${parent.path}/`
   }

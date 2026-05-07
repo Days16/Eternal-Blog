@@ -2,10 +2,15 @@ import Link from 'next/link'
 import { getAdminComments } from '@/lib/supabase/queries/admin'
 import { formatDate } from '@/lib/utils/dates'
 import { Btn } from '@/components/ui/Btn'
+import { Pagination } from '@/components/admin/Pagination'
 import { deleteCommentAction, sealCommentAction } from '@/app/admin/actions'
 
-export default async function AdminCommentsPage() {
-  const comments = await getAdminComments()
+type Props = { searchParams: Promise<{ page?: string }> }
+
+export default async function AdminCommentsPage({ searchParams }: Props) {
+  const { page: pageStr } = await searchParams
+  const page = Math.max(1, Number(pageStr) || 1)
+  const { rows: comments, total, pageSize } = await getAdminComments({ page })
   return (
     <div>
       <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 42, margin: '0 0 24px' }}>Moderación de Comentarios</h1>
@@ -67,6 +72,7 @@ export default async function AdminCommentsPage() {
           </article>
         ))}
       </div>
+      <Pagination page={page} total={total} pageSize={pageSize} basePath="/admin/comentarios" />
     </div>
   )
 }

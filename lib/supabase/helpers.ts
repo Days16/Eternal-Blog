@@ -85,8 +85,9 @@ export interface CommentRow {
 }
 
 export function mapUser(row: UserRow) {
+  if (!row.id) throw new Error('mapUser: fila sin id')
   return {
-    id: row.id ?? '',
+    id: row.id,
     name: row.name ?? null,
     email: row.email ?? null,
     emailVerified: toDate(row.email_verified),

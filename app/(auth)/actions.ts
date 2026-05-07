@@ -2,7 +2,18 @@
 
 import { signIn, signOut } from '@/auth'
 import { AuthError } from 'next-auth'
+import { headers } from 'next/headers'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { rateLimit } from '@/lib/rate-limit'
+
+async function resolveIp(): Promise<string> {
+  try {
+    const h = await headers()
+    return h.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  } catch {
+    return 'unknown'
+  }
+}
 
 export async function signOutAction() {
   await signOut({ redirectTo: '/login' })
@@ -17,6 +28,10 @@ export async function loginAction(
   const callbackUrl = String(formData.get('callbackUrl') ?? '/')
 
   if (!email || !password) return 'Rellena todos los campos.'
+
+  const ip = await resolveIp()
+  const { limited } = rateLimit(`login:${ip}`, 10, 60_000)  // 10 intentos / minuto
+  if (limited) return 'Demasiados intentos. Espera un minuto e inténtalo de nuevo.'
 
   try {
     await signIn('credentials', { email, password, redirectTo: callbackUrl })
@@ -39,6 +54,10 @@ export async function registerAction(
 
   if (!username || !email || !password) return 'Rellena todos los campos.'
 
+  const ip = await resolveIp()
+  const { limited } = rateLimit(`register:${ip}`, 3, 3_600_000)  // 3 registros / hora por IP
+  if (limited) return 'Demasiados intentos de registro. Espera una hora e inténtalo de nuevo.'
+
   if (!/^[a-z0-9_]{3,20}$/.test(username)) {
     return 'El nombre debe tener 3-20 caracteres (letras, números y guión bajo).'
   }
@@ -49,13 +68,12 @@ export async function registerAction(
   const supabase = getSupabaseServerClient()
   if (!supabase) return 'Faltan las variables de Supabase.'
 
-  const { data: existing } = await supabase
-    .from('users')
-    .select('id')
-    .or(`email.eq.${email},username.eq.${username}`)
-    .maybeSingle()
+  const [{ data: byEmail }, { data: byUsername }] = await Promise.all([
+    supabase.from('users').select('id').eq('email', email).maybeSingle(),
+    supabase.from('users').select('id').eq('username', username).maybeSingle(),
+  ])
 
-  if (existing) return 'Ya existe una cuenta con ese correo o nombre de iniciado.'
+  if (byEmail || byUsername) return 'Ya existe una cuenta con ese correo o nombre de iniciado.'
 
   const { data, error } = await supabase.auth.admin.createUser({
     email,

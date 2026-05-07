@@ -1,64 +1,115 @@
 import Link from 'next/link'
 import { auth } from '@/auth'
+import { AdminNav, type AdminNavItem } from './AdminNav'
+import { requireSupabase } from '@/lib/supabase/helpers'
 
-const ITEMS = [
-  { href: '/admin', label: 'Dashboard', rune: 'ᚨ' },
-  { href: '/admin/entradas', label: 'Entradas', rune: 'ᛈ' },
-  { href: '/admin/comentarios', label: 'Comentarios', rune: 'ᚺ' },
-  { href: '/admin/usuarios', label: 'Usuarios', rune: 'ᛗ' },
-  { href: '/admin/logros', label: 'Logros', rune: 'ᛟ' },
-  { href: '/admin/misiones', label: 'Misiones', rune: 'ᛞ' },
-]
+async function getNavCounts() {
+  const supabase = requireSupabase()
+  const [
+    { count: entriesCount },
+    { count: codexCount },
+    { count: commentsCount },
+    { count: usersCount },
+  ] = await Promise.all([
+    supabase.from('entries').select('id', { count: 'exact', head: true }).neq('type', 'codex'),
+    supabase.from('entries').select('id', { count: 'exact', head: true }).eq('type', 'codex'),
+    supabase.from('comments').select('id', { count: 'exact', head: true }).eq('deleted', false),
+    supabase.from('users').select('id', { count: 'exact', head: true }),
+  ])
+  return {
+    entries: entriesCount ?? 0,
+    codex: codexCount ?? 0,
+    comments: commentsCount ?? 0,
+    users: usersCount ?? 0,
+  }
+}
 
 export async function AdminSidebar() {
-  const session = await auth()
+  const [session, counts] = await Promise.all([auth(), getNavCounts()])
   const isMod = session?.user?.role === 'moderator'
   const isDev = session?.user?.role === 'dev'
-  const visibleItems = isMod
-    ? ITEMS.filter(item => ['/admin', '/admin/entradas', '/admin/comentarios'].includes(item.href))
-    : ITEMS
+
+  const ALL_ITEMS: AdminNavItem[] = [
+    { href: '/admin',              label: 'Resumen',          icon: '◆' },
+    { href: '/admin/entradas',     label: 'Entradas',         icon: '✎', count: counts.entries },
+    { href: '/admin/codex',        label: 'Codex (wiki)',     icon: '◉', count: counts.codex },
+    { href: '/admin/comentarios',  label: 'Comentarios',      icon: '✉', count: counts.comments, badge: counts.comments > 0 },
+    { href: '/admin/usuarios',     label: 'Usuarios',         icon: '○', count: counts.users },
+    { href: '/admin/misiones',     label: 'Misiones',         icon: '⚑' },
+    { href: '/admin/logros',       label: 'Logros',           icon: '✦' },
+    { href: '/admin/roles',        label: 'Roles & permisos', icon: '≡' },
+    { href: '/admin/tema',         label: 'Tema y aspecto',   icon: '⚙' },
+  ]
+
+  const MOD_ITEMS: AdminNavItem[] = ALL_ITEMS.filter(item =>
+    ['/admin', '/admin/entradas', '/admin/comentarios'].includes(item.href)
+  )
+
+  const visibleItems = isMod ? MOD_ITEMS : ALL_ITEMS
+
+  const chamberLabel = isDev
+    ? 'DEV SANCTUM'
+    : isMod
+      ? 'SALA DE MODERACIÓN'
+      : 'CÁMARA DEL ARCHIMAGO'
 
   return (
-    <aside style={{ 
-      width: 260, 
-      minHeight: '100vh', 
-      background: 'var(--moss-950)', 
-      borderRight: '1px solid var(--border-soft)', 
-      padding: '48px 24px', 
-      position: 'sticky', 
-      top: 0, 
-      display: 'flex', 
-      flexDirection: 'column' 
+    <aside style={{
+      width: 236,
+      minHeight: '100vh',
+      background: 'var(--moss-950)',
+      borderRight: '1px solid var(--border-soft)',
+      padding: '28px 12px 28px 16px',
+      position: 'sticky',
+      top: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      flexShrink: 0,
     }}>
-      <div style={{ marginBottom: 48, padding: '0 8px' }}>
-        <Link href="/admin" style={{ textDecoration: 'none' }}>
-          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, letterSpacing: 4, color: 'var(--spore)', fontWeight: 700, marginBottom: 4 }}>ETERNIDAD</div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--text)', fontWeight: 600 }}>{isDev ? 'Dev Sanctum' : (isMod ? 'Moderación' : 'Administración')}</div>
-        </Link>
+      {/* Cabecera */}
+      <div style={{ padding: '0 4px', marginBottom: 28 }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          fontFamily: 'var(--font-ui)',
+          fontSize: 9,
+          letterSpacing: 2.5,
+          color: 'var(--spore)',
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          marginBottom: 2,
+        }}>
+          <span style={{ fontSize: 11 }}>+</span>
+          <span>{chamberLabel}</span>
+        </div>
       </div>
 
-      <nav style={{ display: 'grid', gap: 4, flex: 1 }}>
-        {visibleItems.map(item => (
-          <Link key={item.href} href={item.href} style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 12, 
-            padding: '10px 16px', 
-            borderRadius: 'var(--r-md)', 
-            color: 'var(--text-soft)', 
-            textDecoration: 'none', 
-            fontFamily: 'var(--font-ui)', 
-            fontSize: 13,
-            transition: 'all 0.2s'
-          }} className="hover-glow">
-            <span style={{ color: 'var(--spore)', fontFamily: 'var(--font-display)', fontSize: 18, width: 20 }}>{item.rune}</span>
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+      {/* Navegación */}
+      <AdminNav items={visibleItems} />
 
-      <div style={{ marginTop: 'auto', padding: '24px 8px 0', borderTop: '1px solid var(--border-soft)' }}>
-        <Link href="/cronicas" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-mute)', fontFamily: 'var(--font-ui)', fontSize: 11, textDecoration: 'none', textTransform: 'uppercase', letterSpacing: 1.5 }}>
+      {/* Pie */}
+      <div style={{
+        marginTop: 'auto',
+        paddingTop: 20,
+        borderTop: '1px solid var(--border-soft)',
+      }}>
+        <Link
+          href="/cronicas"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '6px 4px',
+            color: 'var(--text-mute)',
+            fontFamily: 'var(--font-ui)',
+            fontSize: 10,
+            textDecoration: 'none',
+            textTransform: 'uppercase',
+            letterSpacing: 1.5,
+            transition: 'color 0.15s',
+          }}
+        >
           ← Salir al Bosque
         </Link>
       </div>

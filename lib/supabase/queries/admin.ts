@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache'
 import { type CommentRow, type EntryRow, mapAchievement, mapEntry, mapUser, requireSupabase, toDate } from '@/lib/supabase/helpers'
 
 async function attachEntryAuthors(rows: EntryRow[]) {
@@ -10,16 +11,60 @@ async function attachEntryAuthors(rows: EntryRow[]) {
   return rows.map(row => ({ ...mapEntry(row), author: byId.get(row.author_id) ?? null }))
 }
 
-export async function getAdminDashboard() {
+async function _getAdminDashboard() {
   const supabase = requireSupabase()
-  const [{ count: totalEntries }, { count: totalComments }, { count: totalUsers }, { data: xpRows }] = await Promise.all([
+
+  const now = new Date()
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+  const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000)
+
+  const [
+    { count: totalEntries },
+    { count: totalComments },
+    { count: totalUsers },
+    { data: xpRows },
+    { count: weekComments },
+    { count: prevWeekComments },
+    { count: weekUsers },
+    { count: prevWeekUsers },
+    { data: weekXpRows },
+    { data: prevWeekXpRows },
+    { data: activityRows },
+  ] = await Promise.all([
     supabase.from('entries').select('id', { count: 'exact', head: true }),
     supabase.from('comments').select('id', { count: 'exact', head: true }).eq('deleted', false),
     supabase.from('users').select('id', { count: 'exact', head: true }),
     supabase.from('activity_log').select('xp_delta'),
+    supabase.from('comments').select('id', { count: 'exact', head: true }).eq('deleted', false).gte('created_at', weekAgo.toISOString()),
+    supabase.from('comments').select('id', { count: 'exact', head: true }).eq('deleted', false).gte('created_at', twoWeeksAgo.toISOString()).lt('created_at', weekAgo.toISOString()),
+    supabase.from('users').select('id', { count: 'exact', head: true }).gte('created_at', weekAgo.toISOString()),
+    supabase.from('users').select('id', { count: 'exact', head: true }).gte('created_at', twoWeeksAgo.toISOString()).lt('created_at', weekAgo.toISOString()),
+    supabase.from('activity_log').select('xp_delta').gte('created_at', weekAgo.toISOString()),
+    supabase.from('activity_log').select('xp_delta').gte('created_at', twoWeeksAgo.toISOString()).lt('created_at', weekAgo.toISOString()),
+    supabase.from('activity_log').select('created_at').gte('created_at', twoWeeksAgo.toISOString()).order('created_at', { ascending: true }),
   ])
 
   const totalXp = (xpRows ?? []).reduce((sum, row) => sum + (row.xp_delta ?? 0), 0)
+  const weekXp = (weekXpRows ?? []).reduce((sum, row) => sum + (row.xp_delta ?? 0), 0)
+  const prevWeekXp = (prevWeekXpRows ?? []).reduce((sum, row) => sum + (row.xp_delta ?? 0), 0)
+
+  function calcDelta(curr: number, prev: number): number | null {
+    if (prev === 0) return null
+    return Math.round(((curr - prev) / prev) * 100)
+  }
+
+  // Actividad diaria — últimos 14 días
+  const dailyCounts: Record<string, number> = {}
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(now)
+    d.setDate(d.getDate() - i)
+    dailyCounts[d.toISOString().slice(0, 10)] = 0
+  }
+  for (const row of activityRows ?? []) {
+    const day = (row.created_at as string | null)?.slice(0, 10)
+    if (day && day in dailyCounts) dailyCounts[day]++
+  }
+  const chartData = Object.entries(dailyCounts).map(([date, count]) => ({ date, count }))
 
   const { data: entryRows } = await supabase
     .from('entries')
@@ -31,27 +76,55 @@ export async function getAdminDashboard() {
 
   const { data: commentRows } = await supabase
     .from('comments')
-    .select('id,user_id,entry_id,body,created_at,deleted')
+    .select('id,user_id,entry_id,body,parent_id,depth,path,sealed,deleted,created_at,updated_at')
+    .eq('deleted', false)
     .order('created_at', { ascending: false })
-    .limit(6)
+    .limit(4)
 
   const recentComments = await attachCommentRelations(commentRows ?? [])
 
-  return { totalEntries: totalEntries ?? 0, totalComments: totalComments ?? 0, totalUsers: totalUsers ?? 0, totalXp, recentEntries, recentComments }
+  return {
+    totalEntries: totalEntries ?? 0,
+    totalComments: totalComments ?? 0,
+    totalUsers: totalUsers ?? 0,
+    totalXp,
+    weekComments: weekComments ?? 0,
+    weekUsers: weekUsers ?? 0,
+    weekXp,
+    commentsDelta: calcDelta(weekComments ?? 0, prevWeekComments ?? 0),
+    usersDelta: calcDelta(weekUsers ?? 0, prevWeekUsers ?? 0),
+    xpDelta: calcDelta(weekXp, prevWeekXp),
+    chartData,
+    recentEntries,
+    recentComments,
+  }
 }
 
-export async function getAdminEntries(params?: { type?: string; status?: string }) {
+// Caché de 60 s — el dashboard no necesita ser instantáneo; se invalida con revalidateTag('admin-dashboard')
+export const getAdminDashboard = unstable_cache(
+  _getAdminDashboard,
+  ['admin-dashboard'],
+  { revalidate: 60, tags: ['admin-dashboard'] },
+)
+
+export async function getAdminEntries(params?: { type?: string; status?: string; page?: number; pageSize?: number }) {
   const supabase = requireSupabase()
+  const page = Math.max(1, params?.page ?? 1)
+  const pageSize = Math.min(100, Math.max(1, params?.pageSize ?? 20))
+  const from = (page - 1) * pageSize
+
   let query = supabase
     .from('entries')
-    .select('id,slug,type,title,excerpt,body,cover_url,tags,category,status,word_count,published_at,author_id,created_at,updated_at')
+    .select('id,slug,type,title,excerpt,body,cover_url,tags,category,status,word_count,published_at,author_id,created_at,updated_at', { count: 'exact' })
     .order('updated_at', { ascending: false })
+    .range(from, from + pageSize - 1)
 
   if (params?.type && params.type !== 'all') query = query.eq('type', params.type)
   if (params?.status && params.status !== 'all') query = query.eq('status', params.status)
 
-  const { data } = await query
-  return attachEntryAuthors(data ?? [])
+  const { data, count } = await query
+  const rows = await attachEntryAuthors(data ?? [])
+  return { rows, total: count ?? 0, page, pageSize }
 }
 
 export async function getEntryForAdmin(id: string) {
@@ -68,25 +141,35 @@ export async function getEntryForAdmin(id: string) {
   return data ? mapEntry(data) : undefined
 }
 
-export async function getAdminComments() {
+export async function getAdminComments(params?: { page?: number; pageSize?: number }) {
   const supabase = requireSupabase()
-  const { data } = await supabase
-    .from('comments')
-    .select('id,user_id,entry_id,body,parent_id,depth,path,sealed,deleted,created_at,updated_at')
-    .order('created_at', { ascending: false })
-    .limit(100)
+  const page = Math.max(1, params?.page ?? 1)
+  const pageSize = Math.min(100, Math.max(1, params?.pageSize ?? 25))
+  const from = (page - 1) * pageSize
 
-  return attachCommentRelations(data ?? [])
+  const { data, count } = await supabase
+    .from('comments')
+    .select('id,user_id,entry_id,body,parent_id,depth,path,sealed,deleted,created_at,updated_at', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(from, from + pageSize - 1)
+
+  const rows = await attachCommentRelations(data ?? [])
+  return { rows, total: count ?? 0, page, pageSize }
 }
 
-export async function getAdminUsers() {
+export async function getAdminUsers(params?: { page?: number; pageSize?: number }) {
   const supabase = requireSupabase()
-  const { data } = await supabase
-    .from('users')
-    .select('id,name,username,email,role,level,xp,created_at')
-    .order('created_at', { ascending: false })
+  const page = Math.max(1, params?.page ?? 1)
+  const pageSize = Math.min(100, Math.max(1, params?.pageSize ?? 25))
+  const from = (page - 1) * pageSize
 
-  return (data ?? []).map(mapUser)
+  const { data, count } = await supabase
+    .from('users')
+    .select('id,name,username,email,role,level,xp,created_at', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(from, from + pageSize - 1)
+
+  return { rows: (data ?? []).map(mapUser), total: count ?? 0, page, pageSize }
 }
 
 export async function getAdminAchievements() {

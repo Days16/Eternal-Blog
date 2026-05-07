@@ -53,7 +53,20 @@ export async function evaluateAchievements(userId: string): Promise<string[]> {
 
     if (!met) continue
 
-    await supabase.from('user_achievements').insert({ user_id: userId, achievement_id: achievement.id })
+    // Upsert idempotente: si la fila ya existe (concurrent request), ignoreDuplicates
+    // evita el doble desbloqueo. Requiere UNIQUE(user_id, achievement_id) en la tabla.
+    const { data: inserted } = await supabase
+      .from('user_achievements')
+      .upsert(
+        { user_id: userId, achievement_id: achievement.id, unlocked_at: new Date().toISOString() },
+        { onConflict: 'user_id,achievement_id', ignoreDuplicates: true },
+      )
+      .select('achievement_id')
+      .maybeSingle()
+
+    // Si no se insertó (ya existía), saltamos para no duplicar XP
+    if (!inserted) continue
+
     await supabase.from('activity_log').insert({
       user_id: userId,
       kind: 'achievement_unlocked',
@@ -62,6 +75,8 @@ export async function evaluateAchievements(userId: string): Promise<string[]> {
     })
 
     if (achievement.xp_reward > 0) {
+      // TODO: reemplazar por supabase.rpc('add_xp', { p_user_id: userId, p_delta: xp_reward })
+      // para una suma atómica en Postgres y eliminar el read-modify-write residual.
       user.xp += achievement.xp_reward
       await supabase
         .from('users')

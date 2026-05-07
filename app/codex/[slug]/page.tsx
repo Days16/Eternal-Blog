@@ -146,7 +146,8 @@ export default async function CodexArticlePage({ params }: Props) {
 
         {/* Infobox lateral */}
         <aside>
-          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--r-lg)', overflow: 'hidden', position: 'sticky', top: 100 }}>
+          <div style={{ position: 'sticky', top: 100, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--r-lg)', overflow: 'hidden' }}>
             <ImagePlaceholder height={280} tone="forest" label={`retrato · ${entry.title}`} />
             <div style={{ padding: 20, borderTop: '1px solid var(--border-soft)' }}>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 600, color: 'var(--rune)', marginBottom: 16, letterSpacing: 1, textAlign: 'center' }}>
@@ -167,16 +168,17 @@ export default async function CodexArticlePage({ params }: Props) {
             </div>
           </div>
 
-          <div style={{ marginTop: 32 }}>
+          <div>
             <ReactionControl entryId={entry.id} currentUserId={session?.user?.id} />
           </div>
 
-          <div style={{ marginTop: 16, padding: 16, background: 'var(--moss-800)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-md)' }}>
+          <div style={{ padding: 16, background: 'var(--moss-800)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-md)' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--rune)', marginBottom: 8 }}>⚠ FICHA EN OBRA</div>
             <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontStyle: 'italic', color: 'var(--text-mute)', lineHeight: 1.5 }}>
               Esta entrada se actualiza mientras avanza la obra. Los datos pueden cambiar.
             </div>
           </div>
+          </div>{/* /sticky wrapper */}
         </aside>
       </div>
 

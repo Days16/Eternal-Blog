@@ -4,6 +4,7 @@ import { auth } from '@/auth'
 import { requireSupabase } from '@/lib/supabase/helpers'
 import { awardXP } from '@/lib/xp/award'
 import { slugify } from '@/lib/utils/slugify'
+import { isValidRole } from '@/lib/auth/roles'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
@@ -108,7 +109,7 @@ export async function updateUserRoleAction(formData: FormData) {
   const id = text(formData, 'id')
   const role = text(formData, 'role')
   
-  if (!id || !role) return
+  if (!id || !isValidRole(role)) return
 
   try {
     const { error } = await supabase
@@ -153,8 +154,6 @@ export async function createAchievementAction(formData: FormData) {
   revalidatePath('/admin/logros')
 }
 
-const SYSTEM_ROLES = ['visitor', 'reader', 'scribe', 'moderator', 'dev', 'admin']
-
 export async function createRoleAction(formData: FormData) {
   await requireAdminUser()
   const supabase = requireSupabase()
@@ -162,7 +161,7 @@ export async function createRoleAction(formData: FormData) {
   const label = text(formData, 'label')
   const description = text(formData, 'description') || null
   const color = text(formData, 'color') || 'var(--spore)'
-  if (!name || !label || SYSTEM_ROLES.includes(name)) return
+  if (!name || !label || isValidRole(name)) return
   await supabase.from('custom_roles').insert({ name, label, description, color })
   revalidatePath('/admin/usuarios')
 }
@@ -185,7 +184,7 @@ export async function deleteRoleAction(formData: FormData) {
   const supabase = requireSupabase()
   const id = text(formData, 'id')
   const name = text(formData, 'name')
-  if (!id || !name || SYSTEM_ROLES.includes(name)) return
+  if (!id || !name || isValidRole(name)) return
   await supabase.from('users').update({ role: 'reader', updated_at: new Date().toISOString() }).eq('role', name)
   await supabase.from('custom_roles').delete().eq('id', id)
   revalidatePath('/admin/usuarios')

@@ -1,7 +1,15 @@
 import Credentials from 'next-auth/providers/credentials'
+import { z } from 'zod'
 import { getSupabaseAuthClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { mapUser } from '@/lib/supabase/helpers'
 import type { NextAuthConfig } from 'next-auth'
+
+const dbUserSchema = z.object({
+  role:     z.string().nullable().optional(),
+  level:    z.number().int().positive().nullable().optional(),
+  xp:       z.number().int().min(0).nullable().optional(),
+  username: z.string().nullable().optional(),
+})
 
 export const authConfig: NextAuthConfig = {
   session: { strategy: 'jwt' },
@@ -71,7 +79,7 @@ export const authConfig: NextAuthConfig = {
             .select('id,name,email,username,role,level,xp,special_role')
             .maybeSingle()
 
-          if (updateError) console.error('[auth] profile update error:', updateError)
+          if (updateError) console.error('[auth] profile update error:', updateError?.message)
           profile = updatedProfile ?? profile
         }
 
@@ -122,14 +130,17 @@ export const authConfig: NextAuthConfig = {
               .maybeSingle()
               
             if (data) {
-              token.role = data.role
-              token.level = data.level
-              token.xp = data.xp
-              token.username = data.username
+              const parsed = dbUserSchema.safeParse(data)
+              if (parsed.success) {
+                token.role     = parsed.data.role     ?? token.role
+                token.level    = parsed.data.level    ?? token.level
+                token.xp       = parsed.data.xp       ?? token.xp
+                token.username = parsed.data.username ?? token.username
+              }
             }
           }
         } catch (error) {
-          console.error('[auth] Error sincronizando sesión:', error)
+          console.error('[auth] Error sincronizando sesión:', error instanceof Error ? error.message : 'unknown')
         }
 
         session.user.id       = token.id as string

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
 
 const fetcher = (url: string) => fetch(url).then(res => res.json())
@@ -12,8 +11,8 @@ type ReactionControlProps = {
 }
 
 export function ReactionControl({ entryId, currentUserId }: ReactionControlProps) {
-  const router = useRouter()
   const [busy, setBusy] = useState<string | null>(null)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
   
   const REACTION_TYPES = [
     { icon: '🍄', label: 'Magia',    kind: 'magic',   color: 'var(--spore)' },
@@ -36,11 +35,11 @@ export function ReactionControl({ entryId, currentUserId }: ReactionControlProps
       })
       
       if (res.ok) {
-        mutate() // Refrescar datos locales
-        router.refresh() // Refrescar servidor para XP/Logros
+        setErrorMsg(null)
+        mutate()
       } else {
         const payload = await res.json().catch(() => ({}))
-        alert(`Error al reaccionar: ${payload.error || 'Error desconocido'}`)
+        setErrorMsg(payload.error || 'Error desconocido')
       }
     } finally {
       setBusy(null)
@@ -48,7 +47,7 @@ export function ReactionControl({ entryId, currentUserId }: ReactionControlProps
   }
 
   return (
-    <div style={{ paddingRight: 64, paddingLeft: 32, position: 'sticky', top: 100 }}>
+    <div style={{ paddingRight: 64, paddingLeft: 32 }}>
       <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, color: 'var(--text-mute)', marginBottom: 16 }}>
         Reacciona
       </div>
@@ -91,6 +90,11 @@ export function ReactionControl({ entryId, currentUserId }: ReactionControlProps
       {!currentUserId && (
         <div style={{ fontSize: 9, color: 'var(--text-mute)', textAlign: 'center', marginTop: 12, fontFamily: 'var(--font-ui)', letterSpacing: 1 }}>
           INICIA SESIÓN PARA REACCIONAR
+        </div>
+      )}
+      {errorMsg && (
+        <div style={{ fontSize: 11, color: 'var(--ember)', marginTop: 10, fontFamily: 'var(--font-ui)', textAlign: 'center' }}>
+          {errorMsg}
         </div>
       )}
     </div>

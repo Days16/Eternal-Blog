@@ -2,6 +2,8 @@ import { auth } from '@/auth'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { awardXP } from '@/lib/xp/award'
 import { XP } from '@/lib/xp/events'
+import { apiError } from '@/lib/utils/api-error'
+import { rateLimit } from '@/lib/rate-limit'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -18,10 +20,6 @@ export async function GET(request: Request) {
     .from('reactions')
     .select('kind, user_id, entry_id')
     .eq('entry_id', entryId)
-
-  if (reactions && reactions.length > 0) {
-    console.log('[reactions] Sample row schema:', Object.keys(reactions[0]))
-  }
 
   if (error) {
     console.error('[reactions] GET Error:', error)
@@ -53,9 +51,11 @@ export async function POST(request: Request) {
   const session = await auth()
   if (!session?.user?.id) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
+  const { limited } = rateLimit(`react:${session.user.id}`, 30, 60_000)  // 30 reacciones / minuto
+  if (limited) return NextResponse.json({ error: 'Demasiadas reacciones. Espera un momento.' }, { status: 429 })
+
   try {
     const { entryId, kind } = await request.json()
-    console.log('[reactions] POST attempt:', { userId: session.user.id, role: session.user.role, entryId, kind })
     if (!entryId || !kind) return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
 
     const supabase = getSupabaseServerClient()
@@ -106,11 +106,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ toggled: 'on' })
     }
   } catch (error) {
-    console.error('[reactions] Server Error Full Details:', error)
     const message = error instanceof Error ? error.message : 'Error interno del servidor'
-    return NextResponse.json({ 
-      error: message,
-      details: error 
-    }, { status: 500 })
+    return apiError(message, error, 500)
   }
 }

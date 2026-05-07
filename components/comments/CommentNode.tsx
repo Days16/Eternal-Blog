@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Btn } from '@/components/ui/Btn'
 import { LevelBadge } from '@/components/ui/LevelBadge'
 import { relativeTime } from '@/lib/utils/dates'
+import { sanitizeForDisplay } from '@/lib/utils/sanitize'
 import { CommentForm } from './CommentForm'
 import type { CommentTreeNode } from '@/lib/supabase/queries/comments'
 import type { LevelNumber } from '@/components/ui/constants'
@@ -69,7 +70,7 @@ export function CommentNode({ comment, entryId, currentUserId, currentUserRole }
           <p style={{ color: 'var(--rune)', fontFamily: 'var(--font-body)', fontStyle: 'italic', margin: 0 }}>Mensaje sellado por un moderador.</p>
         )}
         {!hiddenBody && (
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.65, color: 'var(--text-soft)' }} dangerouslySetInnerHTML={{ __html: comment.body }} />
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.65, color: 'var(--text-soft)' }} dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(comment.body) }} />
         )}
 
         <footer style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap', alignItems: 'center' }}>
