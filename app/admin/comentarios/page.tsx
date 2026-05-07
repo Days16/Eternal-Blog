@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getAdminComments } from '@/lib/supabase/queries/admin'
 import { formatDate } from '@/lib/utils/dates'
+import { sanitizeForDisplay } from '@/lib/utils/sanitize'
 import { Btn } from '@/components/ui/Btn'
 import { Pagination } from '@/components/admin/Pagination'
 import { deleteCommentAction, sealCommentAction } from '@/app/admin/actions'
@@ -47,7 +48,7 @@ export default async function AdminCommentsPage({ searchParams }: Props) {
 
             <div 
               style={{ fontFamily: 'var(--font-body)', color: 'var(--text-soft)', fontSize: 14, lineHeight: 1.6, marginBottom: 20 }} 
-              dangerouslySetInnerHTML={{ __html: comment.body ?? '' }} 
+              dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(comment.body ?? '') }} 
             />
 
             <div style={{ display: 'flex', gap: 8 }}>

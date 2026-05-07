@@ -1,5 +1,4 @@
 import { requireSupabase } from '@/lib/supabase/helpers'
-import { getLevelForXp } from './events'
 import { evaluateAchievements } from '@/lib/achievements/evaluator'
 
 type ActivityKind = 'comment' | 'reaction' | 'entry_published' | 'achievement_unlocked' | 'easter_egg_found' | 'mission_completed'
@@ -21,22 +20,15 @@ export async function awardXP(
     return { newXp: user?.xp ?? 0, newLevel: user?.level ?? 1, leveledUp: false }
   }
 
-  const { data: user } = await supabase
-    .from('users')
-    .select('xp,level')
-    .eq('id', userId)
-    .maybeSingle()
+  // RPC atómica: usa FOR UPDATE en Postgres para evitar condición de carrera
+  // Requiere ejecutar supabase/migrations/001_add_xp_rpc.sql en el dashboard
+  const { data: result, error: rpcError } = await supabase
+    .rpc('add_xp', { p_user_id: userId, p_delta: amount })
 
-  if (!user) throw new Error(`Usuario ${userId} no encontrado`)
+  if (rpcError) throw new Error(`[xp] RPC add_xp falló: ${rpcError.message}`)
 
-  const newXp = user.xp + amount
-  const newLevel = getLevelForXp(newXp)
-  const leveledUp = newLevel > user.level
-
-  await supabase
-    .from('users')
-    .update({ xp: newXp, level: newLevel, updated_at: new Date().toISOString() })
-    .eq('id', userId)
+  const row = (result as Array<{ new_xp: number; new_level: number; leveled_up: boolean }>)[0]
+  const { new_xp: newXp, new_level: newLevel, leveled_up: leveledUp } = row
 
   await supabase.from('activity_log').insert({
     user_id: userId,
