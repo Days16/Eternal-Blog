@@ -1,7 +1,12 @@
 import { unstable_cache } from 'next/cache'
 import { type EntryRow, mapEntry, mapUser, requireSupabase } from '@/lib/supabase/helpers'
 
-export type EntryWithAuthor = Awaited<ReturnType<typeof getEntryBySlug>>
+export type EntryWithAuthor = NonNullable<Awaited<ReturnType<typeof getEntryBySlug>>>
+
+export type PublishedChroniclesResult = {
+  rows: EntryWithAuthor[]
+  total: number
+}
 
 async function attachAuthors(rows: EntryRow[]) {
   const supabase = requireSupabase()
@@ -17,7 +22,7 @@ async function attachAuthors(rows: EntryRow[]) {
   return rows.map(row => ({ ...mapEntry(row), author: byId.get(row.author_id) ?? null }))
 }
 
-export async function getPublishedChronicles(params?: { page?: number; tag?: string }) {
+export async function getPublishedChronicles(params?: { page?: number; tag?: string }): Promise<PublishedChroniclesResult> {
   const page = params?.page ?? 1
   const limit = 10
   const offset = (page - 1) * limit
@@ -27,7 +32,7 @@ export async function getPublishedChronicles(params?: { page?: number; tag?: str
       const supabase = requireSupabase()
       let query = supabase
         .from('entries')
-        .select('id,slug,type,title,excerpt,body,cover_url,tags,category,status,word_count,published_at,author_id,created_at,updated_at')
+        .select('id,slug,type,title,excerpt,body,cover_url,tags,category,status,word_count,published_at,author_id,created_at,updated_at', { count: 'exact' })
         .eq('type', 'chronicle')
         .eq('status', 'published')
         .order('published_at', { ascending: false })
@@ -35,12 +40,12 @@ export async function getPublishedChronicles(params?: { page?: number; tag?: str
 
       if (params?.tag) query = query.ilike('tags', `%"${params.tag}"%`)
 
-      const { data } = await query
-      return attachAuthors(data ?? [])
+      const { data, count } = await query
+      return { rows: await attachAuthors(data ?? []), total: count ?? 0 }
     },
     ['published-chronicles', String(page), params?.tag ?? 'all'],
     { revalidate: 60 },
-  )().catch(() => [])
+  )().catch(() => ({ rows: [], total: 0 }))
 }
 
 export async function getEntryBySlug(slug: string) {

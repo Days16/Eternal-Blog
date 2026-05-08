@@ -9,6 +9,8 @@ const schema = z.object({
   RESEND_API_KEY: z.string().optional(),
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+  NEXT_PUBLIC_AUTHOR_ID: z.string().min(1).optional(),
+  NEXT_PUBLIC_WORD_GOAL: z.coerce.number().int().positive().optional(),
 })
 
 function validate() {

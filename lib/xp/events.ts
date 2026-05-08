@@ -4,6 +4,7 @@ export const XP = {
   REACTION_GIVEN:   2,
   FIRST_COMMENT:   20,
   REGISTER:        15,
+  DAILY_STREAK:    10,
 } as const
 
 export const LEVEL_THRESHOLDS = [

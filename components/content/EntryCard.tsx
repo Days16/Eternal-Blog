@@ -41,7 +41,7 @@ export function EntryCard({ entry, index = 0, isLast = false }: EntryCardProps) 
 
   return (
     <article
-      className="entry-card"
+      className="entry-card entry-card-transition"
       style={{ borderBottom: isLast ? 'none' : '1px solid var(--border-soft)' }}
     >
       <Link href={`/cronicas/${entry.slug}`} style={{ display: 'block' }}>

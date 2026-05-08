@@ -1,3 +1,5 @@
+import DOMPurify from 'isomorphic-dompurify'
+
 const ALLOWED_TAGS = new Set(['b', 'i', 'em', 'strong', 'blockquote', 'code', 'a'])
 
 function escapeHtml(value: string) {
@@ -49,19 +51,10 @@ export function stripHtml(input: string) {
   return input.replace(/<[^>]+>/g, '').trim()
 }
 
-/**
- * Segunda capa de defensa al renderizar HTML almacenado en dangerouslySetInnerHTML.
- * El contenido ya fue sanitizado por sanitizeCommentHtml() al escribirse;
- * esta función elimina vectores que pudieran entrar por otra vía (migración
- * directa en Supabase, backfill, bug anterior).
- *
- * TODO: instalar isomorphic-dompurify y reemplazar por DOMPurify.sanitize()
- *       para sanitización basada en DOM, más robusta contra bypasses de regex.
- */
 export function sanitizeForDisplay(html: string): string {
-  return html
-    .replace(/on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi, '')
-    .replace(/javascript\s*:/gi, 'blocked:')
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'blockquote', 'code', 'a', 'br', 'p'],
+    ALLOWED_ATTR: ['href', 'rel', 'target'],
+    ALLOW_DATA_ATTR: false,
+  })
 }

@@ -21,6 +21,14 @@ export const metadata: Metadata = {
 
 type SearchParams = Promise<{ page?: string; tag?: string }>
 
+function buildChroniclesHref(page: number, tag?: string) {
+  const params = new URLSearchParams()
+  if (page > 1) params.set('page', String(page))
+  if (tag) params.set('tag', tag)
+  const query = params.toString()
+  return query ? `/cronicas?${query}` : '/cronicas'
+}
+
 export default async function CronicasPage({ searchParams }: { searchParams: SearchParams }) {
   const { page: pageStr, tag } = await searchParams
   const page = Math.max(1, Number(pageStr ?? 1))
@@ -28,23 +36,21 @@ export default async function CronicasPage({ searchParams }: { searchParams: Sea
   const [chronicles, topReaders, authorWords] = await Promise.all([
     getPublishedChronicles({ page, tag }),
     getTopReaders(3),
-    getAuthorWordCount('admin-001'),
+    getAuthorWordCount(process.env.NEXT_PUBLIC_AUTHOR_ID ?? 'admin-001'),
   ])
 
-  const GOAL = 90_000
+  const GOAL = Number(process.env.NEXT_PUBLIC_WORD_GOAL ?? 90_000)
   const progress = Math.min(100, Math.round((authorWords / GOAL) * 100))
+  const hasPreviousPage = page > 1
+  const hasNextPage = page * 10 < chronicles.total
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', minHeight: '100vh' }} className="tex-canopy">
       <TopNav />
 
       {/* ── Hero ──────────────────────────────────────────── */}
-      <section style={{ padding: 'clamp(40px, 7vw, 72px) clamp(20px, 5vw, 64px) clamp(32px, 5vw, 56px)', position: 'relative' }}>
-        <div style={{
-          position: 'absolute', top: 80, right: 'clamp(20px, 5vw, 80px)',
-          opacity: 0.2, fontFamily: 'var(--font-display)',
-          color: 'var(--rune)', fontSize: 'clamp(36px, 6vw, 56px)', lineHeight: 1,
-        }}>
+      <section className="page-hero page-hero-transition" style={{ position: 'relative' }}>
+        <div style={{ position: 'absolute', top: 80, right: 80, opacity: 0.2, fontFamily: 'var(--font-display)', color: 'var(--rune)', fontSize: 56, lineHeight: 1 }}>
           ᛉ
         </div>
         <div style={{
@@ -55,16 +61,7 @@ export default async function CronicasPage({ searchParams }: { searchParams: Sea
           <span style={{ width: 24, height: 1, background: 'var(--spore)', display: 'inline-block' }} />
           Bitácora arcana de un escritor en formación
         </div>
-        <h1 style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 'clamp(42px, 9vw, 88px)',
-          fontWeight: 500,
-          color: 'var(--text)',
-          lineHeight: 0.95,
-          letterSpacing: -2,
-          margin: '0 0 20px',
-          maxWidth: 880,
-        }}>
+        <h1 className="hero-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 500, color: 'var(--text)', lineHeight: 0.95, letterSpacing: -2, margin: '0 0 20px', maxWidth: 880 }}>
           Notas del bosque<br />
           <em style={{ fontStyle: 'italic', color: 'var(--moss-300)' }}>donde las palabras germinan</em>
         </h1>
@@ -82,39 +79,47 @@ export default async function CronicasPage({ searchParams }: { searchParams: Sea
       </section>
 
       {/* ── Main grid ─────────────────────────────────────── */}
-      <div className="page-with-sidebar">
+      <div className="main-flex page-layout">
         {/* Feed */}
         <main className="page-main">
           <RuneDivider char="✦ ÚLTIMAS CRÓNICAS ✦" />
 
-          {chronicles.length === 0 ? (
+          {chronicles.rows.length === 0 ? (
             <p style={{ fontFamily: 'var(--font-body)', color: 'var(--text-mute)', fontStyle: 'italic', textAlign: 'center', marginTop: 48 }}>
               El grimorio está vacío… por ahora.
             </p>
           ) : (
             <div style={{ marginTop: 32, display: 'flex', flexDirection: 'column', gap: 32 }}>
-              {chronicles.map((entry, i) => (
+              {chronicles.rows.map((entry, i) => (
                 <EntryCard
                   key={entry.id}
                   entry={entry}
                   index={i}
-                  isLast={i === chronicles.length - 1}
+                  isLast={i === chronicles.rows.length - 1}
                 />
               ))}
             </div>
           )}
 
-          {chronicles.length === 10 && (
-            <div style={{ marginTop: 40, textAlign: 'center' }}>
-              <Link href={`/cronicas?page=${page + 1}${tag ? `&tag=${tag}` : ''}`}>
-                <Btn variant="rune" size="lg">Convocar más entradas</Btn>
-              </Link>
+          {/* Paginación */}
+          {(hasPreviousPage || hasNextPage) && (
+            <div style={{ marginTop: 40, display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+              {hasPreviousPage && (
+                <Link href={buildChroniclesHref(page - 1, tag)}>
+                  <Btn variant="ghost" size="lg">Anterior</Btn>
+                </Link>
+              )}
+              {hasNextPage && (
+                <Link href={buildChroniclesHref(page + 1, tag)}>
+                  <Btn variant="rune" size="lg">Convocar más entradas</Btn>
+                </Link>
+              )}
             </div>
           )}
         </main>
 
         {/* Sidebar */}
-        <aside className="page-sidebar">
+        <aside className="sidebar-col" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
           {/* Grimorio en curso */}
           <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)', padding: 24 }}>
