@@ -200,3 +200,340 @@ code, pre {
   text-transform: uppercase;
 }
 
+/* ── hover-row ──────────────────────────────────────────── */
+.hover-row:hover {
+  background: rgba(212, 166, 74, 0.04);
+}
+
+/* ── TopNav: ocultar elementos desktop en móvil ─────────── */
+@media (max-width: 768px) {
+  .topnav-header {
+    padding: 14px 16px !important;
+    gap: 10px !important;
+  }
+  .topnav-desktop-nav    { display: none !important; }
+  .topnav-desktop-search { display: none !important; }
+  .topnav-user-info      { display: none !important; }
+  .topnav-desktop-login  { display: none !important; }
+}
+
+/* ── Admin Layout Responsive ────────────────────────────── */
+.admin-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.admin-shell-inner {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.admin-main {
+  flex: 1;
+  padding: 32px;
+  min-width: 0;
+  min-height: 100%;
+}
+
+.admin-mobile-topbar {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--moss-950);
+  border-bottom: 1px solid var(--border-soft);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.admin-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 39;
+  display: none;
+  backdrop-filter: blur(2px);
+}
+
+.admin-hamburger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 4px;
+  flex-shrink: 0;
+  height: 36px;
+  width: 36px;
+}
+.admin-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text-soft);
+  border-radius: 1px;
+  transition: background 0.15s;
+}
+.admin-hamburger:hover span {
+  background: var(--spore);
+}
+
+/* Drawer: transparent on desktop (aside is direct flex child) */
+.admin-drawer {
+  display: contents;
+}
+
+/* ── Admin page container ───────────────────────────────── */
+.admin-page {
+  padding: 36px 40px;
+  width: 100%;
+}
+
+/* ── KPI grid ───────────────────────────────────────────── */
+.grid-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+/* ── Dashboard 2-column ─────────────────────────────────── */
+.grid-admin-2col {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* ── Scrollable table wrapper ───────────────────────────── */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Public: page with sidebar ──────────────────────────── */
+.page-with-sidebar {
+  display: flex;
+  gap: 48px;
+  padding: 0 64px 96px;
+  align-items: flex-start;
+}
+.page-main { flex: 1; min-width: 0; }
+.page-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Codex grids ────────────────────────────────────────── */
+.grid-codex-cats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.grid-codex-featured {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* ── Profile grids ──────────────────────────────────────── */
+.grid-profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+  max-width: 760px;
+}
+.grid-achievements {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 64px;
+  max-width: 900px;
+}
+
+/* ── EntryCard ──────────────────────────────────────────── */
+.entry-card {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 32px;
+  padding-bottom: 32px;
+}
+
+/* ── Entry layout (article + TOC + reactions) ───────────── */
+.entry-layout {
+  display: grid;
+  grid-template-columns: 1fr 760px 1fr;
+  padding: 56px 32px;
+  align-items: start;
+}
+.entry-toc { display: block; }
+.entry-reactions {
+  position: sticky;
+  top: 100px;
+  align-self: flex-start;
+}
+
+/* ── TopNav hamburger ───────────────────────────────────── */
+.topnav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-soft);
+  font-size: 20px;
+  padding: 6px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.topnav-hamburger:hover { color: var(--spore); }
+
+.topnav-mobile-menu {
+  position: fixed;
+  inset: 0;
+  background: var(--moss-950);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow-y: auto;
+}
+.topnav-mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-soft);
+  position: sticky;
+  top: 0;
+  background: var(--moss-950);
+  z-index: 1;
+}
+.topnav-mobile-menu-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-soft);
+  font-size: 20px;
+  padding: 6px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.topnav-mobile-menu-close:hover { color: var(--spore); }
+
+.topnav-mobile-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 20px;
+  flex: 1;
+}
+.topnav-mobile-nav-item {
+  display: block;
+  padding: 18px 0;
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 500;
+  color: var(--text-soft);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-soft);
+  transition: color 0.15s;
+  letter-spacing: -0.5px;
+}
+.topnav-mobile-nav-item:hover,
+.topnav-mobile-nav-item.active { color: var(--spore); }
+
+.topnav-mobile-footer {
+  padding: 20px;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Media Queries ──────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  /* Admin: activar topbar y drawer */
+  .admin-mobile-topbar { display: flex; }
+
+  .admin-drawer {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 236px;
+    height: 100vh;
+    z-index: 40;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .admin-drawer > aside {
+    position: relative !important;
+    min-height: 100% !important;
+    width: 100% !important;
+  }
+  .admin-drawer.open {
+    transform: translateX(0);
+    box-shadow: 8px 0 40px rgba(0, 0, 0, 0.6);
+  }
+  .admin-sidebar-overlay { display: block; }
+
+  .admin-main { padding: 20px 16px; }
+  .admin-page { padding: 20px 0; max-width: 100%; }
+
+  .grid-kpis { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .grid-admin-2col { grid-template-columns: 1fr; }
+  .grid-codex-cats { grid-template-columns: repeat(2, 1fr); }
+  .grid-codex-featured { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .page-with-sidebar { padding: 0 24px 64px; }
+
+  .entry-layout {
+    grid-template-columns: 1fr;
+    padding: 32px 24px;
+  }
+  .entry-toc { display: none; }
+  .entry-reactions { position: static; }
+}
+
+@media (max-width: 768px) {
+  .topnav-hamburger { display: block; }
+
+  .page-with-sidebar {
+    flex-direction: column;
+    padding: 0 16px 48px;
+    gap: 32px;
+  }
+  .page-sidebar { width: 100%; }
+
+  .entry-card {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .grid-profile-stats { grid-template-columns: repeat(2, 1fr); max-width: 100%; }
+  .grid-achievements { grid-template-columns: repeat(2, 1fr); max-width: 100%; gap: 10px; }
+  .grid-codex-cats { grid-template-columns: 1fr; }
+  .grid-codex-featured { grid-template-columns: 1fr; }
+
+  .entry-layout { padding: 24px 16px; }
+}
+
+@media (max-width: 480px) {
+  .grid-profile-stats { grid-template-columns: 1fr; }
+  .grid-kpis { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .admin-main { padding: 12px; }
+}
+

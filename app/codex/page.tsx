@@ -33,14 +33,21 @@ export default async function CodexPage({ searchParams }: { searchParams: Search
       <TopNav />
 
       {/* ── Hero ──────────────────────────────────────────── */}
-      <section style={{ padding: '64px 64px 40px', textAlign: 'center' }}>
+      <section style={{ padding: 'clamp(40px, 7vw, 64px) clamp(20px, 5vw, 64px) 40px', textAlign: 'center' }}>
         <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--rune)', marginBottom: 16 }}>
           ✦ EL CODEX ✦
         </div>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 72, fontWeight: 500, letterSpacing: -1.5, margin: '0 0 16px', lineHeight: 1 }}>
+        <h1 style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 'clamp(40px, 8vw, 72px)',
+          fontWeight: 500,
+          letterSpacing: -1.5,
+          margin: '0 0 16px',
+          lineHeight: 1,
+        }}>
           Toda la <em style={{ fontStyle: 'italic', color: 'var(--moss-300)' }}>memoria</em> del bosque
         </h1>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: 17, fontStyle: 'italic', color: 'var(--text-soft)', maxWidth: 580, margin: '0 auto', lineHeight: 1.5 }}>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 'clamp(14px, 2.5vw, 17px)', fontStyle: 'italic', color: 'var(--text-soft)', maxWidth: 580, margin: '0 auto', lineHeight: 1.5 }}>
           {totalEntries > 0 ? `${totalEntries} entradas vivas` : 'Entradas'} · que se reescriben con cada borrador
         </p>
 
@@ -63,18 +70,18 @@ export default async function CodexPage({ searchParams }: { searchParams: Search
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-mute)" strokeWidth="2">
             <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" />
           </svg>
-          <span style={{ flex: 1, fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--text-mute)' }}>
+          <span style={{ flex: 1, fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--text-mute)', textAlign: 'left' }}>
             Busca una criatura, un personaje, un hechizo…
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-mute)', padding: '2px 8px', border: '1px solid var(--border)', borderRadius: 3 }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-mute)', padding: '2px 8px', border: '1px solid var(--border)', borderRadius: 3, flexShrink: 0 }}>
             ⌘K
           </span>
         </Link>
       </section>
 
       {/* ── Categorías ────────────────────────────────────── */}
-      <section style={{ padding: '32px 64px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+      <section style={{ padding: '32px clamp(20px, 5vw, 64px)' }}>
+        <div className="grid-codex-cats">
           {CODEX_CATEGORIES.map(c => (
             <CategoryCard
               key={c.id}
@@ -91,9 +98,9 @@ export default async function CodexPage({ searchParams }: { searchParams: Search
 
       {/* ── Featured ──────────────────────────────────────── */}
       {featured.length > 0 && (
-        <section style={{ padding: '56px 64px 96px' }}>
+        <section style={{ padding: 'clamp(32px, 5vw, 56px) clamp(20px, 5vw, 64px) clamp(64px, 8vw, 96px)' }}>
           <RuneDivider char="✦ DESTACADAS ESTA LUNA ✦" />
-          <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+          <div className="grid-codex-featured" style={{ marginTop: 32 }}>
             {featured.map(entry => (
               <WikiCard key={entry.id} entry={entry} />
             ))}

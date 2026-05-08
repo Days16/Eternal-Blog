@@ -1,12 +1,19 @@
 import { AdminSidebar } from '@/components/layout/AdminSidebar'
+import { AdminLayoutShell } from '@/components/layout/AdminLayoutShell'
 import { requireRole } from '@/lib/auth/session'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  await requireRole('admin', 'moderator', 'dev')
+  const session = await requireRole('admin', 'moderator', 'dev')
+  const role = (session.user as { role?: string }).role
+  const chamberLabel = role === 'dev'
+    ? 'DEV SANCTUM'
+    : role === 'moderator'
+      ? 'SALA DE MOD'
+      : 'CÁMARA DEL ARCHIMAGO'
+
   return (
-    <div style={{ display: 'flex', background: 'var(--bg)', color: 'var(--text)', minHeight: '100vh' }} className="tex-canopy">
-      <AdminSidebar />
-      <main style={{ flex: 1, padding: 32, minWidth: 0 }}>{children}</main>
-    </div>
+    <AdminLayoutShell sidebar={<AdminSidebar />} chamberLabel={chamberLabel}>
+      {children}
+    </AdminLayoutShell>
   )
 }

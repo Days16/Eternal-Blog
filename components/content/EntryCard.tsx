@@ -41,13 +41,8 @@ export function EntryCard({ entry, index = 0, isLast = false }: EntryCardProps) 
 
   return (
     <article
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '200px 1fr',
-        gap: 32,
-        paddingBottom: 32,
-        borderBottom: isLast ? 'none' : '1px solid var(--border-soft)',
-      }}
+      className="entry-card"
+      style={{ borderBottom: isLast ? 'none' : '1px solid var(--border-soft)' }}
     >
       <Link href={`/cronicas/${entry.slug}`} style={{ display: 'block' }}>
         <ImagePlaceholder height={140} tone={tone} label={firstTag || 'crónica'} />
@@ -70,7 +65,7 @@ export function EntryCard({ entry, index = 0, isLast = false }: EntryCardProps) 
         <h2
           style={{
             fontFamily: 'var(--font-display)',
-            fontSize: 30,
+            fontSize: 'clamp(22px, 4vw, 30px)',
             fontWeight: 600,
             color: 'var(--text)',
             margin: '0 0 10px',
