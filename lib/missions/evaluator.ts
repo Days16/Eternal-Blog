@@ -1,7 +1,7 @@
 import { requireSupabase } from '@/lib/supabase/helpers'
 
 type SupabaseClientInstance = ReturnType<typeof requireSupabase>
-export type MissionCriteriaType = 'comment_count' | 'reaction_given' | 'easter_egg_found' | 'entry_published' | 'xp_total' | 'level_reached'
+export type MissionCriteriaType = 'comment_count' | 'reaction_given' | 'easter_egg_found' | 'entry_published' | 'xp_total' | 'level_reached' | 'streak_days'
 
 interface MissionRow {
   id?: string | null
@@ -10,6 +10,7 @@ interface MissionRow {
   criteria_type?: string | null
   criteria_value?: number | null
   xp_reward?: number | null
+  glyph?: string | null
   starts_at?: string | null
   ends_at?: string | null
   created_at?: string | null
@@ -22,6 +23,7 @@ interface MissionCompletionRow {
 interface UserSnapshot {
   xp: number
   level: number
+  streak: number
   commentCount: number
   reactionCount: number
   easterEggCount: number
@@ -35,6 +37,7 @@ export interface Mission {
   criteriaType: string
   criteriaValue: number
   xpReward: number
+  glyph: string
   startsAt: string | null
   endsAt: string | null
   currentValue: number
@@ -55,6 +58,8 @@ function getMissionCurrentValue(criteriaType: string, snapshot: UserSnapshot): n
       return snapshot.xp
     case 'level_reached':
       return snapshot.level
+    case 'streak_days':
+      return snapshot.streak
     default:
       return 0
   }
@@ -72,6 +77,7 @@ function mapMission(row: MissionRow, snapshot: UserSnapshot): Mission {
     criteriaType,
     criteriaValue,
     xpReward: row.xp_reward ?? 0,
+    glyph: row.glyph ?? 'ᛟ',
     startsAt: row.starts_at ?? null,
     endsAt: row.ends_at ?? null,
     currentValue,
@@ -81,7 +87,7 @@ function mapMission(row: MissionRow, snapshot: UserSnapshot): Mission {
 
 async function getActiveMissionRows(supabase: SupabaseClientInstance): Promise<MissionRow[]> {
   const now = new Date().toISOString()
-  const select = 'id,title,description,criteria_type,criteria_value,xp_reward,starts_at,ends_at,created_at'
+  const select = 'id,title,description,criteria_type,criteria_value,xp_reward,glyph,starts_at,ends_at,created_at'
 
   const [{ data: bounded }, { data: openEnded }] = await Promise.all([
     supabase
@@ -126,7 +132,7 @@ async function getUserSnapshot(supabase: SupabaseClientInstance, userId: string)
     { count: easterEggCount },
     { count: entryPublishedCount },
   ] = await Promise.all([
-    supabase.from('users').select('xp,level').eq('id', userId).maybeSingle(),
+    supabase.from('users').select('xp,level,streak').eq('id', userId).maybeSingle(),
     supabase.from('comments').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('deleted', false),
     supabase.from('reactions').select('user_id', { count: 'exact', head: true }).eq('user_id', userId),
     supabase.from('user_easter_eggs').select('user_id', { count: 'exact', head: true }).eq('user_id', userId),
@@ -138,6 +144,7 @@ async function getUserSnapshot(supabase: SupabaseClientInstance, userId: string)
   return {
     xp: user.xp ?? 0,
     level: user.level ?? 1,
+    streak: (user as unknown as { streak?: number }).streak ?? 0,
     commentCount: commentCount ?? 0,
     reactionCount: reactionCount ?? 0,
     easterEggCount: easterEggCount ?? 0,

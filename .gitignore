@@ -44,3 +44,4 @@ PLAN.md
 /AGENT_CONFIG
 INFO.md
 /.github
+./supabase/migrations

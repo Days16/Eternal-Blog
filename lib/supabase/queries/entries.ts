@@ -154,6 +154,28 @@ export async function getCodexArticle(slug: string) {
   )().catch(() => undefined)
 }
 
+export async function getCodexEntries(category?: string) {
+  return unstable_cache(
+    async () => {
+      const supabase = requireSupabase()
+      let query = supabase
+        .from('entries')
+        .select('id,slug,type,title,excerpt,body,cover_url,tags,category,status,word_count,published_at,author_id,created_at,updated_at')
+        .eq('type', 'codex')
+        .eq('status', 'published')
+        .order('updated_at', { ascending: false })
+        .limit(100)
+
+      if (category) query = query.eq('category', category)
+
+      const { data } = await query
+      return (data ?? []).map(mapEntry)
+    },
+    ['codex-entries', category ?? 'all'],
+    { revalidate: 60 },
+  )().catch(() => [])
+}
+
 export async function getRelatedCodexEntries(entryId: string, category: string | null, limit = 3) {
   return unstable_cache(
     async () => {

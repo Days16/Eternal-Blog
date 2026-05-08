@@ -1,6 +1,15 @@
 import { unstable_cache } from 'next/cache'
 import { type CommentRow, type EntryRow, mapAchievement, mapEntry, mapUser, requireSupabase, toDate } from '@/lib/supabase/helpers'
 
+export type SiteText = {
+  key: string
+  value: string
+  defaultValue: string
+  description: string | null
+  section: string
+  updatedAt: Date | null
+}
+
 async function attachEntryAuthors(rows: EntryRow[]) {
   const supabase = requireSupabase()
   const authorIds = [...new Set(rows.map(row => row.author_id).filter(Boolean))]
@@ -179,27 +188,111 @@ export async function getAdminAchievements() {
     .select('id,slug,name,description,rune_glyph,color,criteria_type,criteria_value,xp_reward,created_at')
     .order('name', { ascending: true })
 
-  return (data ?? []).map(mapAchievement)
+  const mapped = (data ?? []).map(mapAchievement)
+  const ids = mapped.map(a => a.id).filter(Boolean)
+
+  const unlockCounts = new Map<string, number>()
+  if (ids.length > 0) {
+    const { data: unlocks } = await supabase
+      .from('user_achievements')
+      .select('achievement_id')
+      .in('achievement_id', ids)
+    for (const row of unlocks ?? []) {
+      if (row.achievement_id) {
+        unlockCounts.set(row.achievement_id, (unlockCounts.get(row.achievement_id) ?? 0) + 1)
+      }
+    }
+  }
+
+  return mapped.map(a => ({ ...a, unlockCount: unlockCounts.get(a.id) ?? 0 }))
+}
+
+export async function getAchievementForAdmin(id: string) {
+  const supabase = requireSupabase()
+  const { data } = await supabase
+    .from('achievements')
+    .select('id,slug,name,description,rune_glyph,color,criteria_type,criteria_value,xp_reward,created_at')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (!data) return null
+  return { ...mapAchievement(data), unlockCount: 0 }
+}
+
+export type MissionStatus = 'active' | 'upcoming' | 'open' | 'expired'
+
+function getMissionStatus(startsAt: Date | null, endsAt: Date | null, now: Date): MissionStatus {
+  if (!startsAt || startsAt > now) return 'upcoming'
+  if (!endsAt) return 'open'
+  if (endsAt < now) return 'expired'
+  return 'active'
 }
 
 export async function getAdminMissions() {
   const supabase = requireSupabase()
   const { data } = await supabase
     .from('missions')
-    .select('id,title,description,criteria_type,criteria_value,xp_reward,starts_at,ends_at,created_at')
+    .select('id,title,description,criteria_type,criteria_value,xp_reward,glyph,starts_at,ends_at,created_at')
     .order('created_at', { ascending: false })
 
-  return (data ?? []).map(row => ({
-    id: row.id,
-    title: row.title,
-    description: row.description,
-    criteriaType: row.criteria_type,
-    criteriaValue: row.criteria_value,
-    xpReward: row.xp_reward,
-    startsAt: toDate(row.starts_at),
-    endsAt: toDate(row.ends_at),
-    createdAt: toDate(row.created_at),
-  }))
+  const rows = data ?? []
+  const ids = rows.map(r => r.id).filter(Boolean) as string[]
+
+  const completionCounts = new Map<string, number>()
+  if (ids.length > 0) {
+    const { data: completions } = await supabase
+      .from('user_missions')
+      .select('mission_id')
+      .in('mission_id', ids)
+    for (const row of completions ?? []) {
+      if (row.mission_id) {
+        completionCounts.set(row.mission_id, (completionCounts.get(row.mission_id) ?? 0) + 1)
+      }
+    }
+  }
+
+  const now = new Date()
+  return rows.map(row => {
+    const startsAt = toDate(row.starts_at)
+    const endsAt = toDate(row.ends_at)
+    return {
+      id: String(row.id ?? ''),
+      title: row.title as string | null,
+      description: row.description as string | null,
+      criteriaType: row.criteria_type as string | null,
+      criteriaValue: row.criteria_value as number | null,
+      xpReward: row.xp_reward as number | null,
+      glyph: String(row.glyph ?? 'ᛟ'),
+      startsAt,
+      endsAt,
+      createdAt: toDate(row.created_at),
+      status: getMissionStatus(startsAt, endsAt, now),
+      completionCount: completionCounts.get(String(row.id ?? '')) ?? 0,
+    }
+  })
+}
+
+export async function getMissionForAdmin(id: string) {
+  const supabase = requireSupabase()
+  const { data } = await supabase
+    .from('missions')
+    .select('id,title,description,criteria_type,criteria_value,xp_reward,glyph,starts_at,ends_at,created_at')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (!data) return null
+  return {
+    id: String(data.id ?? ''),
+    title: data.title as string | null,
+    description: data.description as string | null,
+    criteriaType: data.criteria_type as string | null,
+    criteriaValue: data.criteria_value as number | null,
+    xpReward: data.xp_reward as number | null,
+    glyph: String(data.glyph ?? 'ᛟ'),
+    startsAt: toDate(data.starts_at),
+    endsAt: toDate(data.ends_at),
+    createdAt: toDate(data.created_at),
+  }
 }
 
 export async function getCustomRoles() {
@@ -216,6 +309,42 @@ export async function getCustomRoles() {
     color: String(row.color ?? 'var(--spore)'),
   }))
 }
+
+export async function getSiteTexts(): Promise<Record<string, SiteText[]>> {
+  const supabase = requireSupabase()
+  const { data } = await supabase
+    .from('site_texts')
+    .select('key,value,default_value,description,section,updated_at')
+    .order('section')
+    .order('key')
+
+  const result: Record<string, SiteText[]> = {}
+  for (const row of data ?? []) {
+    const sec: string = row.section ?? 'general'
+    if (!result[sec]) result[sec] = []
+    result[sec].push({
+      key: row.key,
+      value: row.value,
+      defaultValue: row.default_value,
+      description: (row.description as string | null) ?? null,
+      section: sec,
+      updatedAt: toDate(row.updated_at),
+    })
+  }
+  return result
+}
+
+export const getSiteTextsMap = unstable_cache(
+  async () => {
+    const supabase = requireSupabase()
+    const { data } = await supabase.from('site_texts').select('key,value')
+    const map: Record<string, string> = {}
+    for (const row of data ?? []) map[row.key] = row.value
+    return map
+  },
+  ['site-texts-map'],
+  { revalidate: 300, tags: ['site-texts'] },
+)
 
 async function attachCommentRelations(rows: CommentRow[]) {
   const supabase = requireSupabase()

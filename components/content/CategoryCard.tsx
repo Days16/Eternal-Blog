@@ -7,15 +7,16 @@ interface CategoryCardProps {
   color: string
   desc: string
   count: number
+  active?: boolean
 }
 
-export function CategoryCard({ id, name, rune, color, desc, count }: CategoryCardProps) {
+export function CategoryCard({ id, name, rune, color, desc, count, active }: CategoryCardProps) {
   return (
-    <Link href={`/codex?category=${id}`} style={{ textDecoration: 'none' }}>
+    <Link href={active ? '/codex' : `/codex?category=${id}`} style={{ textDecoration: 'none' }}>
       <div
         style={{
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-soft)',
+          background: active ? `color-mix(in srgb, ${color} 10%, var(--bg-card))` : 'var(--bg-card)',
+          border: `1px solid ${active ? color : 'var(--border-soft)'}`,
           borderRadius: 'var(--r-lg)',
           padding: 28,
           cursor: 'pointer',
@@ -34,7 +35,7 @@ export function CategoryCard({ id, name, rune, color, desc, count }: CategoryCar
             fontFamily: 'var(--font-display)',
             fontSize: 56,
             color,
-            opacity: 0.15,
+            opacity: active ? 0.3 : 0.15,
             lineHeight: 1,
             pointerEvents: 'none',
           }}
@@ -48,7 +49,7 @@ export function CategoryCard({ id, name, rune, color, desc, count }: CategoryCar
             width: 36,
             height: 36,
             borderRadius: 8,
-            background: `${color}18`,
+            background: `${color}${active ? '30' : '18'}`,
             color,
             display: 'flex',
             alignItems: 'center',
@@ -56,7 +57,7 @@ export function CategoryCard({ id, name, rune, color, desc, count }: CategoryCar
             fontFamily: 'var(--font-display)',
             fontSize: 22,
             marginBottom: 16,
-            border: `1px solid ${color}40`,
+            border: `1px solid ${color}${active ? '80' : '40'}`,
           }}
         >
           {rune}
@@ -69,7 +70,7 @@ export function CategoryCard({ id, name, rune, color, desc, count }: CategoryCar
             fontWeight: 600,
             margin: '0 0 4px',
             letterSpacing: -0.3,
-            color: 'var(--text)',
+            color: active ? color : 'var(--text)',
           }}
         >
           {name}
@@ -86,7 +87,7 @@ export function CategoryCard({ id, name, rune, color, desc, count }: CategoryCar
           {desc}
         </p>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color }}>
-          {count} {count === 1 ? 'entrada' : 'entradas'} →
+          {active ? '← quitar filtro' : `${count} ${count === 1 ? 'entrada' : 'entradas'} →`}
         </div>
       </div>
     </Link>

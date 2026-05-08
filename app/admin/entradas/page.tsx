@@ -1,10 +1,16 @@
 import Link from 'next/link'
 import { Btn } from '@/components/ui/Btn'
 import { Pagination } from '@/components/admin/Pagination'
+import { EntriesTable } from '@/components/admin/EntriesTable'
 import { getAdminEntries } from '@/lib/supabase/queries/admin'
-import { formatDate } from '@/lib/utils/dates'
 
 type Props = { searchParams: Promise<{ type?: string; status?: string; page?: string }> }
+
+const FILTER_TYPES = ['all', 'chronicle', 'codex'] as const
+const FILTER_STATUSES = ['all', 'draft', 'published', 'archived'] as const
+
+const TYPE_LABELS: Record<string, string> = { all: 'Todos los tipos', chronicle: 'Crónica', codex: 'Codex' }
+const STATUS_LABELS: Record<string, string> = { all: 'Todos los estados', draft: 'Borrador', published: 'Publicada', archived: 'Archivada' }
 
 export default async function AdminEntriesPage({ searchParams }: Props) {
   const { type, status, page: pageStr } = await searchParams
@@ -15,13 +21,21 @@ export default async function AdminEntriesPage({ searchParams }: Props) {
   if (type)   extraParams.type   = type
   if (status) extraParams.status = status
 
+  function filterHref(key: 'type' | 'status', value: string) {
+    const p = new URLSearchParams({ ...extraParams, [key]: value })
+    if (value === 'all') p.delete(key)
+    p.delete('page')
+    const str = p.toString()
+    return `/admin/entradas${str ? `?${str}` : ''}`
+  }
+
   return (
     <div>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: 20,
         gap: 12,
         flexWrap: 'wrap',
       }}>
@@ -31,74 +45,50 @@ export default async function AdminEntriesPage({ searchParams }: Props) {
         </Link>
       </div>
 
-      <div className="table-scroll" style={{
-        background: 'var(--bg-card)',
-        border: '1px solid var(--border-soft)',
-        borderRadius: 'var(--r-lg)',
-        overflow: 'hidden',
-      }}>
-        <div style={{ minWidth: 520 }}>
-          {/* Header */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 110px 110px 150px',
-            gap: 16,
-            padding: '10px 16px',
-            background: 'var(--moss-900)',
-            borderBottom: '1px solid var(--border-soft)',
-            fontFamily: 'var(--font-ui)',
-            fontSize: 10,
-            color: 'var(--text-mute)',
-            textTransform: 'uppercase',
-            letterSpacing: 1.5,
-            fontWeight: 600,
-          }}>
-            <span>Título</span>
-            <span>Tipo</span>
-            <span>Estado</span>
-            <span>Actualizado</span>
-          </div>
-
-          {entries.map(entry => (
-            <Link
-              key={entry.id}
-              href={`/admin/entradas/${entry.id}`}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 110px 110px 150px',
-                gap: 16,
-                padding: '14px 16px',
-                borderBottom: '1px solid var(--border-soft)',
-                color: 'var(--text)',
-                textDecoration: 'none',
-                fontFamily: 'var(--font-ui)',
-                fontSize: 13,
-                transition: 'background 0.1s',
-              }}
-              className="hover-row"
-            >
-              <span style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                {entry.title}
-              </span>
-              <span style={{ color: 'var(--text-mute)', textTransform: 'capitalize' }}>
-                {entry.type}
-              </span>
-              <span style={{ color: entry.status === 'published' ? 'var(--spore)' : 'var(--text-mute)', textTransform: 'capitalize' }}>
-                {entry.status}
-              </span>
-              <span style={{ color: 'var(--text-mute)' }}>
-                {formatDate(entry.updatedAt)}
-              </span>
+      {/* Filtros */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+        {FILTER_TYPES.map(t => {
+          const active = (type ?? 'all') === t
+          return (
+            <Link key={t} href={filterHref('type', t)} style={{
+              padding: '5px 12px',
+              border: '1px solid',
+              borderColor: active ? 'var(--spore)' : 'var(--border-soft)',
+              borderRadius: 'var(--r-sm)',
+              background: active ? 'var(--spore)' : 'transparent',
+              color: active ? 'var(--moss-900)' : 'var(--text-soft)',
+              fontFamily: 'var(--font-ui)',
+              fontSize: 12,
+              textDecoration: 'none',
+              fontWeight: active ? 700 : 400,
+            }}>
+              {TYPE_LABELS[t]}
             </Link>
-          ))}
-
-          {entries.length === 0 && (
-            <p style={{ padding: 24, color: 'var(--text-mute)', fontFamily: 'var(--font-body)', fontStyle: 'italic' }}>
-              No hay entradas.
-            </p>
-          )}
-        </div>
+          )
+        })}
+        <span style={{ color: 'var(--border-soft)', margin: '0 4px' }}>|</span>
+        {FILTER_STATUSES.map(s => {
+          const active = (status ?? 'all') === s
+          return (
+            <Link key={s} href={filterHref('status', s)} style={{
+              padding: '5px 12px',
+              border: '1px solid',
+              borderColor: active ? 'var(--spore)' : 'var(--border-soft)',
+              borderRadius: 'var(--r-sm)',
+              background: active ? 'var(--spore)' : 'transparent',
+              color: active ? 'var(--moss-900)' : 'var(--text-soft)',
+              fontFamily: 'var(--font-ui)',
+              fontSize: 12,
+              textDecoration: 'none',
+              fontWeight: active ? 700 : 400,
+            }}>
+              {STATUS_LABELS[s]}
+            </Link>
+          )
+        })}
       </div>
+
+      <EntriesTable entries={entries} />
 
       <Pagination page={page} total={total} pageSize={pageSize} basePath="/admin/entradas" extraParams={extraParams} />
     </div>

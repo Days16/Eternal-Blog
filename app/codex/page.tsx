@@ -8,25 +8,26 @@ import { RuneDivider } from '@/components/ui/RuneDivider'
 import {
   CODEX_CATEGORIES,
   getCodexStats,
-  getCodexFeatured,
+  getCodexEntries,
 } from '@/lib/supabase/queries/entries'
 
 export const metadata: Metadata = {
   title: 'Codex',
-  description: 'Toda la memoria del bosque. 225 entradas vivas que se reescriben con cada borrador.',
+  description: 'Toda la memoria del bosque. Entradas vivas que se reescriben con cada borrador.',
 }
 
 type SearchParams = Promise<{ category?: string }>
 
 export default async function CodexPage({ searchParams }: { searchParams: SearchParams }) {
-  await searchParams
+  const { category } = await searchParams
 
-  const [stats, featured] = await Promise.all([
+  const [stats, entries] = await Promise.all([
     getCodexStats(),
-    getCodexFeatured(3),
+    getCodexEntries(category),
   ])
 
   const totalEntries = Object.values(stats).reduce((a, b) => a + b, 0)
+  const activeCat = category ? CODEX_CATEGORIES.find(c => c.id === category) : null
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', minHeight: '100vh' }} className="tex-canopy">
@@ -84,22 +85,52 @@ export default async function CodexPage({ searchParams }: { searchParams: Search
               color={c.color}
               desc={c.desc}
               count={stats[c.id] ?? 0}
+              active={category === c.id}
             />
           ))}
         </div>
       </section>
 
-      {/* ── Featured ──────────────────────────────────────── */}
-      {featured.length > 0 && (
-        <section className="page-layout" style={{ paddingTop: 56 }}>
-          <RuneDivider char="✦ DESTACADAS ESTA LUNA ✦" />
+      {/* ── Entradas ──────────────────────────────────────── */}
+      <section className="page-layout" style={{ paddingTop: 40, paddingBottom: 80 }}>
+        <RuneDivider char={activeCat ? `✦ ${activeCat.name.toUpperCase()} ✦` : '✦ TODAS LAS ENTRADAS ✦'} />
+
+        {entries.length === 0 ? (
+          <div style={{
+            textAlign: 'center',
+            paddingTop: 48,
+            fontFamily: 'var(--font-body)',
+            fontStyle: 'italic',
+            color: 'var(--text-mute)',
+            fontSize: 16,
+          }}>
+            No hay entradas en esta categoría aún.
+          </div>
+        ) : (
           <div className="grid-codex-featured" style={{ marginTop: 32 }}>
-            {featured.map(entry => (
+            {entries.map(entry => (
               <WikiCard key={entry.id} entry={entry} />
             ))}
           </div>
-        </section>
-      )}
+        )}
+
+        {activeCat && (
+          <div style={{ textAlign: 'center', marginTop: 40 }}>
+            <Link
+              href="/codex"
+              style={{
+                fontFamily: 'var(--font-ui)',
+                fontSize: 12,
+                color: 'var(--text-mute)',
+                textDecoration: 'none',
+                letterSpacing: 1,
+              }}
+            >
+              ← Ver todas las categorías
+            </Link>
+          </div>
+        )}
+      </section>
 
       <Footer />
     </div>
