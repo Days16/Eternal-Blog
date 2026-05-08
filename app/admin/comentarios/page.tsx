@@ -72,6 +72,11 @@ export default async function AdminCommentsPage({ searchParams }: Props) {
               style={{ fontFamily: 'var(--font-body)', color: 'var(--text-soft)', fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}
               dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(comment.body ?? '') }}
             />
+  
+            <div 
+              style={{ fontFamily: 'var(--font-body)', color: 'var(--text-soft)', fontSize: 14, lineHeight: 1.6, marginBottom: 20 }} 
+              dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(comment.body ?? '') }} 
+            />
 
             {/* Acciones */}
             {!comment.deleted && (
