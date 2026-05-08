@@ -75,13 +75,8 @@ export async function evaluateAchievements(userId: string): Promise<string[]> {
     })
 
     if (achievement.xp_reward > 0) {
-      // TODO: reemplazar por supabase.rpc('add_xp', { p_user_id: userId, p_delta: xp_reward })
-      // para una suma atómica en Postgres y eliminar el read-modify-write residual.
-      user.xp += achievement.xp_reward
-      await supabase
-        .from('users')
-        .update({ xp: user.xp, updated_at: new Date().toISOString() })
-        .eq('id', userId)
+      // RPC atómica para evitar read-modify-write sobre user.xp
+      await supabase.rpc('add_xp', { p_user_id: userId, p_delta: achievement.xp_reward })
     }
 
     newlyUnlocked.push(achievement.slug)

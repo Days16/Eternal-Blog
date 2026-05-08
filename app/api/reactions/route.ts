@@ -58,6 +58,11 @@ export async function POST(request: Request) {
     const { entryId, kind } = await request.json()
     if (!entryId || !kind) return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
 
+    const ALLOWED_REACTION_KINDS = new Set(['magic', 'bright', 'uneasy', 'dreamer'])
+    if (!ALLOWED_REACTION_KINDS.has(kind)) {
+      return NextResponse.json({ error: 'Tipo de reacción no válido' }, { status: 400 })
+    }
+
     const supabase = getSupabaseServerClient()
     if (!supabase) return NextResponse.json({ error: 'Servidor no configurado' }, { status: 500 })
 

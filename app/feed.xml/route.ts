@@ -2,7 +2,7 @@ import { getRssChronicles } from '@/lib/supabase/queries/entries'
 
 export async function GET() {
   const entries = await getRssChronicles(20)
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+  const baseUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'
 
   const itemsXml = entries.map(entry => `
     <item>

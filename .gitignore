@@ -41,3 +41,6 @@ next-env.d.ts
 /docs
 CLAUDE.md 
 PLAN.md
+/AGENT_CONFIG
+INFO.md
+/.github
