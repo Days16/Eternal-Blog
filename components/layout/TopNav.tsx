@@ -74,7 +74,7 @@ export function TopNav({ compact = false }: TopNavProps) {
         }}
       >
         {/* Logo */}
-        <Link href="/cronicas" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', flexShrink: 0 }}>
+        <Link href="/cronicas" className="logo-link" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
           <Mushroom size={compact ? 20 : 24} />
           <span
             style={{
@@ -112,6 +112,7 @@ export function TopNav({ compact = false }: TopNavProps) {
                   {item.label}
                   {active && (
                     <span
+                      className="nav-dot"
                       style={{
                         position: 'absolute',
                         bottom: -22,

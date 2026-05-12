@@ -18,31 +18,14 @@ export function WikiCard({ entry }: WikiCardProps) {
   const cat = CODEX_CATEGORIES.find(c => c.id === entry.category)
 
   return (
-    <Link href={`/codex/${entry.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
-      <div
-        style={{
-          background: 'var(--bg-card)',
-          borderRadius: 'var(--r-lg)',
-          overflow: 'hidden',
-          border: '1px solid var(--border-soft)',
-          cursor: 'pointer',
-          transition: 'transform var(--t-fast) var(--ease)',
-        }}
-      >
-        <ImagePlaceholder height={180} tone="forest" label={cat?.name.toLowerCase() ?? 'codex'} />
+    <Link href={`/codex/${entry.slug}`} className="wiki-card-outer" style={{ textDecoration: 'none', display: 'block' }}>
+      <div className="wiki-card">
+        <div className="wiki-card-img">
+          <ImagePlaceholder height={180} tone="forest" label={cat?.name.toLowerCase() ?? 'codex'} />
+        </div>
         <div style={{ padding: 20 }}>
           {cat && <Tag color={cat.color}>{cat.name}</Tag>}
-          <h4
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 22,
-              fontWeight: 600,
-              margin: '12px 0 8px',
-              letterSpacing: -0.3,
-              lineHeight: 1.2,
-              color: 'var(--text)',
-            }}
-          >
+          <h4 className="wiki-card-title">
             {entry.title}
           </h4>
           <div
