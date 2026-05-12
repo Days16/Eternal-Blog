@@ -44,7 +44,7 @@ export function EntryCard({ entry, index = 0, isLast = false }: EntryCardProps) 
       className="entry-card entry-card-transition"
       style={{ borderBottom: isLast ? 'none' : '1px solid var(--border-soft)' }}
     >
-      <Link href={`/cronicas/${entry.slug}`} style={{ display: 'block' }}>
+      <Link href={`/cronicas/${entry.slug}`} className="entry-card-img">
         <ImagePlaceholder height={140} tone={tone} label={firstTag || 'crónica'} />
       </Link>
 
@@ -62,17 +62,7 @@ export function EntryCard({ entry, index = 0, isLast = false }: EntryCardProps) 
           </span>
         </div>
 
-        <h2
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(22px, 4vw, 30px)',
-            fontWeight: 600,
-            color: 'var(--text)',
-            margin: '0 0 10px',
-            letterSpacing: -0.5,
-            lineHeight: 1.1,
-          }}
-        >
+        <h2 className="entry-card-title">
           <Link href={`/cronicas/${entry.slug}`} style={{ color: 'inherit', textDecoration: 'none' }}>
             {entry.title}
           </Link>

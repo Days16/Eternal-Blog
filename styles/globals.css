@@ -47,6 +47,19 @@ a:hover {
   color: var(--spore);
 }
 
+/* ── Focus visible (teclado / accesibilidad) ────────────── */
+:focus-visible {
+  outline: 2px solid var(--spore);
+  outline-offset: 3px;
+  border-radius: var(--r-sm);
+}
+
+/* ── Firefox scrollbar ──────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--moss-600) var(--moss-900);
+}
+
 code, pre {
   font-family: var(--font-mono);
 }
@@ -371,6 +384,31 @@ code, pre {
   padding-bottom: 32px;
 }
 
+.entry-card-title {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 10px;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  transition: color var(--t-med) var(--ease);
+}
+
+.entry-card:hover .entry-card-title {
+  color: var(--spore);
+}
+
+.entry-card-img {
+  display: block;
+  transition: transform var(--t-med) var(--ease), opacity var(--t-fast) var(--ease);
+}
+
+.entry-card:hover .entry-card-img {
+  transform: scale(1.02);
+  opacity: 0.9;
+}
+
 /* ── Entry layout (article + TOC + reactions) ───────────── */
 .entry-layout {
   display: grid;
@@ -579,6 +617,47 @@ code, pre {
   .page-layout { padding: 0 16px 32px; }
 }
 
+/* ── Mobile menu entrance ───────────────────────────────── */
+@keyframes menu-slide-in {
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.topnav-mobile-menu {
+  animation: menu-slide-in 280ms var(--ease) both;
+}
+
+/* ── Skeleton shimmer ────────────────────────────────────── */
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position:  200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--moss-800) 25%,
+    var(--moss-700) 50%,
+    var(--moss-800) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--r-md);
+}
+
+/* ── Reveal on mount ─────────────────────────────────────── */
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal   { animation: reveal-up 500ms var(--ease) both; }
+.reveal-1 { animation-delay:  60ms; }
+.reveal-2 { animation-delay: 120ms; }
+.reveal-3 { animation-delay: 180ms; }
+.reveal-4 { animation-delay: 240ms; }
+.reveal-5 { animation-delay: 300ms; }
+
 /* ── View Transitions ────────────────────────────────── */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(8px); }
@@ -602,5 +681,155 @@ code, pre {
 }
 .page-hero-transition {
   view-transition-name: page-hero;
+}
+
+/* ── Animaciones avanzadas ──────────────────────────────── */
+
+/* Runa decorativa flotante */
+@keyframes rune-float {
+  0%, 100% { transform: translateY(0)   rotate(0deg); }
+  50%      { transform: translateY(-9px) rotate(5deg); }
+}
+.rune-float {
+  animation: rune-float 8s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Logo: hongo sube suavemente + texto se ilumina */
+@keyframes mushroom-bob {
+  0%   { transform: translateY(0)   scale(1); }
+  35%  { transform: translateY(-4px) scale(1.06); }
+  65%  { transform: translateY(-2px) scale(1.02); }
+  100% { transform: translateY(0)   scale(1); }
+}
+.logo-link {
+  text-decoration: none;
+}
+.logo-link:hover svg {
+  animation: mushroom-bob 0.55s var(--ease) both;
+}
+.logo-link span {
+  transition: letter-spacing var(--t-med) var(--ease),
+              color          var(--t-med) var(--ease);
+}
+.logo-link:hover span {
+  color: var(--spore);
+  letter-spacing: 6px;
+}
+
+/* Punto activo en nav: pulso dorado */
+@keyframes nav-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35;
+             box-shadow: 0 0 8px var(--spore), 0 0 20px var(--spore-glow); }
+}
+.nav-dot {
+  animation: nav-dot-pulse 2.8s ease-in-out infinite;
+}
+
+/* Barra de progreso: fill animado desde 0 */
+@keyframes bar-fill {
+  from { width: 0; }
+}
+.progress-bar-fill {
+  animation: bar-fill 1.4s var(--ease) both;
+  animation-delay: 500ms;
+}
+
+/* Botones: micro-feedback al hacer click */
+button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* ── WikiCard ────────────────────────────────────────────── */
+.wiki-card {
+  background: var(--bg-card);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+  cursor: pointer;
+  transition: transform      var(--t-med) var(--ease),
+              border-color   var(--t-med) var(--ease),
+              box-shadow     var(--t-med) var(--ease);
+}
+.wiki-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(212, 166, 74, 0.28);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.45),
+              0 0 20px rgba(212,166,74,0.08);
+}
+.wiki-card-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  margin: 12px 0 8px;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+  color: var(--text);
+  transition: color var(--t-med) var(--ease);
+}
+.wiki-card:hover .wiki-card-title {
+  color: var(--spore);
+}
+.wiki-card-img {
+  overflow: hidden;
+}
+.wiki-card-img > * {
+  transition: transform var(--t-slow) var(--ease);
+}
+.wiki-card:hover .wiki-card-img > * {
+  transform: scale(1.05);
+}
+
+/* ── CategoryCard ────────────────────────────────────────── */
+.category-card-link {
+  display: block;
+  text-decoration: none;
+}
+.category-card-inner {
+  transition: transform   var(--t-med) var(--ease),
+              box-shadow  var(--t-med) var(--ease);
+}
+.category-card-link:hover .category-card-inner {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.category-rune-bg {
+  transition: transform var(--t-slow) var(--ease),
+              opacity   var(--t-med)  var(--ease);
+}
+.category-card-link:hover .category-rune-bg {
+  transform: scale(1.2) rotate(12deg);
+  opacity: 0.4;
+}
+.category-icon {
+  transition: transform var(--t-med) var(--ease);
+}
+.category-card-link:hover .category-icon {
+  transform: scale(1.14) rotate(-6deg);
+}
+
+/* ── Scroll-driven reveal (Chrome 115+, Firefox 110+) ────── */
+@keyframes reveal-left {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@supports (animation-timeline: view()) {
+  .entry-card {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 28%;
+  }
+  .wiki-card-outer {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 28%;
+  }
+  .category-card-link {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 35%;
+  }
 }
 
