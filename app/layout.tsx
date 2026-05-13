@@ -61,8 +61,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <body className="tex-canopy tex-grain">
         <Providers session={session}>{children}</Providers>
-        <Analytics />
-        <SpeedInsights />
+        {process.env.NODE_ENV === 'production' && <Analytics />}
+        {process.env.NODE_ENV === 'production' && <SpeedInsights />}
       </body>
     </html>
   )

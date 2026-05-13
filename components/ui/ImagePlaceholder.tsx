@@ -13,11 +13,24 @@ interface ImagePlaceholderProps {
 }
 
 const TONES: Record<Tone, [string, string]> = {
-  forest: ['var(--moss-700)', 'var(--moss-800)'],
-  mist:   ['var(--moss-600)', 'var(--moss-700)'],
-  ember:  ['#3a1f1a',         '#1f110c'],
-  sky:    ['#1a2638',         '#0f1820'],
+  forest: ['var(--moss-700)',  'var(--moss-800)'],
+  mist:   ['var(--moss-600)',  'var(--moss-700)'],
+  ember:  ['var(--ember-800)', 'var(--ember-900)'],
+  sky:    ['var(--moss-700)',  'var(--moss-800)'],
 }
+
+const RUNE_SPRITES = Array.from({ length: 8 }, (_, i) => ({
+  top:      `${(i * 37) % 90 + 5}%`,
+  left:     `${(i * 53) % 90 + 5}%`,
+  fontSize: 14 + (i % 3) * 6,
+  rune:     RUNES[i % RUNES.length],
+}))
+
+const SPORE_SPRITES = Array.from({ length: 5 }, (_, i) => ({
+  top:  `${(i * 41) % 80 + 10}%`,
+  left: `${(i * 67) % 80 + 10}%`,
+  size: 3 + (i % 3) * 2,
+}))
 
 export function ImagePlaceholder({
   width = '100%',
@@ -46,33 +59,33 @@ export function ImagePlaceholder({
     >
       {/* runas dispersas */}
       <div style={{ position: 'absolute', inset: 0, opacity: 0.15 }}>
-        {Array.from({ length: 8 }, (_, i) => (
+        {RUNE_SPRITES.map((s, i) => (
           <span
             key={i}
             style={{
               position: 'absolute',
-              top: `${(i * 37) % 90 + 5}%`,
-              left: `${(i * 53) % 90 + 5}%`,
+              top: s.top,
+              left: s.left,
               color: 'var(--rune)',
-              fontSize: 14 + (i % 3) * 6,
+              fontSize: s.fontSize,
               fontFamily: 'var(--font-display)',
             }}
           >
-            {RUNES[i % RUNES.length]}
+            {s.rune}
           </span>
         ))}
       </div>
       {/* esporas */}
       <div style={{ position: 'absolute', inset: 0 }}>
-        {Array.from({ length: 5 }, (_, i) => (
+        {SPORE_SPRITES.map((s, i) => (
           <span
             key={i}
             style={{
               position: 'absolute',
-              top: `${(i * 41) % 80 + 10}%`,
-              left: `${(i * 67) % 80 + 10}%`,
-              width: 3 + (i % 3) * 2,
-              height: 3 + (i % 3) * 2,
+              top: s.top,
+              left: s.left,
+              width: s.size,
+              height: s.size,
               borderRadius: '50%',
               background: 'var(--spore)',
               boxShadow: '0 0 8px var(--spore-glow)',

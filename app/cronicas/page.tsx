@@ -55,10 +55,10 @@ export default async function CronicasPage({ searchParams }: { searchParams: Sea
 
       {/* ── Hero ──────────────────────────────────────────── */}
       <section className="page-hero page-hero-transition" style={{ position: 'relative' }}>
-        <div style={{ position: 'absolute', top: 80, right: 80, opacity: 0.2, fontFamily: 'var(--font-display)', color: 'var(--rune)', fontSize: 56, lineHeight: 1 }}>
+        <div className="rune-float" style={{ position: 'absolute', top: 80, right: 80, opacity: 0.2, fontFamily: 'var(--font-display)', color: 'var(--rune)', fontSize: 56, lineHeight: 1 }}>
           ᛉ
         </div>
-        <div style={{
+        <div className="reveal" style={{
           fontFamily: 'var(--font-ui)', fontSize: 11, textTransform: 'uppercase',
           letterSpacing: 3, color: 'var(--spore)', marginBottom: 16,
           display: 'flex', alignItems: 'center', gap: 10,
@@ -66,11 +66,11 @@ export default async function CronicasPage({ searchParams }: { searchParams: Sea
           <span style={{ width: 24, height: 1, background: 'var(--spore)', display: 'inline-block' }} />
           Bitácora arcana de un escritor en formación
         </div>
-        <h1 className="hero-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 500, color: 'var(--text)', lineHeight: 0.95, letterSpacing: -2, margin: '0 0 20px', maxWidth: 880 }}>
+        <h1 className="hero-title reveal reveal-1" style={{ fontFamily: 'var(--font-display)', fontWeight: 500, color: 'var(--text)', lineHeight: 0.95, letterSpacing: -2, margin: '0 0 20px', maxWidth: 880 }}>
           Notas del bosque<br />
           <em style={{ fontStyle: 'italic', color: 'var(--moss-300)' }}>donde las palabras germinan</em>
         </h1>
-        <p style={{
+        <p className="reveal reveal-2" style={{
           fontFamily: 'var(--font-body)',
           fontSize: 'clamp(15px, 2.5vw, 19px)',
           color: 'var(--text-soft)',
@@ -146,7 +146,7 @@ export default async function CronicasPage({ searchParams }: { searchParams: Sea
                 <span>de {GOAL.toLocaleString('es-ES')}</span>
               </div>
               <div style={{ height: 6, background: 'var(--moss-800)', borderRadius: 99, overflow: 'hidden' }}>
-                <div style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg, var(--spore-dim), var(--spore))', boxShadow: 'var(--glow-spore)' }} />
+                <div className="progress-bar-fill" style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg, var(--spore-dim), var(--spore))', boxShadow: 'var(--glow-spore)' }} />
               </div>
             </div>
           </div>

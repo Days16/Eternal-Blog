@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { TopNav } from '@/components/layout/TopNav'
 import { Footer } from '@/components/layout/Footer'
@@ -32,12 +33,13 @@ export default async function SobrePage() {
         {/* Cabecera */}
         <div className="main-flex page-hero-transition" style={{ alignItems: 'center', marginBottom: 56 }}>
           {avatarUrl ? (
-            <img
+            <Image
               src={avatarUrl}
               alt={`Retrato de ${name}`}
+              width={220}
+              height={280}
+              unoptimized
               style={{
-                width: 220,
-                height: 280,
                 objectFit: 'cover',
                 borderRadius: 'var(--r-lg)',
                 flexShrink: 0,
