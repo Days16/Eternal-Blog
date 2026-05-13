@@ -19,8 +19,12 @@ export function NotificationBell() {
   const [hasNew, setHasNew] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   
-  const { data: notifications, mutate } = useSWR<Notification[]>('/api/notifications', fetcher, {
-    refreshInterval: 60000 // Refrescar cada minuto
+  const { data: notifications, mutate, isLoading, error } = useSWR<Notification[]>('/api/notifications', fetcher, {
+    refreshInterval: 60_000,
+    onErrorRetry: (err, _key, _cfg, revalidate, { retryCount }) => {
+      if (retryCount >= 3) return
+      setTimeout(() => revalidate({ retryCount }), 10_000)
+    },
   })
 
   useEffect(() => {
@@ -107,7 +111,23 @@ export function NotificationBell() {
           </div>
 
           <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-            {!notifications || notifications.length === 0 ? (
+            {isLoading ? (
+              <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-mute)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>
+                Consultando el éter…
+              </div>
+            ) : error ? (
+              <div style={{ padding: 24, textAlign: 'center' }}>
+                <div style={{ color: 'var(--ember)', fontSize: 13, fontFamily: 'var(--font-ui)', marginBottom: 10 }}>
+                  No se pudo alcanzar el éter.
+                </div>
+                <button
+                  onClick={() => mutate()}
+                  style={{ background: 'none', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-sm)', color: 'var(--text-mute)', fontSize: 11, padding: '4px 12px', cursor: 'pointer', fontFamily: 'var(--font-ui)' }}
+                >
+                  Reintentar
+                </button>
+              </div>
+            ) : !notifications || notifications.length === 0 ? (
               <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-mute)', fontStyle: 'italic', fontSize: 13 }}>
                 El silencio reina en el bosque...
               </div>

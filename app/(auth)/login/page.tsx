@@ -79,7 +79,7 @@ function LoginContent() {
           <Field label="Palabra-llave" name="password" type="password" placeholder="••••••••••••" />
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 24, fontFamily: 'var(--font-ui)', fontSize: 12 }}>
-            <a style={{ color: 'var(--mist)', cursor: 'pointer' }}>¿Olvidaste el conjuro?</a>
+            <Link href="/olvide-conjuro" style={{ color: 'var(--mist)', textDecoration: 'none' }}>¿Olvidaste el conjuro?</Link>
           </div>
 
           {error && (

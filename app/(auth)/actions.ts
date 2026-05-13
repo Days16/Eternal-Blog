@@ -3,8 +3,9 @@
 import { signIn, signOut } from '@/auth'
 import { AuthError } from 'next-auth'
 import { headers } from 'next/headers'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getSupabaseServerClient, getSupabaseAuthClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
+import { Resend } from 'resend'
 
 async function resolveIp(): Promise<string> {
   try {
@@ -17,6 +18,79 @@ async function resolveIp(): Promise<string> {
 
 export async function signOutAction() {
   await signOut({ redirectTo: '/login' })
+}
+
+export async function requestPasswordResetAction(
+  _prev: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  const email = String(formData.get('email') ?? '').trim().toLowerCase()
+  if (!email) return 'Introduce tu correo.'
+
+  const ip = await resolveIp()
+  const { limited } = rateLimit(`reset:${ip}`, 3, 3_600_000)
+  if (limited) return 'Demasiados intentos. Espera una hora.'
+
+  const authClient = getSupabaseAuthClient()
+  if (!authClient) return 'Servicio no disponible.'
+
+  const siteUrl = process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000'
+
+  // resetPasswordForEmail envía el correo directamente vía Supabase Auth.
+  // Si Resend está configurado como proveedor SMTP de Supabase, lo usa.
+  const { error } = await authClient.auth.resetPasswordForEmail(email, {
+    redirectTo: `${siteUrl}/nueva-palabra-llave`,
+  })
+
+  // Siempre devolvemos éxito para no revelar si el email existe
+  if (error) console.error('[auth] resetPasswordForEmail error:', error.message)
+  return null  // null = éxito
+}
+
+export async function resetPasswordAction(
+  _prev: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  const password    = String(formData.get('password') ?? '')
+  const accessToken = String(formData.get('access_token') ?? '')
+  const refreshToken = String(formData.get('refresh_token') ?? '')
+
+  if (!password || password.length < 8) return 'La palabra-llave debe tener al menos 8 caracteres.'
+  if (!accessToken) return 'Enlace inválido o caducado. Solicita uno nuevo.'
+
+  const authClient = getSupabaseAuthClient()
+  if (!authClient) return 'Servicio no disponible.'
+
+  // Restaurar la sesión desde los tokens del enlace mágico
+  const { error: sessionError } = await authClient.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  })
+  if (sessionError) return 'El enlace ha caducado. Solicita uno nuevo.'
+
+  const { error } = await authClient.auth.updateUser({ password })
+  if (error) return error.message
+
+  return null  // null = éxito → el cliente redirige al login
+}
+
+export async function resendVerificationEmailAction(
+  _prev: string | null,
+  formData: FormData,
+): Promise<string | null> {
+  const email = String(formData.get('email') ?? '').trim().toLowerCase()
+  if (!email) return 'Correo no disponible.'
+
+  const ip = await resolveIp()
+  const { limited } = rateLimit(`resend-verify:${ip}`, 2, 3_600_000)
+  if (limited) return 'Ya se ha enviado recientemente. Espera una hora.'
+
+  const authClient = getSupabaseAuthClient()
+  if (!authClient) return 'Servicio no disponible.'
+
+  const { error } = await authClient.auth.resend({ type: 'signup', email })
+  if (error) console.error('[auth] resend verify error:', error.message)
+  return null
 }
 
 export async function loginAction(

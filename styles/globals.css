@@ -604,3 +604,30 @@ code, pre {
   view-transition-name: page-hero;
 }
 
+
+/* ── Modo lector ─────────────────────────────────────────── */
+.reader-mode header.topnav-header,
+.reader-mode footer,
+.reader-mode aside,
+.reader-mode [data-hide-reader] {
+  display: none !important;
+}
+
+.reader-mode body {
+  background: #100e0a !important;
+}
+
+.reader-mode [data-reader-body] {
+  font-size: 19px !important;
+  line-height: 1.9 !important;
+  max-width: 660px !important;
+  margin: 0 auto !important;
+  padding: 64px 24px 120px !important;
+  color: #e8dcc8 !important;
+}
+
+.reader-mode [data-reader-body] h1,
+.reader-mode [data-reader-body] h2,
+.reader-mode [data-reader-body] h3 {
+  font-family: var(--font-display) !important;
+}

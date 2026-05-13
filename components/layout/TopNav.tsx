@@ -13,9 +13,11 @@ import { useUserStats } from '@/hooks/use-user-stats'
 import type { LevelNumber } from '@/components/ui/constants'
 
 const NAV_ITEMS = [
-  { href: '/cronicas', label: 'Crónicas' },
-  { href: '/codex',    label: 'Codex' },
-  { href: '/sobre',    label: 'Sobre el autor' },
+  { href: '/cronicas',   label: 'Crónicas' },
+  { href: '/codex',      label: 'Codex' },
+  { href: '/foro',       label: 'Foro' },
+  { href: '/horizonte',  label: 'Horizonte' },
+  { href: '/sobre',      label: 'Sobre el autor' },
 ]
 
 interface TopNavProps {

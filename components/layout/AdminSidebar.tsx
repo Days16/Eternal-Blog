@@ -37,6 +37,8 @@ export async function AdminSidebar() {
     { href: '/admin/usuarios',     label: 'Usuarios',         icon: '○', count: counts.users },
     { href: '/admin/misiones',     label: 'Misiones',         icon: '⚑' },
     { href: '/admin/logros',       label: 'Logros',           icon: '✦' },
+    { href: '/admin/roadmap',      label: 'Roadmap',          icon: '◇' },
+    { href: '/admin/foro',         label: 'Foro',             icon: '◈' },
     { href: '/admin/roles',        label: 'Roles & permisos', icon: '≡' },
     { href: '/admin/textos',       label: 'Textos del sitio', icon: '≋' },
     { href: '/admin/tema',         label: 'Tema y aspecto',   icon: '⚙' },

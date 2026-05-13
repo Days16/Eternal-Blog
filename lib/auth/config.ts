@@ -2,6 +2,7 @@ import Credentials from 'next-auth/providers/credentials'
 import { z } from 'zod'
 import { getSupabaseAuthClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { mapUser } from '@/lib/supabase/helpers'
+import { checkAndUpdateStreak } from '@/lib/xp/streak'
 import type { NextAuthConfig } from 'next-auth'
 
 const dbUserSchema = z.object({
@@ -91,6 +92,13 @@ export const authConfig: NextAuthConfig = {
           xp: 15,
           role: 'reader',
           username,
+        }
+
+        // Racha diaria — se dispara en cada login (checkAndUpdateStreak ignora si ya se contó hoy)
+        try {
+          await checkAndUpdateStreak(user.id)
+        } catch (e) {
+          console.error('[auth] streak check failed:', e instanceof Error ? e.message : e)
         }
 
         return {

@@ -13,6 +13,7 @@ import { LevelBadge } from '@/components/ui/LevelBadge'
 import { Btn } from '@/components/ui/Btn'
 import { ImagePlaceholder } from '@/components/ui/ImagePlaceholder'
 import { ReactionControl } from '@/components/content/ReactionControl'
+import { ReaderToggle } from '@/components/content/ReaderToggle'
 import { getEntryBySlug, getAllPublishedSlugs } from '@/lib/supabase/queries/entries'
 import { getCommentTree } from '@/lib/supabase/queries/comments'
 import { formatDateLong, readingTime } from '@/lib/utils/dates'
@@ -31,6 +32,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const entry = await getEntryBySlug(slug)
   if (!entry) return {}
+  const siteUrl = process.env.NEXT_PUBLIC_URL ?? 'https://eternidad.vercel.app'
+  const ogUrl = `${siteUrl}/og?title=${encodeURIComponent(entry.title)}`
   return {
     title: entry.title,
     description: entry.excerpt ?? undefined,
@@ -39,6 +42,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: entry.excerpt ?? undefined,
       type: 'article',
       publishedTime: entry.publishedAt ? new Date(entry.publishedAt).toISOString() : undefined,
+      images: [{ url: ogUrl, width: 1200, height: 630, alt: entry.title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: entry.title,
+      description: entry.excerpt ?? undefined,
+      images: [ogUrl],
     },
   }
 }
@@ -82,7 +92,8 @@ export default async function EntryPage({ params }: Props) {
             </div>
           </div>
           <div style={{ flex: 1 }} />
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <ReaderToggle />
             <a
               href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(entry.title)}&url=${encodeURIComponent(`https://eternidad.blog/cronicas/${entry.slug}`)}`}
               target="_blank" rel="noopener noreferrer"

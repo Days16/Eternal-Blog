@@ -46,27 +46,37 @@ export default async function AdminPage() {
           </h1>
         </div>
         {!isMod && (
-          <Link
-            href="/admin/entradas/nueva"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '11px 22px',
-              background: 'var(--spore)',
-              color: 'var(--moss-950)',
-              borderRadius: 'var(--r-md)',
-              fontFamily: 'var(--font-ui)',
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              letterSpacing: 0.3,
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-            }}
-          >
-            + Nueva entrada
-          </Link>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <Link
+              href="/api/admin/export"
+              title="Descargar JSON con todas las entradas y el Codex"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '11px 18px',
+                border: '1px solid var(--border-soft)',
+                borderRadius: 'var(--r-md)',
+                fontFamily: 'var(--font-ui)', fontSize: 12,
+                color: 'var(--text-mute)', textDecoration: 'none',
+                whiteSpace: 'nowrap', flexShrink: 0,
+              }}
+            >
+              ↓ Exportar
+            </Link>
+            <Link
+              href="/admin/entradas/nueva"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '11px 22px',
+                background: 'var(--spore)', color: 'var(--moss-950)',
+                borderRadius: 'var(--r-md)',
+                fontFamily: 'var(--font-ui)', fontSize: 13, fontWeight: 700,
+                textDecoration: 'none', letterSpacing: 0.3,
+                whiteSpace: 'nowrap', flexShrink: 0,
+              }}
+            >
+              + Nueva entrada
+            </Link>
+          </div>
         )}
       </header>
 

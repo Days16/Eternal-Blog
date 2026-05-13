@@ -33,9 +33,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const entry = await getCodexArticle(slug)
   if (!entry) return {}
+  const siteUrl = process.env.NEXT_PUBLIC_URL ?? 'https://eternidad.vercel.app'
+  const ogUrl = `${siteUrl}/og?title=${encodeURIComponent(entry.title + ' · Codex')}`
   return {
     title: `${entry.title} · Codex`,
     description: entry.excerpt ?? undefined,
+    openGraph: {
+      title: `${entry.title} · Codex`,
+      description: entry.excerpt ?? undefined,
+      type: 'article',
+      images: [{ url: ogUrl, width: 1200, height: 630, alt: entry.title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${entry.title} · Codex`,
+      description: entry.excerpt ?? undefined,
+      images: [ogUrl],
+    },
   }
 }
 
