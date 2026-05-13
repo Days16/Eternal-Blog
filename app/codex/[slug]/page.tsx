@@ -59,8 +59,10 @@ export default async function CodexArticlePage({ params }: Props) {
   if (!entry) notFound()
 
   const session = await auth()
-  const comments = await getCommentTree(entry.id)
-  const related = await getRelatedCodexEntries(entry.id, entry.category, 3)
+  const [comments, related] = await Promise.all([
+    getCommentTree(entry.id).catch(() => []),
+    getRelatedCodexEntries(entry.id, entry.category, 3),
+  ])
   const tags: string[] = (() => { try { return JSON.parse(entry.tags) } catch { return [] } })()
   const cat = CODEX_CATEGORIES.find(c => c.id === entry.category)
 

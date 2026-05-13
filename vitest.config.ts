@@ -7,11 +7,6 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    environmentMatchGlobs: [
-      // Los tests que usan DOMPurify o React necesitan jsdom
-      ['**/__tests__/**/*.test.tsx', 'jsdom'],
-      ['**/__tests__/**/sanitize.test.ts', 'jsdom'],
-    ],
     include: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx'],
     setupFiles: ['__tests__/setup.ts'],
   },

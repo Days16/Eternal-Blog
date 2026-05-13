@@ -69,15 +69,18 @@ export async function getEntryBySlug(slug: string) {
 }
 
 export async function getAllPublishedSlugs(type: 'chronicle' | 'codex') {
-  const supabase = requireSupabase()
-  const { data } = await supabase
-    .from('entries')
-    .select('slug')
-    .eq('type', type)
-    .eq('status', 'published')
+  try {
+    const supabase = requireSupabase()
+    const { data } = await supabase
+      .from('entries')
+      .select('slug')
+      .eq('type', type)
+      .eq('status', 'published')
 
-  return (data ?? []).map(row => row.slug)
-    .filter(Boolean)
+    return (data ?? []).map(row => row.slug).filter(Boolean)
+  } catch {
+    return []
+  }
 }
 
 // ── Codex ────────────────────���────────────────────────────
