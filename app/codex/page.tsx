@@ -35,13 +35,13 @@ export default async function CodexPage({ searchParams }: { searchParams: Search
 
       {/* ── Hero ──────────────────────────────────────────── */}
       <section className="page-hero page-hero-transition" style={{ textAlign: 'center' }}>
-        <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--rune)', marginBottom: 16 }}>
+        <div className="reveal" style={{ fontFamily: 'var(--font-ui)', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--rune)', marginBottom: 16 }}>
           ✦ EL CODEX ✦
         </div>
-        <h1 className="hero-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 500, letterSpacing: -1.5, margin: '0 0 16px', lineHeight: 1 }}>
+        <h1 className="hero-title reveal reveal-1" style={{ fontFamily: 'var(--font-display)', fontWeight: 500, letterSpacing: -1.5, margin: '0 0 16px', lineHeight: 1 }}>
           Toda la <em style={{ fontStyle: 'italic', color: 'var(--moss-300)' }}>memoria</em> del bosque
         </h1>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: 'clamp(14px, 2.5vw, 17px)', fontStyle: 'italic', color: 'var(--text-soft)', maxWidth: 580, margin: '0 auto', lineHeight: 1.5 }}>
+        <p className="reveal reveal-2" style={{ fontFamily: 'var(--font-body)', fontSize: 'clamp(14px, 2.5vw, 17px)', fontStyle: 'italic', color: 'var(--text-soft)', maxWidth: 580, margin: '0 auto', lineHeight: 1.5 }}>
           {totalEntries > 0 ? `${totalEntries} entradas vivas` : 'Entradas'} · que se reescriben con cada borrador
         </p>
 

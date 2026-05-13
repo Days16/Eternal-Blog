@@ -12,8 +12,9 @@ interface CategoryCardProps {
 
 export function CategoryCard({ id, name, rune, color, desc, count, active }: CategoryCardProps) {
   return (
-    <Link href={active ? '/codex' : `/codex?category=${id}`} style={{ textDecoration: 'none' }}>
+    <Link href={active ? '/codex' : `/codex?category=${id}`} className="category-card-link">
       <div
+        className="category-card-inner"
         style={{
           background: active ? `color-mix(in srgb, ${color} 10%, var(--bg-card))` : 'var(--bg-card)',
           border: `1px solid ${active ? color : 'var(--border-soft)'}`,
@@ -22,12 +23,12 @@ export function CategoryCard({ id, name, rune, color, desc, count, active }: Cat
           cursor: 'pointer',
           position: 'relative',
           overflow: 'hidden',
-          transition: 'all var(--t-fast) var(--ease)',
           height: '100%',
         }}
       >
         {/* Runa decorativa de fondo */}
         <div
+          className="category-rune-bg"
           style={{
             position: 'absolute',
             top: 12,
@@ -45,6 +46,7 @@ export function CategoryCard({ id, name, rune, color, desc, count, active }: Cat
 
         {/* Icono con runa */}
         <div
+          className="category-icon"
           style={{
             width: 36,
             height: 36,

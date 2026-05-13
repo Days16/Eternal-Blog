@@ -68,7 +68,7 @@ beforeEach(() => {
 describe('awardXP', () => {
   it('retorna los datos del usuario si amount === 0 sin llamar la RPC', async () => {
     const mock = createSupabaseMock({ user: { xp: 42, level: 2 } })
-    vi.mocked(requireSupabase).mockReturnValue(mock.supabase as ReturnType<typeof requireSupabase>)
+    vi.mocked(requireSupabase).mockReturnValue(mock.supabase as unknown as ReturnType<typeof requireSupabase>)
 
     const result = await awardXP('user-1', 0, 'comment')
 
@@ -81,7 +81,7 @@ describe('awardXP', () => {
 
   it('lanza error si la RPC falla', async () => {
     const mock = createSupabaseMock({ rpcErrorMessage: 'boom' })
-    vi.mocked(requireSupabase).mockReturnValue(mock.supabase as ReturnType<typeof requireSupabase>)
+    vi.mocked(requireSupabase).mockReturnValue(mock.supabase as unknown as ReturnType<typeof requireSupabase>)
 
     await expect(awardXP('user-2', 10, 'comment', 'ref-1')).rejects.toThrow('[xp] RPC add_xp falló: boom')
     expect(mock.insert).not.toHaveBeenCalled()
@@ -91,7 +91,7 @@ describe('awardXP', () => {
     const mock = createSupabaseMock({
       rpcResult: [{ new_xp: 120, new_level: 2, leveled_up: true }],
     })
-    vi.mocked(requireSupabase).mockReturnValue(mock.supabase as ReturnType<typeof requireSupabase>)
+    vi.mocked(requireSupabase).mockReturnValue(mock.supabase as unknown as ReturnType<typeof requireSupabase>)
 
     const result = await awardXP('user-3', 20, 'comment', 'comment-1')
 

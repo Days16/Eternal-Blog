@@ -47,6 +47,19 @@ a:hover {
   color: var(--spore);
 }
 
+/* ── Focus visible (teclado / accesibilidad) ────────────── */
+:focus-visible {
+  outline: 2px solid var(--spore);
+  outline-offset: 3px;
+  border-radius: var(--r-sm);
+}
+
+/* ── Firefox scrollbar ──────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--moss-600) var(--moss-900);
+}
+
 code, pre {
   font-family: var(--font-mono);
 }
@@ -371,6 +384,31 @@ code, pre {
   padding-bottom: 32px;
 }
 
+.entry-card-title {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 10px;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  transition: color var(--t-med) var(--ease);
+}
+
+.entry-card:hover .entry-card-title {
+  color: var(--spore);
+}
+
+.entry-card-img {
+  display: block;
+  transition: transform var(--t-med) var(--ease), opacity var(--t-fast) var(--ease);
+}
+
+.entry-card:hover .entry-card-img {
+  transform: scale(1.02);
+  opacity: 0.9;
+}
+
 /* ── Entry layout (article + TOC + reactions) ───────────── */
 .entry-layout {
   display: grid;
@@ -578,6 +616,47 @@ code, pre {
   .page-hero  { padding: 24px 16px 24px; }
   .page-layout { padding: 0 16px 32px; }
 }
+
+/* ── Mobile menu entrance ───────────────────────────────── */
+@keyframes menu-slide-in {
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.topnav-mobile-menu {
+  animation: menu-slide-in 280ms var(--ease) both;
+}
+
+/* ── Skeleton shimmer ────────────────────────────────────── */
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position:  200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--moss-800) 25%,
+    var(--moss-700) 50%,
+    var(--moss-800) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--r-md);
+}
+
+/* ── Reveal on mount ─────────────────────────────────────── */
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal   { animation: reveal-up 500ms var(--ease) both; }
+.reveal-1 { animation-delay:  60ms; }
+.reveal-2 { animation-delay: 120ms; }
+.reveal-3 { animation-delay: 180ms; }
+.reveal-4 { animation-delay: 240ms; }
+.reveal-5 { animation-delay: 300ms; }
 
 /* ── View Transitions ────────────────────────────────── */
 @keyframes fade-in {
