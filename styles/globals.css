@@ -710,3 +710,92 @@ code, pre {
 .reader-mode [data-reader-body] h3 {
   font-family: var(--font-display) !important;
 }
+
+/* ── Logo mushroom bob ──────────────────────────────────── */
+@keyframes mushroom-bob {
+  0%, 100% { transform: translateY(0)    rotate(0deg); }
+  30%       { transform: translateY(-3px) rotate(-5deg); }
+  60%       { transform: translateY(-2px) rotate(3deg); }
+}
+
+.logo-link:hover svg {
+  animation: mushroom-bob 600ms var(--ease) both;
+}
+
+/* ── Rune float (decorativo, loop 8 s) ──────────────────── */
+@keyframes rune-float {
+  0%, 100% { transform: translateY(0)    rotate(0deg);    }
+  33%       { transform: translateY(-6px) rotate(2.5deg);  }
+  66%       { transform: translateY(-3px) rotate(-1deg);   }
+}
+
+.category-rune-bg {
+  animation: rune-float 8s ease-in-out infinite;
+}
+
+/* ── WikiCard ────────────────────────────────────────────── */
+.wiki-card-outer {
+  display: block;
+  text-decoration: none;
+}
+
+.wiki-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition:
+    border-color var(--t-med) var(--ease),
+    box-shadow   var(--t-med) var(--ease),
+    transform    var(--t-med) var(--ease);
+}
+
+.wiki-card-outer:hover .wiki-card {
+  border-color: rgba(212, 166, 74, 0.4);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+.wiki-card-img {
+  overflow: hidden;
+}
+
+.wiki-card-img > * {
+  transition: transform var(--t-med) var(--ease);
+}
+
+.wiki-card-outer:hover .wiki-card-img > * {
+  transform: scale(1.04);
+}
+
+.wiki-card-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 10px 0 12px;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+  transition: color var(--t-med) var(--ease);
+}
+
+.wiki-card-outer:hover .wiki-card-title {
+  color: var(--spore);
+}
+
+/* ── CategoryCard ────────────────────────────────────────── */
+.category-card-link {
+  display: block;
+  text-decoration: none;
+  height: 100%;
+}
+
+.category-card-inner {
+  transition:
+    border-color var(--t-med) var(--ease),
+    box-shadow   var(--t-med) var(--ease);
+}
+
+.category-card-link:hover .category-card-inner {
+  box-shadow: var(--shadow-md);
+}
