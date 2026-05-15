@@ -10,7 +10,7 @@ import { Rune } from '@/components/ui/Rune'
 import { ReplyForm } from '@/components/forum/ReplyForm'
 import { ReplyNode } from '@/components/forum/ReplyNode'
 import { getForumThread } from '@/lib/supabase/queries/forum'
-import { relativeTime, formatDateLong } from '@/lib/utils/dates'
+import { formatDateLong } from '@/lib/utils/dates'
 import { togglePinThreadAction, toggleLockThreadAction, deleteThreadAction } from '@/app/foro/actions'
 import { auth } from '@/auth'
 import type { LevelNumber } from '@/components/ui/constants'
@@ -63,7 +63,7 @@ export default async function ForoThreadPage({ params }: Props) {
         </nav>
 
         {/* ── Cabecera del hilo ─────────────────────────── */}
-        <div style={{ marginBottom: 32 }}>
+        <div className="reveal" style={{ marginBottom: 32 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
             {thread.pinned && (
               <span style={{
@@ -156,7 +156,7 @@ export default async function ForoThreadPage({ params }: Props) {
           </div>
 
           {/* Cuerpo del hilo */}
-          <div style={{
+          <div className="reveal reveal-1" style={{
             background: 'var(--bg-card)',
             border: '1px solid var(--border-soft)',
             borderRadius: 'var(--r-lg)',
@@ -180,16 +180,17 @@ export default async function ForoThreadPage({ params }: Props) {
 
         {thread.replies.length > 0 && (
           <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {thread.replies.map(reply => (
-              <ReplyNode
-                key={reply.id}
-                reply={reply}
-                categorySlug={categoria}
-                threadSlug={slug}
-                threadId={thread.id}
-                currentUserId={userId}
-                canModerate={canModerate}
-              />
+            {thread.replies.map((reply, i) => (
+              <div key={reply.id} className="reply-node" style={{ animationDelay: `${Math.min(i * 70, 350)}ms` }}>
+                <ReplyNode
+                  reply={reply}
+                  categorySlug={categoria}
+                  threadSlug={slug}
+                  threadId={thread.id}
+                  currentUserId={userId}
+                  canModerate={canModerate}
+                />
+              </div>
             ))}
           </div>
         )}

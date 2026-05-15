@@ -50,13 +50,13 @@ export default async function SobrePage() {
             <ImagePlaceholder width={220} height={280} tone="forest" label="retrato del autor" />
           )}
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--spore)', marginBottom: 14 }}>
+            <div className="reveal" style={{ fontFamily: 'var(--font-ui)', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--spore)', marginBottom: 14 }}>
               ✦ La cronista
             </div>
-            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 64, fontWeight: 500, margin: '0 0 12px', letterSpacing: -1.2, lineHeight: 1 }}>
+            <h1 className="reveal reveal-1" style={{ fontFamily: 'var(--font-display)', fontSize: 64, fontWeight: 500, margin: '0 0 12px', letterSpacing: -1.2, lineHeight: 1 }}>
               Hola, soy <em style={{ fontStyle: 'italic', color: 'var(--moss-300)' }}>{name}</em>
             </h1>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: 17, color: 'var(--text-soft)', lineHeight: 1.55, fontStyle: 'italic', margin: 0 }}>
+            <p className="reveal reveal-2" style={{ fontFamily: 'var(--font-body)', fontSize: 17, color: 'var(--text-soft)', lineHeight: 1.55, fontStyle: 'italic', margin: 0 }}>
               {tagline}
             </p>
           </div>
@@ -65,14 +65,14 @@ export default async function SobrePage() {
         <RuneDivider />
 
         {/* Bio */}
-        <div style={{ marginTop: 48, fontFamily: 'var(--font-body)', fontSize: 17, lineHeight: 1.75, color: 'var(--text-soft)' }}>
+        <div className="reveal reveal-3" style={{ marginTop: 48, fontFamily: 'var(--font-body)', fontSize: 17, lineHeight: 1.75, color: 'var(--text-soft)' }}>
           {bio1 && <p style={{ marginTop: 0 }}>{bio1}</p>}
           {bio2 && <p>{bio2}</p>}
           {bio3 && <p>{bio3}</p>}
         </div>
 
         {/* Contacto */}
-        <div style={{ marginTop: 48, padding: 28, background: 'var(--bg-card)', borderRadius: 'var(--r-lg)', border: '1px solid var(--border-soft)' }}>
+        <div className="reveal reveal-4" style={{ marginTop: 48, padding: 28, background: 'var(--bg-card)', borderRadius: 'var(--r-lg)', border: '1px solid var(--border-soft)' }}>
           <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--rune)', marginBottom: 16 }}>
             {contactTitle}
           </div>

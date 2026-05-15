@@ -99,6 +99,7 @@ export async function AdminSidebar() {
       }}>
         <Link
           href="/cronicas"
+          className="admin-exit-link"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -110,7 +111,6 @@ export async function AdminSidebar() {
             textDecoration: 'none',
             textTransform: 'uppercase',
             letterSpacing: 1.5,
-            transition: 'color 0.15s',
           }}
         >
           ← Salir al Bosque
