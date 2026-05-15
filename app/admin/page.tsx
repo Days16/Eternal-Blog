@@ -13,7 +13,7 @@ export default async function AdminPage() {
     <div className="admin-page">
 
       {/* ── Cabecera ─────────────────────────────────────────── */}
-      <header style={{
+      <header className="reveal reveal-1" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'flex-end',
