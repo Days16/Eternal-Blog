@@ -798,4 +798,64 @@ code, pre {
 
 .category-card-link:hover .category-card-inner {
   box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+.category-icon {
+  transition: transform var(--t-med) var(--ease);
+}
+.category-card-link:hover .category-icon {
+  transform: scale(1.14) rotate(-6deg);
+}
+
+/* ── Logo: span hover ───────────────────────────────────── */
+.logo-link span {
+  transition: letter-spacing var(--t-med) var(--ease),
+              color          var(--t-med) var(--ease);
+}
+.logo-link:hover span {
+  color: var(--spore);
+  letter-spacing: 6px;
+}
+
+/* ── Nav dot pulse ──────────────────────────────────────── */
+@keyframes nav-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; box-shadow: 0 0 8px var(--spore); }
+}
+.nav-dot {
+  animation: nav-dot-pulse 2.8s ease-in-out infinite;
+}
+
+/* ── Progress bar fill ──────────────────────────────────── */
+@keyframes bar-fill {
+  from { width: 0; }
+}
+.progress-bar-fill {
+  animation: bar-fill 1.4s var(--ease) both;
+  animation-delay: 500ms;
+}
+
+/* ── Button press feedback ──────────────────────────────── */
+button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* ── Scroll-driven card reveals (Chrome 115+, FF 110+) ──── */
+@supports (animation-timeline: view()) {
+  .entry-card {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 28%;
+  }
+  .wiki-card-outer {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 28%;
+  }
+  .category-card-link {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 35%;
+  }
 }
