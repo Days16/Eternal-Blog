@@ -20,14 +20,14 @@ export default async function ForoPage() {
 
       {/* ── Hero ──────────────────────────────────────────── */}
       <section className="page-hero page-hero-transition" style={{ position: 'relative' }}>
-        <div style={{
+        <div className="rune-float" style={{
           position: 'absolute', top: 80, right: 80,
           opacity: 0.15, fontFamily: 'var(--font-display)',
           color: 'var(--rune)', fontSize: 60, lineHeight: 1,
         }}>
           ᚷ
         </div>
-        <div style={{
+        <div className="reveal" style={{
           fontFamily: 'var(--font-ui)', fontSize: 11, textTransform: 'uppercase',
           letterSpacing: 3, color: 'var(--spore)', marginBottom: 16,
           display: 'flex', alignItems: 'center', gap: 10,
@@ -36,7 +36,7 @@ export default async function ForoPage() {
           El ágora del bosque
         </div>
         <h1
-          className="hero-title"
+          className="hero-title reveal reveal-1"
           style={{
             fontFamily: 'var(--font-display)',
             fontWeight: 500,
@@ -50,7 +50,7 @@ export default async function ForoPage() {
           Foro<br />
           <em style={{ fontStyle: 'italic', color: 'var(--moss-300)' }}>donde los pergaminos se cruzan</em>
         </h1>
-        <p style={{
+        <p className="reveal reveal-2" style={{
           fontFamily: 'var(--font-body)',
           fontSize: 'clamp(15px, 2.5vw, 19px)',
           color: 'var(--text-soft)',

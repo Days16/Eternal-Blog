@@ -11,20 +11,20 @@ export function ThreadCard({ thread, categorySlug }: Props) {
   return (
     <Link
       href={`/foro/${categorySlug}/${thread.slug}`}
-      style={{ textDecoration: 'none', display: 'block' }}
+      className="thread-card-link"
     >
-      <div style={{
-        background: 'var(--bg-card)',
-        border: '1px solid var(--border-soft)',
-        borderRadius: 'var(--r-lg)',
-        padding: '16px 20px',
-        display: 'grid',
-        gridTemplateColumns: '1fr auto',
-        gap: 16,
-        alignItems: 'center',
-        transition: 'border-color 0.15s',
-      }}
-      className="hover-row"
+      <div
+        className="thread-card"
+        style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-soft)',
+          borderRadius: 'var(--r-lg)',
+          padding: '16px 20px',
+          display: 'grid',
+          gridTemplateColumns: '1fr auto',
+          gap: 16,
+          alignItems: 'center',
+        }}
       >
         <div style={{ minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>

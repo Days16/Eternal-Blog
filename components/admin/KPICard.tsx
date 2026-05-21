@@ -10,7 +10,7 @@ export function KPICard({
   delta?: number | null
 }) {
   return (
-    <div className="glass-card" style={{ padding: '20px 24px', borderRadius: 'var(--r-lg)' }}>
+    <div className="glass-card kpi-card" style={{ padding: '20px 24px', borderRadius: 'var(--r-lg)' }}>
       <div style={{
         fontFamily: 'var(--font-ui)',
         fontSize: 9,

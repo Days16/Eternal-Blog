@@ -798,4 +798,219 @@ code, pre {
 
 .category-card-link:hover .category-card-inner {
   box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
 }
+
+.category-icon {
+  transition: transform var(--t-med) var(--ease);
+}
+.category-card-link:hover .category-icon {
+  transform: scale(1.14) rotate(-6deg);
+}
+
+/* ── Logo: span hover ───────────────────────────────────── */
+.logo-link span {
+  transition: letter-spacing var(--t-med) var(--ease),
+              color          var(--t-med) var(--ease);
+}
+.logo-link:hover span {
+  color: var(--spore);
+  letter-spacing: 6px;
+}
+
+/* ── Nav dot pulse ──────────────────────────────────────── */
+@keyframes nav-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; box-shadow: 0 0 8px var(--spore); }
+}
+.nav-dot {
+  animation: nav-dot-pulse 2.8s ease-in-out infinite;
+}
+
+/* ── Progress bar fill ──────────────────────────────────── */
+@keyframes bar-fill {
+  from { width: 0; }
+}
+.progress-bar-fill {
+  animation: bar-fill 1.4s var(--ease) both;
+  animation-delay: 500ms;
+}
+
+/* ── Button press feedback ──────────────────────────────── */
+button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* ── Scroll-driven card reveals (Chrome 115+, FF 110+) ──── */
+@supports (animation-timeline: view()) {
+  .entry-card {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 28%;
+  }
+  .wiki-card-outer {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 28%;
+  }
+  .category-card-link {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 35%;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ANIMACIONES EXTRA — Foro · Perfil · Admin · Componentes
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Notification dropdown ─────────────────────────────── */
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)      scale(1);   }
+}
+.notification-dropdown {
+  animation: dropdown-in 200ms var(--ease) both;
+}
+.notification-badge-dot {
+  animation: nav-dot-pulse 2s ease-in-out infinite;
+}
+
+/* ── Admin drawer slide (móvil) ────────────────────────── */
+@keyframes drawer-slide {
+  from { transform: translateX(-100%); opacity: 0.6; }
+  to   { transform: translateX(0);     opacity: 1;   }
+}
+.admin-drawer.open {
+  animation: drawer-slide 260ms var(--ease) both;
+}
+
+/* ── Forum category cards ──────────────────────────────── */
+.forum-card-link {
+  display: block;
+  text-decoration: none;
+}
+.forum-card {
+  transition: transform     var(--t-med) var(--ease),
+              border-color  var(--t-med) var(--ease),
+              box-shadow    var(--t-med) var(--ease);
+}
+.forum-card-link:hover .forum-card {
+  transform: translateY(-3px);
+  border-color: rgba(212, 166, 74, 0.3);
+  box-shadow: var(--shadow-md);
+}
+.forum-card-icon {
+  transition: transform var(--t-med) var(--ease);
+}
+.forum-card-link:hover .forum-card-icon {
+  transform: scale(1.14) rotate(-6deg);
+}
+
+/* ── Thread cards ──────────────────────────────────────── */
+.thread-card-link {
+  display: block;
+  text-decoration: none;
+}
+.thread-card {
+  transition: transform     var(--t-med) var(--ease),
+              border-color  var(--t-med) var(--ease),
+              box-shadow    var(--t-med) var(--ease);
+}
+.thread-card-link:hover .thread-card {
+  transform: translateX(5px);
+  border-color: rgba(212, 166, 74, 0.25);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Stat card (perfil) ────────────────────────────────── */
+.stat-card {
+  transition: transform     var(--t-med) var(--ease),
+              border-color  var(--t-med) var(--ease),
+              box-shadow    var(--t-med) var(--ease);
+}
+.stat-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(212, 166, 74, 0.25);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── KPI card (admin) ──────────────────────────────────── */
+.kpi-card {
+  transition: transform  var(--t-med) var(--ease),
+              box-shadow var(--t-med) var(--ease);
+}
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Achievement card ──────────────────────────────────── */
+.achievement-card {
+  transition: transform    var(--t-med) var(--ease),
+              box-shadow   var(--t-med) var(--ease),
+              border-color var(--t-med) var(--ease);
+}
+.achievement-card.unlocked:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── XP bar fill (perfil, nivel) ───────────────────────── */
+.xp-bar-fill {
+  animation: bar-fill 1.6s var(--ease) both;
+  animation-delay: 300ms;
+}
+
+/* ── Reaction button ────────────────────────────────────── */
+.reaction-btn {
+  transition: transform    var(--t-fast) var(--ease),
+              border-color var(--t-med)  var(--ease),
+              box-shadow   var(--t-med)  var(--ease),
+              background   var(--t-med)  var(--ease),
+              opacity      var(--t-fast) var(--ease);
+}
+.reaction-btn:hover:not(:disabled) {
+  transform: translateX(5px);
+}
+.reaction-btn:active:not(:disabled) {
+  transform: scale(0.96) translateX(2px);
+}
+
+/* ── Btn hover lift ─────────────────────────────────────── */
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+/* ── Admin sidebar exit link ────────────────────────────── */
+.admin-exit-link {
+  transition: color          var(--t-med) var(--ease),
+              letter-spacing var(--t-med) var(--ease) !important;
+}
+.admin-exit-link:hover {
+  color: var(--spore) !important;
+  letter-spacing: 2px !important;
+}
+
+/* ── Reply stagger ──────────────────────────────────────── */
+.reply-node {
+  animation: reveal-up 400ms var(--ease) both;
+}
+.reply-node:nth-child(1)    { animation-delay:   0ms; }
+.reply-node:nth-child(2)    { animation-delay:  70ms; }
+.reply-node:nth-child(3)    { animation-delay: 140ms; }
+.reply-node:nth-child(4)    { animation-delay: 210ms; }
+.reply-node:nth-child(5)    { animation-delay: 280ms; }
+.reply-node:nth-child(n+6)  { animation-delay: 350ms; }
+
+/* ── Activity item stagger ──────────────────────────────── */
+.activity-item {
+  animation: reveal-up 400ms var(--ease) both;
+}
+.activity-item:nth-child(1)   { animation-delay:   0ms; }
+.activity-item:nth-child(2)   { animation-delay:  50ms; }
+.activity-item:nth-child(3)   { animation-delay: 100ms; }
+.activity-item:nth-child(4)   { animation-delay: 150ms; }
+.activity-item:nth-child(5)   { animation-delay: 200ms; }
+.activity-item:nth-child(n+6) { animation-delay: 250ms; }

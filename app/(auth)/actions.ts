@@ -5,7 +5,6 @@ import { AuthError } from 'next-auth'
 import { headers } from 'next/headers'
 import { getSupabaseServerClient, getSupabaseAuthClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
-import { Resend } from 'resend'
 
 async function resolveIp(): Promise<string> {
   try {

@@ -246,11 +246,10 @@ export default async function ProfilePage({ params, searchParams }: Props) {
             {level} · {levelInfo.name}
           </div>
           <div style={{ height: 8, background: 'var(--moss-800)', borderRadius: 99, marginBottom: 8, overflow: 'hidden' }}>
-            <div style={{
+            <div className="xp-bar-fill" style={{
               width: `${xpProgress.progressPct}%`, height: '100%',
               background: `linear-gradient(90deg, ${levelInfo.color}99, ${levelInfo.color})`,
               boxShadow: `0 0 12px ${levelInfo.color}66`,
-              transition: 'width 0.6s ease',
             }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-mute)', flexWrap: 'wrap', gap: 4 }}>
@@ -310,7 +309,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
                 Los logros aún no están disponibles.
               </p>
             ) : achievements.map(a => (
-              <div key={a.id} style={{
+              <div key={a.id} className={`achievement-card${a.unlocked ? ' unlocked' : ''}`} style={{
                 padding: 18,
                 background: a.unlocked ? 'var(--bg-card)' : 'var(--moss-900)',
                 border: `1px solid ${a.unlocked ? 'var(--border)' : 'var(--border-soft)'}`,
@@ -358,6 +357,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
             ) : recentActivity.map((item, i) => (
               <div
                 key={item.id}
+                className="activity-item"
                 style={{
                   display: 'flex', alignItems: 'center', gap: 16,
                   padding: '14px 0',
@@ -399,7 +399,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
 
 function StatCard({ value, label, color }: { value: string; label: string; color: string }) {
   return (
-    <div style={{
+    <div className="stat-card" style={{
       padding: 20, background: 'var(--bg-card)',
       border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)',
     }}>

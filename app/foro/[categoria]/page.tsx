@@ -60,7 +60,7 @@ export default async function ForoCategoriaPage({ params, searchParams }: Props)
         </nav>
 
         {/* Cabecera de la categoría */}
-        <div style={{
+        <div className="reveal" style={{
           display: 'flex',
           alignItems: 'flex-start',
           justifyContent: 'space-between',

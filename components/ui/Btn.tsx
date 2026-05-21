@@ -54,8 +54,13 @@ const BASE: CSSProperties = {
 }
 
 export function Btn({ children, variant = 'primary', size = 'md', icon, style, ...rest }: BtnProps) {
+  const { className: extraClass, ...buttonRest } = rest as typeof rest & { className?: string }
   return (
-    <button style={{ ...BASE, ...SIZES[size], ...VARIANTS[variant], ...style }} {...rest}>
+    <button
+      className={`btn${extraClass ? ` ${extraClass}` : ''}`}
+      style={{ ...BASE, ...SIZES[size], ...VARIANTS[variant], ...style }}
+      {...buttonRest}
+    >
       {icon}
       {children}
     </button>

@@ -60,6 +60,7 @@ export function ReactionControl({ entryId, currentUserId }: ReactionControlProps
             key={r.kind}
             disabled={!currentUserId || !!busy}
             onClick={() => handleReact(r.kind)}
+            className={`reaction-btn${currentUserId ? ' hover-glow' : ''}`}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -73,11 +74,9 @@ export function ReactionControl({ entryId, currentUserId }: ReactionControlProps
               marginBottom: 8,
               fontFamily: 'var(--font-ui)',
               color: isActive ? 'var(--text)' : 'var(--text-soft)',
-              transition: 'all 0.2s ease',
               opacity: busy === r.kind ? 0.6 : 1,
               boxShadow: isActive ? `0 0 12px ${r.color}22` : 'none'
             }}
-            className={currentUserId ? 'hover-glow' : ''}
           >
             <span style={{ fontSize: 18, filter: isActive ? 'none' : 'grayscale(0.5) opacity(0.7)' }}>{r.icon}</span>
             <span style={{ fontSize: 13, flex: 1, textAlign: 'left', fontWeight: isActive ? 600 : 400 }}>{r.label}</span>

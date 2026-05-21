@@ -74,7 +74,7 @@ export function NotificationBell() {
       >
         <span style={{ fontSize: 20 }}>ᛉ</span>
         {hasNew && (
-          <span style={{
+            <span className="notification-badge-dot" style={{
             position: 'absolute',
             top: 6,
             right: 6,
@@ -89,7 +89,7 @@ export function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div style={{
+        <div className="notification-dropdown" style={{
           position: 'absolute',
           top: '100%',
           right: 0,
