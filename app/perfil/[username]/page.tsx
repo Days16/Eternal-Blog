@@ -269,7 +269,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
         )}
 
         {/* ── CTA colaborar (solo perfil propio) ───────────── */}
-        {isOwnProfile && profile.role !== 'collaborator' && profile.role !== 'admin' && profile.role !== 'dev' && (
+        {isOwnProfile && profile.role !== 'collaborator' && profile.role !== 'admin' && profile.role !== 'dev' && profile.role !== 'moderator' && (
           <div style={{ marginBottom: 32, padding: '16px 20px', background: 'var(--moss-800)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', maxWidth: 760 }}>
             <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--text-soft)', flex: 1 }}>
               ¿Te interesa colaborar con el proyecto? Puedes postularte como colaborador oficial.

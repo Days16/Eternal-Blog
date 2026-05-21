@@ -78,7 +78,7 @@ export async function sendFriendRequest(senderId: string, receiverId: string) {
     actorId: senderId,
     type:    'friend_request',
     data:    { friendshipId: inserted.id },
-  })
+  }).catch(e => console.error('[social] friend_request notification failed:', e.message))
 }
 
 export async function respondFriendRequest(friendshipId: string, userId: string, status: 'accepted' | 'rejected') {
@@ -105,7 +105,7 @@ export async function respondFriendRequest(friendshipId: string, userId: string,
       actorId: userId,
       type:    'friend_accepted',
       data:    {},
-    })
+    }).catch(e => console.error('[social] friend_accepted notification failed:', e.message))
   }
 }
 

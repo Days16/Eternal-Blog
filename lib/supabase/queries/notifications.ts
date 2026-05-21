@@ -26,31 +26,47 @@ export async function createNotification(params: {
       type:     params.type,
       data:     params.data ?? {},
     })
-  if (error) console.error('[notifications] createNotification error:', error.message)
+  if (error) throw new Error(`[notifications] ${error.message}`)
 }
 
 export async function getUserNotifications(userId: string): Promise<SocialNotification[]> {
   const supabase = requireSupabase()
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('notifications')
-    .select('id,type,actor_id,data,read_at,created_at,actor:users!notifications_actor_id_fkey(id,name,username)')
+    .select('id,type,actor_id,data,read_at,created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(30)
 
-  return (data ?? []).map(row => {
-    const actor = row.actor as unknown as { id: string; name: string | null; username: string | null } | null
-    return {
-      id:            String(row.id),
-      type:          String(row.type),
-      actorId:       row.actor_id ?? null,
-      actorName:     actor?.name ?? null,
-      actorUsername: actor?.username ?? null,
-      data:          (row.data ?? {}) as Record<string, unknown>,
-      readAt:        row.read_at ?? null,
-      createdAt:     String(row.created_at),
+  if (error) {
+    console.error('[notifications] getUserNotifications error:', error.message)
+    return []
+  }
+
+  // Fetch actor names in a second query to avoid FK name ambiguity
+  const actorIds = [...new Set((data ?? []).map(r => r.actor_id).filter(Boolean))] as string[]
+  const actorMap: Record<string, { name: string | null; username: string | null }> = {}
+
+  if (actorIds.length > 0) {
+    const { data: actors } = await supabase
+      .from('users')
+      .select('id,name,username')
+      .in('id', actorIds)
+    for (const a of actors ?? []) {
+      actorMap[a.id] = { name: a.name ?? null, username: a.username ?? null }
     }
-  })
+  }
+
+  return (data ?? []).map(row => ({
+    id:            String(row.id),
+    type:          String(row.type),
+    actorId:       row.actor_id ?? null,
+    actorName:     row.actor_id ? (actorMap[row.actor_id]?.name ?? null) : null,
+    actorUsername: row.actor_id ? (actorMap[row.actor_id]?.username ?? null) : null,
+    data:          (row.data ?? {}) as Record<string, unknown>,
+    readAt:        row.read_at ?? null,
+    createdAt:     String(row.created_at),
+  }))
 }
 
 export async function markNotificationRead(notifId: string, userId: string) {
