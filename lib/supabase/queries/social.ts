@@ -131,6 +131,17 @@ export async function getFriends(userId: string) {
   })
 }
 
+export async function cancelFriendRequest(senderId: string, receiverId: string) {
+  const supabase = requireSupabase()
+  const { error } = await supabase
+    .from('friendships')
+    .delete()
+    .eq('sender_id', senderId)
+    .eq('receiver_id', receiverId)
+    .eq('status', 'pending')
+  if (error) throw error
+}
+
 export async function getPendingFriendRequests(userId: string) {
   const supabase = requireSupabase()
   const { data } = await supabase

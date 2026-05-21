@@ -1,7 +1,7 @@
 import { auth } from '@/auth'
 import {
   followUser, unfollowUser, isFollowing,
-  sendFriendRequest, respondFriendRequest,
+  sendFriendRequest, respondFriendRequest, cancelFriendRequest,
   sendMessage, getMessages, markMessagesRead,
   getConversations,
 } from '@/lib/supabase/queries/social'
@@ -12,6 +12,7 @@ const actionSchema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('follow'),           targetId: z.string().uuid() }),
   z.object({ action: z.literal('unfollow'),         targetId: z.string().uuid() }),
   z.object({ action: z.literal('friend_request'),   targetId: z.string().uuid() }),
+  z.object({ action: z.literal('friend_cancel'),    targetId: z.string().uuid() }),
   z.object({ action: z.literal('friend_respond'),   friendshipId: z.string().uuid(), status: z.enum(['accepted', 'rejected']) }),
   z.object({ action: z.literal('send_message'),     receiverId: z.string().uuid(), body: z.string().min(1).max(2000) }),
   z.object({ action: z.literal('mark_read'),        partnerId: z.string().uuid() }),
@@ -43,6 +44,10 @@ export async function POST(request: Request) {
 
       case 'friend_request':
         await sendFriendRequest(userId, data.targetId)
+        return NextResponse.json({ ok: true })
+
+      case 'friend_cancel':
+        await cancelFriendRequest(userId, data.targetId)
         return NextResponse.json({ ok: true })
 
       case 'friend_respond':
