@@ -1,4 +1,5 @@
 import { requireSupabase } from '@/lib/supabase/helpers'
+import { createNotification } from '@/lib/supabase/queries/notifications'
 
 // ─── Seguimiento ─────────────────────────────────────────────────────────────
 
@@ -65,17 +66,26 @@ export async function sendFriendRequest(senderId: string, receiverId: string) {
     return
   }
 
-  const { error } = await supabase
+  const { data: inserted, error } = await supabase
     .from('friendships')
     .insert({ sender_id: senderId, receiver_id: receiverId })
+    .select('id')
+    .single()
   if (error) throw error
+
+  await createNotification({
+    userId:  receiverId,
+    actorId: senderId,
+    type:    'friend_request',
+    data:    { friendshipId: inserted.id },
+  })
 }
 
 export async function respondFriendRequest(friendshipId: string, userId: string, status: 'accepted' | 'rejected') {
   const supabase = requireSupabase()
   const { data: fs } = await supabase
     .from('friendships')
-    .select('id,receiver_id,status')
+    .select('id,sender_id,receiver_id,status')
     .eq('id', friendshipId)
     .maybeSingle()
 
@@ -88,6 +98,15 @@ export async function respondFriendRequest(friendshipId: string, userId: string,
     .update({ status, updated_at: new Date().toISOString() })
     .eq('id', friendshipId)
   if (error) throw error
+
+  if (status === 'accepted') {
+    await createNotification({
+      userId:  fs.sender_id,
+      actorId: userId,
+      type:    'friend_accepted',
+      data:    {},
+    })
+  }
 }
 
 export async function getFriends(userId: string) {
