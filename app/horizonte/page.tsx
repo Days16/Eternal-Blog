@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { TopNav } from '@/components/layout/TopNav'
 import { Footer } from '@/components/layout/Footer'
 import { RuneDivider } from '@/components/ui/RuneDivider'
@@ -296,6 +297,45 @@ export default async function HorizontePage() {
             Las visiones del horizonte pueden cambiar de orden, fusionarse o desvanecerse
             según lo que el grimorio dicte. Ninguna profecía es inamovible.
           </p>
+        </div>
+
+        {/* ── CTA Colaborar ───────────────────────────────── */}
+        <div style={{
+          marginTop: 40,
+          padding: '28px 32px',
+          background: 'linear-gradient(135deg, var(--moss-800), var(--moss-900))',
+          border: '1px solid var(--amethyst)',
+          borderRadius: 'var(--r-lg)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 24,
+          flexWrap: 'wrap',
+        }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, color: 'var(--amethyst)', marginBottom: 8 }}>
+              ᛟ · Rango especial
+            </div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 600, marginBottom: 6 }}>
+              ¿Quieres colaborar?
+            </div>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--text-soft)', margin: 0, lineHeight: 1.6, maxWidth: 480 }}>
+              Si te apetece ayudar a construir el universo de ETERNIDAD —
+              escribiendo, documentando o expandiendo el Codex —
+              puedes postularte al rango de Colaborador.
+            </p>
+          </div>
+          <Link
+            href="/colaborar"
+            style={{
+              fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 600,
+              padding: '12px 28px', borderRadius: 'var(--r-md)',
+              background: 'var(--amethyst)', color: '#fff',
+              textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
+            }}
+          >
+            Más información
+          </Link>
         </div>
 
       </div>

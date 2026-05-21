@@ -1,4 +1,4 @@
-export const SYSTEM_ROLES = ['visitor', 'reader', 'scribe', 'moderator', 'dev', 'admin'] as const
+export const SYSTEM_ROLES = ['visitor', 'reader', 'scribe', 'collaborator', 'moderator', 'dev', 'admin'] as const
 export type UserRole = typeof SYSTEM_ROLES[number]
 
 export function isValidRole(r: unknown): r is UserRole {
@@ -7,4 +7,8 @@ export function isValidRole(r: unknown): r is UserRole {
 
 export function isModeratorOrAbove(role: string | null | undefined): boolean {
   return role === 'admin' || role === 'moderator' || role === 'dev'
+}
+
+export function isCollaboratorOrAbove(role: string | null | undefined): boolean {
+  return role === 'collaborator' || isModeratorOrAbove(role)
 }

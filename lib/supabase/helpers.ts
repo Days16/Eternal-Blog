@@ -26,6 +26,7 @@ export interface UserRow {
   special_role?: string | null
   level?: number | null
   xp?: number | null
+  active_badge_achievement_id?: string | null
   created_at?: string | null
   updated_at?: string | null
 }
@@ -58,6 +59,8 @@ export interface AchievementRow {
   criteria_type?: string | null
   criteria_value?: unknown
   xp_reward?: number | null
+  has_name_badge?: boolean | null
+  badge_icon?: string | null
   created_at?: string | null
 }
 
@@ -100,6 +103,7 @@ export function mapUser(row: UserRow) {
     specialRole: row.special_role ?? null,
     level: row.level ?? 1,
     xp: row.xp ?? 0,
+    activeBadgeAchievementId: row.active_badge_achievement_id ?? null,
     createdAt: toDate(row.created_at),
     updatedAt: toDate(row.updated_at),
   }
@@ -136,6 +140,8 @@ export function mapAchievement(row: AchievementRow) {
     criteriaType: row.criteria_type ?? null,
     criteriaValue: row.criteria_value ?? null,
     xpReward: row.xp_reward ?? 0,
+    hasNameBadge: row.has_name_badge ?? false,
+    badgeIcon: row.badge_icon ?? null,
     createdAt: toDate(row.created_at),
   }
 }

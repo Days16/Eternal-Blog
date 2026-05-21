@@ -16,8 +16,15 @@ import {
   getUserStats,
   getUserAchievements,
   getUserActivity,
+  getUserFeaturedEntries,
+  getUserActiveBadge,
   repairUserProfile,
 } from '@/lib/supabase/queries/users'
+import { FeaturedShelf } from '@/components/profile/FeaturedShelf'
+import { UserNameBadge, BadgeChip } from '@/components/ui/UserNameBadge'
+import { FollowButton } from '@/components/social/FollowButton'
+import { FriendButton } from '@/components/social/FriendButton'
+import { isFollowing, getFriendshipStatus, getFollowCounts } from '@/lib/supabase/queries/social'
 import { getXpProgress } from '@/lib/xp/events'
 import { relativeTime } from '@/lib/utils/dates'
 
@@ -56,10 +63,16 @@ export default async function ProfilePage({ params, searchParams }: Props) {
   const session = await auth()
   const isOwnProfile = session?.user?.id === profile.id
 
-  const [profileStats, achievements, recentActivity] = await Promise.all([
+  const viewerId = session?.user?.id
+  const [profileStats, achievements, recentActivity, featuredEntries, activeBadge, followCounts, viewerFollowing, viewerFriendship] = await Promise.all([
     getUserStats(profile.id),
     getUserAchievements(profile.id),
     getUserActivity(profile.id, 15),
+    getUserFeaturedEntries(profile.id),
+    getUserActiveBadge(profile.id),
+    getFollowCounts(profile.id),
+    viewerId && !isOwnProfile ? isFollowing(viewerId, profile.id) : Promise.resolve(false),
+    viewerId && !isOwnProfile ? getFriendshipStatus(viewerId, profile.id) : Promise.resolve(null),
   ])
 
   if (isOwnProfile && (!profile.name || !profile.username || !profile.email)) {
@@ -128,17 +141,26 @@ export default async function ProfilePage({ params, searchParams }: Props) {
           {/* Datos */}
           <div style={{ flex: '1 1 240px', minWidth: 0, maxWidth: '100%', paddingBottom: 12 }}>
             <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(26px, 7vw, 44px)', fontWeight: 600, margin: '0 0 4px', letterSpacing: -0.8, lineHeight: 1.25, overflowWrap: 'anywhere' }}>
-              {displayName}
+              <UserNameBadge
+                name={displayName}
+                badgeIcon={activeBadge?.badge_icon ?? null}
+                badgeName={activeBadge?.name ?? null}
+                size="md"
+              />
             </h1>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(13px, 2.5vw, 16px)', color: 'var(--spore)', opacity: 0.8, marginBottom: 12 }}>
               @{profile.username}
             </div>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
-              {profile.role === 'admin'     && <Tag color="var(--ember)">Admin</Tag>}
-              {profile.role === 'dev'       && <Tag color="var(--spore)">Developer</Tag>}
-              {profile.role === 'moderator' && <Tag color="var(--mist)">Moderador</Tag>}
-              {profile.specialRole          && <Tag color="var(--amethyst)">{profile.specialRole}</Tag>}
+              {profile.role === 'admin'          && <Tag color="var(--ember)">Admin</Tag>}
+              {profile.role === 'dev'            && <Tag color="var(--spore)">Developer</Tag>}
+              {profile.role === 'moderator'      && <Tag color="var(--mist)">Moderador</Tag>}
+              {profile.role === 'collaborator'   && <Tag color="var(--amethyst)">Colaborador</Tag>}
+              {profile.specialRole               && <Tag color="var(--amethyst)">{profile.specialRole}</Tag>}
               <Tag color={levelInfo.color}>{levelInfo.name}</Tag>
+              {activeBadge?.badge_icon && activeBadge.name && (
+                <BadgeChip icon={activeBadge.badge_icon} name={activeBadge.name} />
+              )}
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-mute)' }}>
                 · se unió {joinDate}
               </span>
@@ -148,8 +170,53 @@ export default async function ProfilePage({ params, searchParams }: Props) {
                 &ldquo;{profile.bio}&rdquo;
               </div>
             )}
+            {/* Stats sociales */}
+            <div style={{ display: 'flex', gap: 20, marginTop: 12, fontFamily: 'var(--font-ui)', fontSize: 12 }}>
+              <span><strong style={{ color: 'var(--text)' }}>{followCounts.followers}</strong> <span style={{ color: 'var(--text-mute)' }}>seguidores</span></span>
+              <span><strong style={{ color: 'var(--text)' }}>{followCounts.following}</strong> <span style={{ color: 'var(--text-mute)' }}>siguiendo</span></span>
+            </div>
+
+            {/* Botones sociales para el visitante */}
+            {!isOwnProfile && viewerId && (
+              <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+                <FollowButton targetId={profile.id} initialFollowing={viewerFollowing} />
+                <FriendButton
+                  targetId={profile.id}
+                  friendshipId={viewerFriendship?.id ?? null}
+                  initialStatus={
+                    viewerFriendship?.status === 'accepted'
+                      ? 'accepted'
+                      : viewerFriendship?.status === 'pending' && viewerFriendship.isSender
+                        ? 'pending_sent'
+                        : viewerFriendship?.status === 'pending' && !viewerFriendship.isSender
+                          ? 'pending_received'
+                          : 'none'
+                  }
+                />
+              </div>
+            )}
+
             {isOwnProfile && (
-              <div style={{ marginTop: 14 }}>
+              <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <Link
+                  href="/perfil/editar"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '7px 16px',
+                    borderRadius: 'var(--r-md)',
+                    border: '1px solid var(--border)',
+                    background: 'var(--moss-800)',
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: 'var(--text-soft)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  ✎ Editar perfil
+                </Link>
                 <ProfileSignOutButton />
               </div>
             )}
@@ -196,6 +263,23 @@ export default async function ProfilePage({ params, searchParams }: Props) {
         </div>
 
         {isOwnProfile && <MissionsWidget userId={profile.id} />}
+
+        {/* ── Lecturas recomendadas (escaparate) ───────────── */}
+        {featuredEntries.length > 0 && (
+          <FeaturedShelf entries={featuredEntries} />
+        )}
+
+        {/* ── CTA colaborar (solo perfil propio) ───────────── */}
+        {isOwnProfile && profile.role !== 'collaborator' && profile.role !== 'admin' && profile.role !== 'dev' && (
+          <div style={{ marginBottom: 32, padding: '16px 20px', background: 'var(--moss-800)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', maxWidth: 760 }}>
+            <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--text-soft)', flex: 1 }}>
+              ¿Te interesa colaborar con el proyecto? Puedes postularte como colaborador oficial.
+            </span>
+            <Link href="/colaborar" style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--spore)', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap', padding: '6px 14px', border: '1px solid var(--spore)', borderRadius: 'var(--r-md)' }}>
+              Postularse
+            </Link>
+          </div>
+        )}
 
         {/* ── Tabs ─────────────────────────────────────────── */}
         <div style={{ display: 'flex', gap: 28, borderBottom: '1px solid var(--border)', marginBottom: 32, maxWidth: 900 }}>

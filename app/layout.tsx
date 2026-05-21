@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Fraunces, Inter, JetBrains_Mono } from 'next/font/g
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Providers } from '@/components/Providers'
+import { ChatWidget } from '@/components/social/ChatWidget'
 import { auth } from '@/auth'
 import '@/styles/globals.css'
 
@@ -61,6 +62,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <body className="tex-canopy tex-grain">
         <Providers session={session}>{children}</Providers>
+        {session?.user?.id && <ChatWidget currentUserId={session.user.id} />}
         {process.env.NODE_ENV === 'production' && <Analytics />}
         {process.env.NODE_ENV === 'production' && <SpeedInsights />}
       </body>

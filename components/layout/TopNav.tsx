@@ -12,7 +12,7 @@ import { NotificationBell } from '@/components/layout/NotificationBell'
 import { useUserStats } from '@/hooks/use-user-stats'
 import type { LevelNumber } from '@/components/ui/constants'
 
-const NAV_ITEMS = [
+const BASE_NAV_ITEMS = [
   { href: '/cronicas',   label: 'Crónicas' },
   { href: '/codex',      label: 'Codex' },
   { href: '/foro',       label: 'Foro' },
@@ -32,9 +32,20 @@ export function TopNav({ compact = false }: TopNavProps) {
   const level = (stats?.level ?? user?.level ?? 1) as LevelNumber
   const xp    = stats?.xp ?? user?.xp ?? 0
   const canAccessAdmin = user?.role === 'admin' || user?.role === 'moderator' || user?.role === 'dev'
-  const navItems = canAccessAdmin
-    ? [...NAV_ITEMS, { href: '/admin', label: user?.role === 'moderator' ? 'Panel Mod' : (user?.role === 'dev' ? 'Panel Dev' : 'Admin') }]
-    : NAV_ITEMS
+
+  const [marketplaceEnabled, setMarketplaceEnabled] = useState(false)
+  useEffect(() => {
+    fetch('/api/marketplace-status')
+      .then(r => r.json())
+      .then((d: { enabled?: boolean }) => setMarketplaceEnabled(d.enabled ?? false))
+      .catch(() => {})
+  }, [])
+
+  const navItems = [
+    ...BASE_NAV_ITEMS,
+    ...(marketplaceEnabled ? [{ href: '/tienda', label: 'Tienda' }] : []),
+    ...(canAccessAdmin ? [{ href: '/admin', label: user?.role === 'moderator' ? 'Panel Mod' : (user?.role === 'dev' ? 'Panel Dev' : 'Admin') }] : []),
+  ]
 
   const [menuOpen, setMenuOpen] = useState(false)
 

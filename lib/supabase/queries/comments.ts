@@ -20,10 +20,20 @@ export async function getCommentTree(entryId: string) {
   const rows = data ?? []
   const userIds = [...new Set(rows.map(row => row.user_id).filter(Boolean))]
   const { data: authors } = userIds.length
-    ? await supabase.from('users').select('id,name,username,avatar_url,image,role,level').in('id', userIds)
+    ? await supabase
+        .from('users')
+        .select('id,name,username,avatar_url,image,role,level,active_badge_achievement_id,achievements!users_active_badge_achievement_id_fkey(badge_icon,name)')
+        .in('id', userIds)
     : { data: [] }
 
-  const byId = new Map((authors ?? []).map(author => [author.id, mapUser(author)]))
+  const byId = new Map((authors ?? []).map(author => {
+    const badge = author.achievements as unknown as { badge_icon: string | null; name: string | null } | null
+    return [author.id, {
+      ...mapUser(author),
+      activeBadgeIcon: badge?.badge_icon ?? null,
+      activeBadgeName: badge?.name ?? null,
+    }]
+  }))
 
   return rows.map(row => ({
     id: row.id,
@@ -45,6 +55,8 @@ export async function getCommentTree(entryId: string) {
       image: null,
       role: 'reader',
       level: 1,
+      activeBadgeIcon: null,
+      activeBadgeName: null,
     },
   }))
 }

@@ -5,6 +5,11 @@ export default auth(function middleware(req) {
   const { pathname } = req.nextUrl
   const role = req.auth?.user?.role
 
+  // La tienda está oculta hasta que el admin la active vía site_settings.
+  // Como el middleware no puede hacer queries async a Supabase, la protección
+  // real la hace la página /tienda (Server Component) redirigiendo a notFound().
+  // Aquí solo protegemos /tienda de usuarios no autenticados si lo deseas.
+
   if (pathname.startsWith('/admin')) {
     if (!req.auth) {
       const loginUrl = new URL('/login', req.url)
@@ -39,5 +44,5 @@ export default auth(function middleware(req) {
 })
 
 export const config = {
-  matcher: ['/admin/:path*', '/perfil/editar/:path*'],
+  matcher: ['/admin/:path*', '/perfil/editar/:path*', '/tienda/:path*'],
 }

@@ -63,7 +63,7 @@ export async function getUserStats(userId: string) {
 export async function getUserAchievements(userId: string) {
   const supabase = requireSupabase()
   const [{ data: allAchievements }, { data: unlockedRows }] = await Promise.all([
-    supabase.from('achievements').select('id,slug,name,description,rune_glyph,color,criteria_type,criteria_value,xp_reward,created_at'),
+    supabase.from('achievements').select('id,slug,name,description,rune_glyph,color,criteria_type,criteria_value,xp_reward,has_name_badge,badge_icon,created_at'),
     supabase.from('user_achievements').select('achievement_id,unlocked_at').eq('user_id', userId),
   ])
 
@@ -94,4 +94,114 @@ export async function getUserActivity(userId: string, limit = 20) {
     .limit(limit)
 
   return (data ?? []).map(mapActivity)
+}
+
+export async function setActiveBadge(userId: string, achievementId: string | null) {
+  const supabase = requireSupabase()
+
+  if (achievementId !== null) {
+    const { data: unlocked } = await supabase
+      .from('user_achievements')
+      .select('achievement_id')
+      .eq('user_id', userId)
+      .eq('achievement_id', achievementId)
+      .maybeSingle()
+    if (!unlocked) throw new Error('Este logro no está desbloqueado para el usuario.')
+
+    const { data: achievement } = await supabase
+      .from('achievements')
+      .select('has_name_badge')
+      .eq('id', achievementId)
+      .maybeSingle()
+    if (!achievement?.has_name_badge) throw new Error('Este logro no tiene badge de nombre.')
+  }
+
+  const { error } = await supabase
+    .from('users')
+    .update({ active_badge_achievement_id: achievementId })
+    .eq('id', userId)
+
+  if (error) throw error
+}
+
+export async function getUserFeaturedEntries(userId: string) {
+  const supabase = requireSupabase()
+  const { data } = await supabase
+    .from('user_featured_entries')
+    .select('position, entries!inner(id,slug,title,excerpt,cover_url,published_at,type)')
+    .eq('user_id', userId)
+    .order('position', { ascending: true })
+
+  return (data ?? []).map(row => {
+    const e = row.entries as unknown as {
+      id: string; slug: string; title: string; excerpt: string | null;
+      cover_url: string | null; published_at: string | null; type: string;
+    }
+    return {
+      position: row.position,
+      id: e.id,
+      slug: e.slug,
+      title: e.title,
+      excerpt: e.excerpt ?? null,
+      coverUrl: e.cover_url ?? null,
+      publishedAt: e.published_at ? new Date(e.published_at) : null,
+      type: e.type as 'chronicle' | 'codex',
+    }
+  })
+}
+
+export async function upsertFeaturedEntry(userId: string, entryId: string, position: number) {
+  if (position < 1 || position > 3) throw new Error('La posición debe ser 1, 2 o 3.')
+  const supabase = requireSupabase()
+
+  const { count } = await supabase
+    .from('user_featured_entries')
+    .select('user_id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+
+  if ((count ?? 0) >= 3) {
+    const { data: existing } = await supabase
+      .from('user_featured_entries')
+      .select('position')
+      .eq('user_id', userId)
+      .eq('entry_id', entryId)
+      .maybeSingle()
+    if (!existing) throw new Error('Ya tienes 3 artículos destacados. Elimina uno antes de añadir otro.')
+  }
+
+  const { error } = await supabase
+    .from('user_featured_entries')
+    .upsert({ user_id: userId, entry_id: entryId, position }, { onConflict: 'user_id,position' })
+
+  if (error) throw error
+}
+
+export async function removeFeaturedEntry(userId: string, position: number) {
+  const supabase = requireSupabase()
+  const { error } = await supabase
+    .from('user_featured_entries')
+    .delete()
+    .eq('user_id', userId)
+    .eq('position', position)
+
+  if (error) throw error
+}
+
+export async function getUserActiveBadge(userId: string) {
+  const supabase = requireSupabase()
+  const { data: user } = await supabase
+    .from('users')
+    .select('active_badge_achievement_id')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (!user?.active_badge_achievement_id) return null
+
+  const { data: achievement } = await supabase
+    .from('achievements')
+    .select('id,slug,name,badge_icon,has_name_badge')
+    .eq('id', user.active_badge_achievement_id)
+    .maybeSingle()
+
+  return achievement ?? null
 }

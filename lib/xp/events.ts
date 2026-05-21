@@ -1,10 +1,14 @@
 export const XP = {
-  COMMENT:         10,
-  REPLY:            8,
-  REACTION_GIVEN:   2,
-  FIRST_COMMENT:   20,
-  REGISTER:        15,
-  DAILY_STREAK:    10,
+  COMMENT:          10,
+  REPLY:             8,
+  REACTION_GIVEN:    2,
+  FIRST_COMMENT:    20,
+  REGISTER:         15,
+  DAILY_STREAK:     10,
+  FORUM_THREAD:     10,
+  FORUM_REPLY:       5,
+  FOLLOW_SOMEONE:    1,
+  PROFILE_COMPLETE: 25,
 } as const
 
 export const LEVEL_THRESHOLDS = [

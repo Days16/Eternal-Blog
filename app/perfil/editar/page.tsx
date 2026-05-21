@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { TopNav } from '@/components/layout/TopNav'
 import { Footer } from '@/components/layout/Footer'
 import { RuneDivider } from '@/components/ui/RuneDivider'
+import { FeaturedShelfEditor } from '@/components/profile/FeaturedShelfEditor'
+import { BadgePicker } from '@/components/profile/BadgePicker'
 import { updateProfileAction } from './actions'
 
 const fieldStyle: React.CSSProperties = {
@@ -138,6 +140,40 @@ export default function EditarPerfilPage() {
             </Link>
           </div>
         </form>
+
+        {/* Escaparate de artículos */}
+        <div style={{ marginTop: 56 }}>
+          <RuneDivider char="ᛟ" />
+          <div style={{ marginTop: 32 }}>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--spore)', marginBottom: 8 }}>
+              ✦ Escaparate
+            </div>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 500, margin: '0 0 8px', lineHeight: 1 }}>
+              Artículos destacados
+            </h2>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--text-soft)', fontStyle: 'italic', marginBottom: 24 }}>
+              Elige hasta 3 artículos que aparecerán en tu perfil público.
+            </p>
+            <FeaturedShelfEditor />
+          </div>
+        </div>
+
+        {/* Insignia de logro */}
+        <div style={{ marginTop: 56 }}>
+          <RuneDivider char="ᚨ" />
+          <div style={{ marginTop: 32 }}>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--spore)', marginBottom: 8 }}>
+              ✦ Insignia
+            </div>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 500, margin: '0 0 8px', lineHeight: 1 }}>
+              Tu insignia de nombre
+            </h2>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--text-soft)', fontStyle: 'italic', marginBottom: 24 }}>
+              Muestra tu veteranía. Elige qué insignia mostrar junto a tu nombre.
+            </p>
+            <BadgePicker />
+          </div>
+        </div>
       </div>
 
       <Footer />

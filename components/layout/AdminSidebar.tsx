@@ -10,17 +10,20 @@ async function getNavCounts() {
     { count: codexCount },
     { count: commentsCount },
     { count: usersCount },
+    { count: pendingColabCount },
   ] = await Promise.all([
     supabase.from('entries').select('id', { count: 'exact', head: true }).neq('type', 'codex'),
     supabase.from('entries').select('id', { count: 'exact', head: true }).eq('type', 'codex'),
     supabase.from('comments').select('id', { count: 'exact', head: true }).eq('deleted', false),
     supabase.from('users').select('id', { count: 'exact', head: true }),
+    supabase.from('collaborator_applications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
   ])
   return {
     entries: entriesCount ?? 0,
     codex: codexCount ?? 0,
     comments: commentsCount ?? 0,
     users: usersCount ?? 0,
+    pendingColab: pendingColabCount ?? 0,
   }
 }
 
@@ -38,10 +41,12 @@ export async function AdminSidebar() {
     { href: '/admin/misiones',     label: 'Misiones',         icon: '⚑' },
     { href: '/admin/logros',       label: 'Logros',           icon: '✦' },
     { href: '/admin/roadmap',      label: 'Roadmap',          icon: '◇' },
-    { href: '/admin/foro',         label: 'Foro',             icon: '◈' },
-    { href: '/admin/roles',        label: 'Roles & permisos', icon: '≡' },
-    { href: '/admin/textos',       label: 'Textos del sitio', icon: '≋' },
-    { href: '/admin/tema',         label: 'Tema y aspecto',   icon: '⚙' },
+    { href: '/admin/foro',          label: 'Foro',              icon: '◈' },
+    { href: '/admin/colaboradores', label: 'Colaboradores',     icon: '✧', count: counts.pendingColab, badge: counts.pendingColab > 0 },
+    { href: '/admin/tienda',        label: 'Tienda',            icon: '◫' },
+    { href: '/admin/roles',         label: 'Roles & permisos',  icon: '≡' },
+    { href: '/admin/textos',        label: 'Textos del sitio',  icon: '≋' },
+    { href: '/admin/tema',          label: 'Tema y aspecto',    icon: '⚙' },
   ]
 
   const MOD_ITEMS: AdminNavItem[] = ALL_ITEMS.filter(item =>

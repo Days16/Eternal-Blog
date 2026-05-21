@@ -12,6 +12,17 @@ export type SearchResult = {
   snippet: string
 }
 
+export type UserSearchResult = {
+  id: string
+  username: string | null
+  name: string | null
+  avatarUrl: string | null
+  bio: string | null
+  level: number
+  role: string | null
+  specialRole: string | null
+}
+
 function makeSnippet(text: string, query: string) {
   const lower = text.toLowerCase()
   const index = lower.indexOf(query.toLowerCase())
@@ -43,4 +54,32 @@ export async function searchEntries(params: { q: string; type?: string; limit?: 
     const text = `${entry.excerpt ?? ''} ${tiptapToText(entry.body)}`.trim()
     return { id: entry.id, type: entry.type, title: entry.title, excerpt: entry.excerpt, slug: entry.slug, category: entry.category, tags: entry.tags, snippet: makeSnippet(text || entry.title, q) }
   })
+}
+
+export async function searchUsers(params: { q: string; limit?: number }): Promise<UserSearchResult[]> {
+  const q = params.q.trim()
+  if (!q) return []
+  const supabase = requireSupabase()
+  const { data, error } = await supabase
+    .from('users')
+    .select('id,username,name,avatar_url,bio,level,xp,role,special_role')
+    .or(`username.ilike.%${q}%,name.ilike.%${q}%`)
+    .order('xp', { ascending: false })
+    .limit(params.limit ?? 10)
+
+  if (error) {
+    console.error('[search] searchUsers error:', error.message)
+    return []
+  }
+
+  return (data ?? []).map(row => ({
+    id: String(row.id ?? ''),
+    username: row.username ?? null,
+    name: row.name ?? null,
+    avatarUrl: row.avatar_url ?? null,
+    bio: row.bio ?? null,
+    level: Number(row.level ?? 1),
+    role: row.role ?? null,
+    specialRole: row.special_role ?? null,
+  }))
 }

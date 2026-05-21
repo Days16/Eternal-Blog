@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Btn } from '@/components/ui/Btn'
 import { LevelBadge } from '@/components/ui/LevelBadge'
+import { UserNameBadge } from '@/components/ui/UserNameBadge'
 import { relativeTime } from '@/lib/utils/dates'
 import { sanitizeForDisplay } from '@/lib/utils/sanitize'
 import { CommentForm } from './CommentForm'
@@ -55,7 +56,12 @@ export function CommentNode({ comment, entryId, currentUserId, currentUserRole }
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, fontWeight: 600 }}>{comment.author.name ?? comment.author.username ?? 'Anónimo'}</span>
+              <UserNameBadge
+                name={comment.author.name ?? comment.author.username ?? 'Anónimo'}
+                badgeIcon={(comment.author as { activeBadgeIcon?: string | null }).activeBadgeIcon}
+                badgeName={(comment.author as { activeBadgeName?: string | null }).activeBadgeName}
+                size="sm"
+              />
               <LevelBadge level={(comment.author.level ?? 1) as LevelNumber} size={20} />
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--rune)', textTransform: 'uppercase' }}>{comment.author.role}</span>
             </div>
