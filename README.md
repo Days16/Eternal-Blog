@@ -206,12 +206,6 @@ npm run lint     # ESLint
 
 ---
 
-## Prototipo HTML
-
-Para revisar el sistema visual sin necesidad de backend, abre [`ETERNIDAD.html`](ETERNIDAD.html) en cualquier navegador. Contiene todas las pantallas en canvas pan/zoom y un modo prototipo navegable con router propio.
-
----
-
 ## Licencia
 
 Todos los derechos reservados © 2025. El código puede usarse como referencia de aprendizaje. El sistema visual, los textos y la identidad de ETERNIDAD son propiedad exclusiva del autor.

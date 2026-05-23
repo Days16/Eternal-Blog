@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import Link from 'next/link'
 import { TopNav } from '@/components/layout/TopNav'
 import { Footer } from '@/components/layout/Footer'
 import { RuneDivider } from '@/components/ui/RuneDivider'
@@ -78,9 +77,6 @@ export default async function SobrePage() {
           </div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <Btn variant="ghost">Cuervo (newsletter)</Btn>
-            <Link href="/feed.xml" target="_blank">
-              <Btn variant="ghost">RSS</Btn>
-            </Link>
             <Btn variant="ghost">Bluesky</Btn>
             <Btn variant="ghost">Goodreads</Btn>
           </div>

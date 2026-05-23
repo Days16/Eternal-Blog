@@ -49,7 +49,7 @@ export function Footer() {
         <Link href="/codex"     style={{ color: 'inherit', textDecoration: 'none' }}>Codex</Link>
         <Link href="/sobre"     style={{ color: 'inherit', textDecoration: 'none' }}>Sobre el autor</Link>
         <Link href="/colaborar" style={{ color: 'inherit', textDecoration: 'none' }}>Colaborar</Link>
-        <Link href="/feed.xml"  style={{ color: 'inherit', textDecoration: 'none' }}>RSS</Link>
+        {/* <Link href="/feed.xml"  style={{ color: 'inherit', textDecoration: 'none' }}>RSS</Link> */}
       </div>
     </footer>
   )
