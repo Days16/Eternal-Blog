@@ -6,21 +6,60 @@ import { Footer } from '@/components/layout/Footer'
 import { RuneDivider } from '@/components/ui/RuneDivider'
 import { isMarketplaceEnabled, getProducts } from '@/lib/supabase/queries/marketplace'
 import { ProductCard } from '@/components/marketplace/ProductCard'
+import { auth } from '@/auth'
 
 export const metadata: Metadata = {
   title: 'Tienda · ETERNIDAD',
   description: 'Merchan, libros y artículos digitales del universo ETERNIDAD.',
 }
 
-export default async function TiendaPage() {
-  const enabled = await isMarketplaceEnabled()
-  if (!enabled) notFound()
+type Props = { searchParams: Promise<{ preview?: string }> }
+
+const STAFF_ROLES = ['admin', 'dev', 'moderator'] as const
+
+export default async function TiendaPage({ searchParams }: Props) {
+  const [enabled, { preview }, session] = await Promise.all([
+    isMarketplaceEnabled(),
+    searchParams,
+    auth(),
+  ])
+
+  const role = session?.user?.role as string | undefined
+  const isStaff = role != null && (STAFF_ROLES as readonly string[]).includes(role)
+  const isPreview = preview === '1' && isStaff
+
+  if (!enabled && !isPreview) notFound()
 
   const products = await getProducts(true)
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', minHeight: '100vh' }} className="tex-canopy">
       <TopNav />
+
+      {isPreview && (
+        <div style={{
+          background: 'color-mix(in srgb, var(--amethyst) 15%, transparent)',
+          border: '1px solid var(--amethyst)',
+          borderRadius: 'var(--r-md)',
+          padding: '10px 20px',
+          margin: '16px clamp(16px, 5vw, 64px) 0',
+          maxWidth: 1100,
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          fontFamily: 'var(--font-ui)',
+          fontSize: 13,
+          color: 'var(--amethyst)',
+        }}>
+          <span>ᛉ</span>
+          <span>Vista previa — la tienda no es visible para el público todavía.</span>
+          <Link href="/admin/tienda" style={{ marginLeft: 'auto', color: 'var(--amethyst)', fontSize: 12, textDecoration: 'underline' }}>
+            Ir al panel →
+          </Link>
+        </div>
+      )}
 
       <main style={{ padding: 'clamp(40px, 8vw, 96px) clamp(16px, 5vw, 64px)', maxWidth: 1100, margin: '0 auto' }}>
         <div style={{ marginBottom: 48 }}>

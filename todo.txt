@@ -1,0 +1,6 @@
+Notificaciones cuando te hablan en al privado
+Pestaña perfil: En la pestaña perfil que se vea el nivel y misiones activas mas pequeño y en paralelo. Esta todo demasiado a la izq
+Logros y actividad que cubra toda la pagina desde la separación antes mencionada.
+Opción de seguimiento de hilo.: Activar las notificaciones de un hilo para que te avise cuando alguien comenta o añade mas informacion.
+Perfilar la tienda.: que la opcion de ver carrito salga arriba al lado de perfil cuando estes en la pestaña de tienda que la fuente del titulo sea
+mas pequeña y tambien que los articulos salgan estilo mosaico imagen grande una o varias que se pueda pasar de una imagen otra en la miniatura. Descripcion breve de producto y precio (opcion de añadir al carrito y comprar directamente que iria al paso despues de aceptar el carrito). Si entras al producto descripcion detallada, Filtros a la izq por categoria y precio.

@@ -59,7 +59,7 @@ export default async function EntryPage({ params }: Props) {
   if (!entry) notFound()
 
   const session  = await auth()
-  const comments = await getCommentTree(entry.id)
+  const comments = await getCommentTree(entry.id).catch(() => [])
   const tags: string[] = (() => { try { return JSON.parse(entry.tags) } catch { return [] } })()
   const headings = extractHeadings(entry.body)
 

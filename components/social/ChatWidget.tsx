@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import useSWR from 'swr'
+import { EmojiPicker } from '@/components/ui/EmojiPicker'
 
 interface Conversation {
   userId: string
@@ -246,7 +247,8 @@ export function ChatWidget({ currentUserId }: { currentUserId: string }) {
           </div>
 
           {/* Input */}
-          <div style={{ padding: '8px 12px', borderTop: '1px solid var(--border-soft)', display: 'flex', gap: 8, flexShrink: 0 }}>
+          <div style={{ padding: '8px 12px', borderTop: '1px solid var(--border-soft)', display: 'flex', gap: 6, flexShrink: 0, alignItems: 'center' }}>
+            <EmojiPicker onSelect={emoji => setInput(prev => (prev + emoji).slice(0, 2000))} />
             <input
               type="text"
               value={input}

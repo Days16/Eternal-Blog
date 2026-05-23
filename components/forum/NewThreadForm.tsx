@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useState } from 'react'
 import { Btn } from '@/components/ui/Btn'
+import { EmojiPicker } from '@/components/ui/EmojiPicker'
 import { sanitizeCommentHtml, stripHtml } from '@/lib/utils/sanitize'
 import { createThreadAction } from '@/app/foro/actions'
 
@@ -37,6 +38,14 @@ export function NewThreadForm({ categoryId, categorySlug }: Props) {
       el.focus()
       el.setSelectionRange(start + open.length, start + open.length + selected.length)
     })
+  }
+
+  function insertEmoji(emoji: string) {
+    const el = textareaRef.current
+    const pos = el ? el.selectionStart : body.length
+    const next = `${body.slice(0, pos)}${emoji}${body.slice(pos)}`
+    setBody(next.slice(0, 8000))
+    requestAnimationFrame(() => { el?.focus(); el?.setSelectionRange(pos + emoji.length, pos + emoji.length) })
   }
 
   function handleSubmit(formData: FormData) {
@@ -87,7 +96,7 @@ export function NewThreadForm({ categoryId, categorySlug }: Props) {
           Contenido
         </label>
 
-        <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap', alignItems: 'center' }}>
           {FORMATS.map(f => (
             <button
               key={f.label}
@@ -107,6 +116,7 @@ export function NewThreadForm({ categoryId, categorySlug }: Props) {
               {f.label}
             </button>
           ))}
+          <EmojiPicker onSelect={insertEmoji} />
         </div>
 
         <textarea

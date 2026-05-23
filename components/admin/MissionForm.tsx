@@ -321,11 +321,11 @@ export function MissionForm({ mission }: Props) {
               <input
                 name="startsAt"
                 type="datetime-local"
-                defaultValue={toLocalDatetime(mission?.startsAt ?? new Date())}
+                defaultValue={toLocalDatetime(mission?.startsAt ?? null)}
                 style={inputStyle}
               />
               <div style={{ marginTop: 4, fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-mute)' }}>
-                Por defecto: ahora mismo
+                Dejar vacío = empieza ya (inmediata)
               </div>
             </div>
 

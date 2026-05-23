@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { Btn } from '@/components/ui/Btn'
 import { getAdminMissions, type MissionStatus } from '@/lib/supabase/queries/admin'
-import { archiveMissionAction, deleteMissionAction } from '@/app/admin/actions'
 import { formatDate } from '@/lib/utils/dates'
+import { MissionActionButtons } from '@/components/admin/MissionActionButtons'
 
 type Props = { searchParams: Promise<{ tab?: string }> }
 
@@ -227,47 +227,11 @@ export default async function AdminMissionsPage({ searchParams }: Props) {
                     >
                       Editar
                     </Link>
-
-                    {mission.completionCount === 0 ? (
-                      <form action={deleteMissionAction}>
-                        <input type="hidden" name="id" value={mission.id} />
-                        <button
-                          type="submit"
-                          onClick={e => { if (!confirm('¿Eliminar esta misión? Esta acción no se puede deshacer.')) e.preventDefault() }}
-                          style={{
-                            padding: '5px 14px',
-                            border: '1px solid var(--ember)',
-                            borderRadius: 'var(--r-sm)',
-                            background: 'none',
-                            color: 'var(--ember)',
-                            fontFamily: 'var(--font-ui)',
-                            fontSize: 12,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Eliminar
-                        </button>
-                      </form>
-                    ) : (
-                      <form action={archiveMissionAction}>
-                        <input type="hidden" name="id" value={mission.id} />
-                        <button
-                          type="submit"
-                          style={{
-                            padding: '5px 14px',
-                            border: '1px solid var(--border-soft)',
-                            borderRadius: 'var(--r-sm)',
-                            background: 'none',
-                            color: 'var(--text-mute)',
-                            fontFamily: 'var(--font-ui)',
-                            fontSize: 12,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          {mission.status === 'expired' ? 'Eliminar' : 'Archivar'}
-                        </button>
-                      </form>
-                    )}
+                    <MissionActionButtons
+                      missionId={mission.id}
+                      completionCount={mission.completionCount}
+                      status={mission.status}
+                    />
                   </div>
                 </div>
               </div>

@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useState } from 'react'
 import { Btn } from '@/components/ui/Btn'
+import { EmojiPicker } from '@/components/ui/EmojiPicker'
 import { sanitizeCommentHtml, stripHtml } from '@/lib/utils/sanitize'
 import { createReplyAction } from '@/app/foro/actions'
 
@@ -43,6 +44,14 @@ export function ReplyForm({ threadId, categorySlug, threadSlug, parentId = null,
     })
   }
 
+  function insertEmoji(emoji: string) {
+    const el = textareaRef.current
+    const pos = el ? el.selectionStart : body.length
+    const next = `${body.slice(0, pos)}${emoji}${body.slice(pos)}`
+    setBody(next.slice(0, 2000))
+    requestAnimationFrame(() => { el?.focus(); el?.setSelectionRange(pos + emoji.length, pos + emoji.length) })
+  }
+
   function handleSubmit(formData: FormData) {
     formData.set('body', body)
     dispatch(formData)
@@ -61,7 +70,7 @@ export function ReplyForm({ threadId, categorySlug, threadSlug, parentId = null,
       <input type="hidden" name="thread_slug" value={threadSlug} />
       {parentId && <input type="hidden" name="parent_id" value={parentId} />}
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap', alignItems: 'center' }}>
         {FORMATS.map(f => (
           <button
             key={f.label}
@@ -81,6 +90,7 @@ export function ReplyForm({ threadId, categorySlug, threadSlug, parentId = null,
             {f.label}
           </button>
         ))}
+        <EmojiPicker onSelect={insertEmoji} />
       </div>
 
       <textarea

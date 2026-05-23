@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getSiteTexts } from '@/lib/supabase/queries/admin'
 import { bulkUpdateSiteTextsAction, restoreSiteTextAction } from '@/app/admin/actions'
+import { AboutEditorWithPreview } from '@/components/admin/AboutEditorWithPreview'
 
 type Props = { searchParams: Promise<{ tab?: string; saved?: string }> }
 
@@ -210,101 +211,11 @@ export default async function AdminTemaPage({ searchParams }: Props) {
               Ejecuta la migración <code style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>006_about_texts.sql</code> en Supabase para habilitar estos textos.
             </div>
           ) : (
-            <form action={bulkUpdateSiteTextsAction}>
-              <input type="hidden" name="section" value="about" />
-              <input type="hidden" name="keys" value={JSON.stringify(aboutTexts.map(t => t.key))} />
-              <input type="hidden" name="redirectTo" value="/admin/tema?tab=sobre" />
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {aboutTexts.map(item => {
-                  const isModified = item.value !== item.defaultValue
-                  return (
-                    <div key={item.key} style={{
-                      background: 'var(--bg-card)',
-                      border: `1px solid ${isModified ? 'color-mix(in srgb, var(--spore) 40%, var(--border-soft))' : 'var(--border-soft)'}`,
-                      borderRadius: 'var(--r-lg)',
-                      padding: 16,
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8, gap: 12 }}>
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text)', fontWeight: 600 }}>
-                            {item.description ?? item.key}
-                          </div>
-                          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-mute)', marginTop: 2 }}>
-                            {item.key}
-                          </div>
-                        </div>
-                        {isModified && (
-                          <form action={restoreSiteTextAction} style={{ flexShrink: 0 }}>
-                            <input type="hidden" name="key" value={item.key} />
-                            <input type="hidden" name="section" value="about" />
-                            <input type="hidden" name="redirectTo" value="/admin/tema?tab=sobre" />
-                            <button type="submit" style={{
-                              background: 'none',
-                              border: '1px solid var(--border-soft)',
-                              borderRadius: 'var(--r-sm)',
-                              color: 'var(--text-mute)',
-                              fontSize: 11,
-                              fontFamily: 'var(--font-ui)',
-                              padding: '3px 10px',
-                              cursor: 'pointer',
-                              whiteSpace: 'nowrap',
-                            }}>
-                              Restaurar original
-                            </button>
-                          </form>
-                        )}
-                      </div>
-
-                      <textarea
-                        name={item.key}
-                        defaultValue={item.value}
-                        rows={item.key === 'about.avatar_url' ? 1 : item.value.length > 80 ? 3 : 2}
-                        placeholder={item.key === 'about.avatar_url' ? 'https://…' : undefined}
-                        style={{
-                          width: '100%',
-                          background: 'var(--moss-900)',
-                          border: '1px solid var(--border-soft)',
-                          borderRadius: 'var(--r-sm)',
-                          color: 'var(--text)',
-                          fontFamily: 'var(--font-body)',
-                          fontSize: 14,
-                          lineHeight: 1.5,
-                          padding: '8px 10px',
-                          resize: 'vertical',
-                          boxSizing: 'border-box',
-                        }}
-                      />
-
-                      {isModified && (
-                        <div style={{ marginTop: 6, fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-mute)', lineHeight: 1.4 }}>
-                          <span style={{ marginRight: 4 }}>Original:</span>
-                          <em>{item.defaultValue || '(vacío)'}</em>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-
-              <div style={{ marginTop: 20, display: 'flex', justifyContent: 'flex-end' }}>
-                <button type="submit" style={{
-                  background: 'var(--spore)',
-                  color: 'var(--moss-900)',
-                  border: 'none',
-                  borderRadius: 'var(--r-sm)',
-                  fontFamily: 'var(--font-ui)',
-                  fontSize: 13,
-                  fontWeight: 700,
-                  padding: '10px 28px',
-                  cursor: 'pointer',
-                  letterSpacing: 0.5,
-                  textTransform: 'uppercase',
-                }}>
-                  Guardar →
-                </button>
-              </div>
-            </form>
+            <AboutEditorWithPreview
+              initialTexts={aboutTexts}
+              action={bulkUpdateSiteTextsAction}
+              restoreAction={restoreSiteTextAction}
+            />
           )}
         </div>
       )}

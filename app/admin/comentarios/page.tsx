@@ -11,7 +11,7 @@ type Props = { searchParams: Promise<{ page?: string }> }
 export default async function AdminCommentsPage({ searchParams }: Props) {
   const { page: pageStr } = await searchParams
   const page = Math.max(1, Number(pageStr) || 1)
-  const { rows: comments, total, pageSize } = await getAdminComments({ page })
+  const { rows: comments, total, pageSize } = await getAdminComments({ page }).catch(() => ({ rows: [], total: 0, page: 1, pageSize: 25 }))
 
   return (
     <div>
@@ -71,11 +71,6 @@ export default async function AdminCommentsPage({ searchParams }: Props) {
             <div
               style={{ fontFamily: 'var(--font-body)', color: 'var(--text-soft)', fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}
               dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(comment.body ?? '') }}
-            />
-  
-            <div 
-              style={{ fontFamily: 'var(--font-body)', color: 'var(--text-soft)', fontSize: 14, lineHeight: 1.6, marginBottom: 20 }} 
-              dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(comment.body ?? '') }} 
             />
 
             {/* Acciones */}

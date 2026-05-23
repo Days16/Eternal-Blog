@@ -19,7 +19,8 @@ const actionSchema = z.discriminatedUnion('action', [
 ])
 
 export async function POST(request: Request) {
-  const session = await auth()
+  let session
+  try { session = await auth() } catch { return NextResponse.json({ error: 'Error de sesión.' }, { status: 500 }) }
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
   }
@@ -70,7 +71,8 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const session = await auth()
+  let session
+  try { session = await auth() } catch { return NextResponse.json({ error: 'Error de sesión.' }, { status: 500 }) }
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
   }

@@ -125,39 +125,47 @@ export const authConfig: NextAuthConfig = {
       return token
     },
     async session({ session, token }) {
-      if (token) {
-        // Obtenemos los datos frescos desde la base de datos para asegurar
-        // que el rol y otros campos cambien inmediatamente en la sesión tras recargar
-        try {
-          const supabase = getSupabaseServerClient()
-          if (supabase && token.id) {
-            const { data } = await supabase
-              .from('users')
-              .select('role, level, xp, username')
-              .eq('id', token.id as string)
-              .maybeSingle()
-              
-            if (data) {
-              const parsed = dbUserSchema.safeParse(data)
-              if (parsed.success) {
-                token.role     = parsed.data.role     ?? token.role
-                token.level    = parsed.data.level    ?? token.level
-                token.xp       = parsed.data.xp       ?? token.xp
-                token.username = parsed.data.username ?? token.username
-              }
+      if (!token) return session
+
+      let role:     string       = (token.role     as string)       ?? 'reader'
+      let level:    number       = (token.level    as number)       ?? 1
+      let xp:       number       = (token.xp       as number)       ?? 0
+      let username: string|null  = (token.username as string|null)  ?? null
+
+      try {
+        const supabase = getSupabaseServerClient()
+        if (supabase && token.id) {
+          const { data } = await supabase
+            .from('users')
+            .select('role, level, xp, username')
+            .eq('id', token.id as string)
+            .maybeSingle()
+
+          if (data) {
+            const parsed = dbUserSchema.safeParse(data)
+            if (parsed.success) {
+              role     = parsed.data.role     ?? role
+              level    = parsed.data.level    ?? level
+              xp       = parsed.data.xp       ?? xp
+              username = parsed.data.username ?? username
             }
           }
-        } catch (error) {
-          console.error('[auth] Error sincronizando sesión:', error instanceof Error ? error.message : 'unknown')
         }
-
-        session.user.id       = token.id as string
-        session.user.level    = token.level as number
-        session.user.xp       = token.xp as number
-        session.user.role     = token.role as string
-        session.user.username = token.username as string | null
+      } catch (error) {
+        console.error('[auth] Error sincronizando sesión:', error instanceof Error ? error.message : 'unknown')
       }
-      return session
+
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id:       (token.id as string) ?? '',
+          level,
+          xp,
+          role,
+          username,
+        },
+      }
     },
   },
 }

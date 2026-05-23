@@ -7,9 +7,31 @@ import { slugify } from '@/lib/utils/slugify'
 import { isValidRole } from '@/lib/auth/roles'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { sendNewEntryEmail } from '@/lib/email/resend'
 
 function text(formData: FormData, key: string) {
   return String(formData.get(key) ?? '').trim()
+}
+
+async function notifySubscribers(
+  entryTitle: string,
+  entrySlug: string,
+  entryType: 'chronicle' | 'codex',
+  entryExcerpt?: string | null,
+) {
+  try {
+    const supabase = requireSupabase()
+    const { data } = await supabase
+      .from('users')
+      .select('email')
+      .eq('notify_new_posts', true)
+      .not('email', 'is', null)
+    const emails = (data ?? []).map(r => r.email as string).filter(Boolean)
+    if (emails.length === 0) return
+    await sendNewEntryEmail({ to: emails, entryTitle, entrySlug, entryType, entryExcerpt })
+  } catch {
+    // fire-and-forget: no bloquear la publicación si falla el email
+  }
 }
 
 function tiptapDocFromText(value: string) {
@@ -75,6 +97,7 @@ export async function saveEntryAction(formData: FormData) {
 
     if (status === 'published' && existing?.status !== 'published') {
       await awardXP(existing?.author_id ?? user.id, type === 'chronicle' ? 50 : 40, 'entry_published', id)
+      void notifySubscribers(title, slug, type, excerpt)
     }
   } else {
     const newId = crypto.randomUUID()
@@ -94,7 +117,10 @@ export async function saveEntryAction(formData: FormData) {
       created_at: now.toISOString(),
       updated_at: now.toISOString(),
     })
-    if (status === 'published') await awardXP(user.id, type === 'chronicle' ? 50 : 40, 'entry_published', newId)
+    if (status === 'published') {
+      await awardXP(user.id, type === 'chronicle' ? 50 : 40, 'entry_published', newId)
+      void notifySubscribers(title, slug, type, excerpt)
+    }
   }
 
   revalidatePath('/admin/entradas')
@@ -245,7 +271,7 @@ export async function saveMissionAction(formData: FormData) {
     criteria_value: Math.max(1, Number(text(formData, 'criteriaValue')) || 1),
     xp_reward: Math.max(0, Number(text(formData, 'xpReward')) || 25),
     glyph: text(formData, 'glyph') || 'ᛟ',
-    starts_at: startsAtRaw ? new Date(startsAtRaw).toISOString() : new Date().toISOString(),
+    starts_at: startsAtRaw ? new Date(startsAtRaw).toISOString() : null,
     ends_at: endsAtRaw ? new Date(endsAtRaw).toISOString() : null,
   }
 

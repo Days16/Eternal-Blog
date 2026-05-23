@@ -1,11 +1,12 @@
 'use client'
 
 import useSWR from 'swr'
-import type { Mission } from '@/lib/missions/evaluator'
+import type { Mission, UpcomingMission } from '@/lib/missions/evaluator'
 
 interface MissionsResponse {
   active: Mission[]
   completed: string[]
+  upcoming: UpcomingMission[]
 }
 
 async function fetcher(url: string): Promise<MissionsResponse> {
@@ -25,6 +26,16 @@ function criteriaLabel(mission: Mission) {
     case 'streak_days':      return 'Racha activa'
     default:                 return mission.criteriaType
   }
+}
+
+function getTimeUntilStart(startsAt: string): string {
+  const diff = new Date(startsAt).getTime() - Date.now()
+  const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
+  if (days <= 0) return 'Pronto'
+  if (days === 1) return 'Comienza mañana'
+  if (days < 7) return `Comienza en ${days} días`
+  const weeks = Math.ceil(days / 7)
+  return `Comienza en ${weeks} semana${weeks > 1 ? 's' : ''}`
 }
 
 function getTimeLeft(endsAt: string | null): string | null {
@@ -50,9 +61,10 @@ export function MissionsWidget({ userId, compact = false }: MissionsWidgetProps)
   const completedIds = data?.completed ?? []
   const pendingMissions = data?.active.filter(m => !completedIds.includes(m.id)) ?? []
   const completedMissions = data?.active.filter(m => completedIds.includes(m.id)) ?? []
+  const upcomingMissions = data?.upcoming ?? []
 
-  // En modo compacto, si no hay misiones pendientes no renderizamos nada
-  if (compact && !isLoading && !error && pendingMissions.length === 0 && completedMissions.length === 0) {
+  // En modo compacto, si no hay misiones pendientes ni próximas no renderizamos nada
+  if (compact && !isLoading && !error && pendingMissions.length === 0 && completedMissions.length === 0 && upcomingMissions.length === 0) {
     return null
   }
 
@@ -143,6 +155,46 @@ export function MissionsWidget({ userId, compact = false }: MissionsWidgetProps)
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {!isLoading && !error && upcomingMissions.length > 0 && (
+          <div style={{ marginTop: pendingMissions.length > 0 ? 12 : 0 }}>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: 1.5, color: 'var(--text-mute)', marginBottom: 8 }}>
+              Próximas
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {upcomingMissions.map(mission => (
+                <div key={mission.id} style={{
+                  padding: '9px 12px',
+                  background: 'var(--moss-900)',
+                  border: '1px solid var(--border-soft)',
+                  borderRadius: 'var(--r-sm)',
+                  opacity: 0.7,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {mission.glyph && (
+                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 16, color: 'var(--text-mute)', lineHeight: 1.2, flexShrink: 0 }}>
+                        {mission.glyph}
+                      </span>
+                    )}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 6 }}>
+                        <span style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-soft)', lineHeight: 1.3 }}>
+                          {mission.title}
+                        </span>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-mute)', flexShrink: 0 }}>
+                          +{mission.xpReward} XP
+                        </span>
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-mute)', marginTop: 2 }}>
+                        {getTimeUntilStart(mission.startsAt)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -290,6 +342,55 @@ export function MissionsWidget({ userId, compact = false }: MissionsWidgetProps)
               )}
             </>
           )}
+        </div>
+      )}
+
+      {!isLoading && !error && upcomingMissions.length > 0 && (
+        <div style={{ marginTop: 24 }}>
+          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, textTransform: 'uppercase', letterSpacing: 2, color: 'var(--text-mute)', marginBottom: 14 }}>
+            En el horizonte
+          </div>
+          <div style={{ display: 'grid', gap: 12 }}>
+            {upcomingMissions.map(mission => (
+              <div
+                key={mission.id}
+                style={{
+                  padding: 16,
+                  background: 'var(--moss-900)',
+                  border: '1px solid var(--border-soft)',
+                  borderRadius: 'var(--r-md)',
+                  opacity: 0.65,
+                  display: 'flex',
+                  gap: 14,
+                  alignItems: 'flex-start',
+                }}
+              >
+                {mission.glyph && (
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: 24, color: 'var(--text-mute)', lineHeight: 1, flexShrink: 0 }}>
+                    {mission.glyph}
+                  </span>
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+                    <div style={{ fontFamily: 'var(--font-ui)', fontSize: 15, color: 'var(--text-soft)', fontWeight: 500 }}>
+                      {mission.title}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-mute)', flexShrink: 0 }}>
+                      +{mission.xpReward} XP
+                    </div>
+                  </div>
+                  {mission.description && (
+                    <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--text-mute)', marginTop: 4, fontStyle: 'italic' }}>
+                      {mission.description}
+                    </div>
+                  )}
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--mist)', marginTop: 6 }}>
+                    ◷ {getTimeUntilStart(mission.startsAt)}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </section>

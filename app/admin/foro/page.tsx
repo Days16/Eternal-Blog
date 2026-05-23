@@ -3,7 +3,7 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { getAdminForumStats, getForumCategories } from '@/lib/supabase/queries/forum'
 import { relativeTime } from '@/lib/utils/dates'
-import { deleteThreadAction } from '@/app/foro/actions'
+import { DeleteThreadButton } from '@/components/forum/DeleteThreadButton'
 
 const cardStyle: React.CSSProperties = {
   background: 'var(--bg-card)',
@@ -30,8 +30,8 @@ export default async function AdminForoPage() {
   }
 
   const [stats, categories] = await Promise.all([
-    getAdminForumStats(),
-    getForumCategories(),
+    getAdminForumStats().catch(() => ({ threadCount: 0, replyCount: 0, recentThreads: [] })),
+    getForumCategories().catch(() => []),
   ])
 
   return (
@@ -154,25 +154,10 @@ export default async function AdminForoPage() {
                       Ver
                     </Link>
                   )}
-                  <form action={deleteThreadAction} style={{ display: 'inline' }}>
-                    <input type="hidden" name="thread_id" value={thread.id} />
-                    <input type="hidden" name="category_slug" value={thread.category?.slug ?? ''} />
-                    <button
-                      type="submit"
-                      style={{
-                        padding: '5px 12px',
-                        border: '1px solid var(--ember)',
-                        borderRadius: 'var(--r-sm)',
-                        background: 'transparent',
-                        fontFamily: 'var(--font-ui)', fontSize: 11,
-                        color: 'var(--ember)', cursor: 'pointer',
-                        fontWeight: 500,
-                      }}
-                      onClick={e => { if (!confirm('¿Eliminar este hilo?')) e.preventDefault() }}
-                    >
-                      Eliminar
-                    </button>
-                  </form>
+                  <DeleteThreadButton
+                    threadId={thread.id}
+                    categorySlug={thread.category?.slug ?? ''}
+                  />
                 </div>
               </div>
             ))

@@ -222,7 +222,7 @@ export async function getAchievementForAdmin(id: string) {
 export type MissionStatus = 'active' | 'upcoming' | 'open' | 'expired'
 
 function getMissionStatus(startsAt: Date | null, endsAt: Date | null, now: Date): MissionStatus {
-  if (!startsAt || startsAt > now) return 'upcoming'
+  if (startsAt && startsAt > now) return 'upcoming'
   if (!endsAt) return 'open'
   if (endsAt < now) return 'expired'
   return 'active'

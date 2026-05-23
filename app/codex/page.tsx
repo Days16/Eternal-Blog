@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { TopNav } from '@/components/layout/TopNav'
 import { Footer } from '@/components/layout/Footer'
-import { CategoryCard } from '@/components/content/CategoryCard'
+import { CategoryChip } from '@/components/content/CategoryChip'
 import { WikiCard } from '@/components/content/WikiCard'
 import { RuneDivider } from '@/components/ui/RuneDivider'
 import {
@@ -22,8 +22,8 @@ export default async function CodexPage({ searchParams }: { searchParams: Search
   const { category } = await searchParams
 
   const [stats, entries] = await Promise.all([
-    getCodexStats(),
-    getCodexEntries(category),
+    getCodexStats().catch(() => ({} as Record<string, number>)),
+    getCodexEntries(category).catch(() => []),
   ])
 
   const totalEntries = Object.values(stats).reduce((a, b) => a + b, 0)
@@ -74,20 +74,39 @@ export default async function CodexPage({ searchParams }: { searchParams: Search
       </section>
 
       {/* ── Categorías ────────────────────────────────────── */}
-      <section className="page-layout" style={{ paddingTop: 32, paddingBottom: 32 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+      <section className="page-layout" style={{ paddingTop: 24, paddingBottom: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
           {CODEX_CATEGORIES.map(c => (
-            <CategoryCard
+            <CategoryChip
               key={c.id}
               id={c.id}
               name={c.name}
               rune={c.rune}
               color={c.color}
-              desc={c.desc}
               count={stats[c.id] ?? 0}
               active={category === c.id}
             />
           ))}
+          <Link
+            href="/codex/mapa"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '7px 14px',
+              borderRadius: 99,
+              border: '1px solid var(--border-soft)',
+              background: 'var(--bg-card)',
+              textDecoration: 'none',
+              flexShrink: 0,
+              fontFamily: 'var(--font-ui)',
+              fontSize: 12,
+              color: 'var(--text-mute)',
+            }}
+          >
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: 'var(--rune)', lineHeight: 1 }}>ᛗ</span>
+            Mapa
+          </Link>
         </div>
       </section>
 

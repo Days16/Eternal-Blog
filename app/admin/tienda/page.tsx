@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { isModeratorOrAbove } from '@/lib/auth/roles'
@@ -32,6 +33,28 @@ export default async function AdminTiendaPage() {
         <p style={{ fontFamily: 'var(--font-body)', color: 'var(--text-mute)', fontSize: 14, margin: 0 }}>
           Gestión del Mercado Arcano. Activa la tienda para que sea visible públicamente.
         </p>
+        {!enabled && (
+          <Link
+            href="/tienda?preview=1"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              marginTop: 12,
+              padding: '6px 14px',
+              border: '1px solid var(--amethyst)',
+              borderRadius: 'var(--r-sm)',
+              fontFamily: 'var(--font-ui)',
+              fontSize: 12,
+              color: 'var(--amethyst)',
+              textDecoration: 'none',
+            }}
+          >
+            ᛉ Vista previa de la tienda ↗
+          </Link>
+        )}
       </div>
 
       {/* Toggle de activación */}

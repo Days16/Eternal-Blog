@@ -44,6 +44,18 @@ export interface Mission {
   progressPct: number
 }
 
+export interface UpcomingMission {
+  id: string
+  title: string
+  description: string | null
+  criteriaType: string
+  criteriaValue: number
+  xpReward: number
+  glyph: string
+  startsAt: string
+  endsAt: string | null
+}
+
 function getMissionCurrentValue(criteriaType: string, snapshot: UserSnapshot): number {
   switch (criteriaType as MissionCriteriaType) {
     case 'comment_count':
@@ -83,6 +95,20 @@ function mapMission(row: MissionRow, snapshot: UserSnapshot): Mission {
     currentValue,
     progressPct: Math.min(100, Math.round((Math.min(currentValue, criteriaValue) / criteriaValue) * 100)),
   }
+}
+
+async function getUpcomingMissionRows(supabase: SupabaseClientInstance): Promise<MissionRow[]> {
+  const now = new Date().toISOString()
+  const select = 'id,title,description,criteria_type,criteria_value,xp_reward,glyph,starts_at,ends_at,created_at'
+
+  const { data } = await supabase
+    .from('missions')
+    .select(select)
+    .gt('starts_at', now)
+    .order('starts_at', { ascending: true })
+    .limit(3)
+
+  return (data ?? []) as MissionRow[]
 }
 
 async function getActiveMissionRows(supabase: SupabaseClientInstance): Promise<MissionRow[]> {
@@ -152,19 +178,35 @@ async function getUserSnapshot(supabase: SupabaseClientInstance, userId: string)
   }
 }
 
-export async function getUserMissionState(userId: string): Promise<{ active: Mission[]; completed: string[] }> {
+export async function getUserMissionState(userId: string): Promise<{ active: Mission[]; completed: string[]; upcoming: UpcomingMission[] }> {
   const supabase = requireSupabase()
-  const [activeRows, completed, snapshot] = await Promise.all([
+  const [activeRows, upcomingRows, completed, snapshot] = await Promise.all([
     getActiveMissionRows(supabase),
+    getUpcomingMissionRows(supabase),
     getCompletedMissionIds(supabase, userId),
     getUserSnapshot(supabase, userId),
   ])
 
-  if (!snapshot) return { active: [], completed }
+  const upcoming: UpcomingMission[] = upcomingRows
+    .filter(row => row.id && row.starts_at)
+    .map(row => ({
+      id: row.id!,
+      title: row.title ?? 'Misión sin título',
+      description: row.description ?? null,
+      criteriaType: row.criteria_type ?? 'comment_count',
+      criteriaValue: Math.max(1, row.criteria_value ?? 1),
+      xpReward: row.xp_reward ?? 0,
+      glyph: row.glyph ?? 'ᛟ',
+      startsAt: row.starts_at!,
+      endsAt: row.ends_at ?? null,
+    }))
+
+  if (!snapshot) return { active: [], completed, upcoming }
 
   return {
     active: activeRows.map(row => mapMission(row, snapshot)),
     completed,
+    upcoming,
   }
 }
 

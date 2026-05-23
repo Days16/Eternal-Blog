@@ -8,6 +8,7 @@ import { Footer } from '@/components/layout/Footer'
 import { RuneDivider } from '@/components/ui/RuneDivider'
 import { FeaturedShelfEditor } from '@/components/profile/FeaturedShelfEditor'
 import { BadgePicker } from '@/components/profile/BadgePicker'
+import { EmailNotificationToggle } from '@/components/profile/EmailNotificationToggle'
 import { updateProfileAction } from './actions'
 
 const fieldStyle: React.CSSProperties = {
@@ -155,6 +156,23 @@ export default function EditarPerfilPage() {
               Elige hasta 3 artículos que aparecerán en tu perfil público.
             </p>
             <FeaturedShelfEditor />
+          </div>
+        </div>
+
+        {/* Notificaciones */}
+        <div style={{ marginTop: 56 }}>
+          <RuneDivider char="ᛖ" />
+          <div style={{ marginTop: 32 }}>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--spore)', marginBottom: 8 }}>
+              ✦ Notificaciones
+            </div>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 500, margin: '0 0 8px', lineHeight: 1 }}>
+              Avisos por correo
+            </h2>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--text-soft)', fontStyle: 'italic', marginBottom: 24 }}>
+              Recibe un aviso en tu correo cuando se publique algo nuevo.
+            </p>
+            <EmailNotificationToggle />
           </div>
         </div>
 
