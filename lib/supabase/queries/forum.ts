@@ -309,3 +309,45 @@ export async function getAdminForumStats() {
     })),
   }
 }
+
+export async function followThread(userId: string, threadId: string): Promise<void> {
+  const supabase = requireSupabase()
+  const { error } = await supabase
+    .from('forum_thread_follows')
+    .upsert({ user_id: userId, thread_id: threadId }, { onConflict: 'user_id,thread_id', ignoreDuplicates: true })
+  if (error) throw error
+}
+
+export async function unfollowThread(userId: string, threadId: string): Promise<void> {
+  const supabase = requireSupabase()
+  const { error } = await supabase
+    .from('forum_thread_follows')
+    .delete()
+    .eq('user_id', userId)
+    .eq('thread_id', threadId)
+  if (error) throw error
+}
+
+export async function isFollowingThread(userId: string, threadId: string): Promise<boolean> {
+  const supabase = requireSupabase()
+  const { data } = await supabase
+    .from('forum_thread_follows')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('thread_id', threadId)
+    .maybeSingle()
+  return !!data
+}
+
+export async function getThreadFollowers(threadId: string): Promise<string[]> {
+  const supabase = requireSupabase()
+  const { data, error } = await supabase
+    .from('forum_thread_follows')
+    .select('user_id')
+    .eq('thread_id', threadId)
+  if (error) {
+    console.error('[forum] getThreadFollowers error:', error.message)
+    return []
+  }
+  return (data ?? []).map(r => r.user_id)
+}

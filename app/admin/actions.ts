@@ -220,8 +220,9 @@ export async function createRoleAction(formData: FormData) {
   const label = text(formData, 'label')
   const description = text(formData, 'description') || null
   const color = text(formData, 'color') || 'var(--spore)'
+  const permissions = formData.getAll('permissions') as string[]
   if (!name || !label || isValidRole(name)) return
-  await supabase.from('custom_roles').insert({ name, label, description, color })
+  await supabase.from('custom_roles').insert({ name, label, description, color, permissions })
   revalidatePath('/admin/roles')
   redirect('/admin/roles')
 }
@@ -233,8 +234,9 @@ export async function updateRoleAction(formData: FormData) {
   const label = text(formData, 'label')
   const description = text(formData, 'description') || null
   const color = text(formData, 'color') || 'var(--spore)'
+  const permissions = formData.getAll('permissions') as string[]
   if (!id || !label) return
-  await supabase.from('custom_roles').update({ label, description, color }).eq('id', id)
+  await supabase.from('custom_roles').update({ label, description, color, permissions }).eq('id', id)
   revalidatePath('/admin/roles')
   redirect('/admin/roles')
 }

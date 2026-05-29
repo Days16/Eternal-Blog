@@ -9,9 +9,11 @@ import { Btn } from '@/components/ui/Btn'
 import { Rune } from '@/components/ui/Rune'
 import { ReplyForm } from '@/components/forum/ReplyForm'
 import { ReplyNode } from '@/components/forum/ReplyNode'
-import { getForumThread } from '@/lib/supabase/queries/forum'
+import { getForumThread, isFollowingThread } from '@/lib/supabase/queries/forum'
 import { formatDateLong } from '@/lib/utils/dates'
-import { togglePinThreadAction, toggleLockThreadAction, deleteThreadAction } from '@/app/foro/actions'
+import { togglePinThreadAction, toggleLockThreadAction } from '@/app/foro/actions'
+import { FollowThreadButton } from '@/components/forum/FollowThreadButton'
+import { DeleteThreadButton } from '@/components/forum/DeleteThreadButton'
 import { auth } from '@/auth'
 import type { LevelNumber } from '@/components/ui/constants'
 
@@ -40,6 +42,7 @@ export default async function ForoThreadPage({ params }: Props) {
   const role = session?.user?.role
   const canModerate = role === 'admin' || role === 'dev' || role === 'moderator'
   const isAuthor = userId === thread.authorId
+  const isFollowing = userId ? await isFollowingThread(userId, thread.id) : false
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', minHeight: '100vh' }} className="tex-canopy">
@@ -111,6 +114,12 @@ export default async function ForoThreadPage({ params }: Props) {
               </div>
             </div>
 
+            {userId && (
+              <div style={{ marginLeft: canModerate ? 12 : 'auto' }}>
+                <FollowThreadButton threadId={thread.id} initialFollowing={isFollowing} />
+              </div>
+            )}
+
             {/* Admin actions */}
             {canModerate && (
               <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -136,22 +145,7 @@ export default async function ForoThreadPage({ params }: Props) {
             )}
 
             {(isAuthor || canModerate) && (
-              <form action={deleteThreadAction}>
-                <input type="hidden" name="thread_id" value={thread.id} />
-                <input type="hidden" name="category_slug" value={categoria} />
-                <button
-                  type="submit"
-                  style={{
-                    background: 'none', border: 'none',
-                    color: 'var(--ember)', cursor: 'pointer',
-                    fontFamily: 'var(--font-ui)', fontSize: 11,
-                    letterSpacing: 0.5, padding: 0,
-                  }}
-                  onClick={e => { if (!confirm('¿Eliminar este hilo y todas sus respuestas?')) e.preventDefault() }}
-                >
-                  Eliminar hilo
-                </button>
-              </form>
+              <DeleteThreadButton threadId={thread.id} categorySlug={categoria} />
             )}
           </div>
 

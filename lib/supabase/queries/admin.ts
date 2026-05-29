@@ -299,7 +299,7 @@ export async function getCustomRoles() {
   const supabase = requireSupabase()
   const { data } = await supabase
     .from('custom_roles')
-    .select('id,name,label,description,color,created_at')
+    .select('id,name,label,description,color,permissions,created_at')
     .order('created_at', { ascending: true })
   return (data ?? []).map(row => ({
     id: String(row.id ?? ''),
@@ -307,6 +307,7 @@ export async function getCustomRoles() {
     label: String(row.label ?? ''),
     description: (row.description as string | null) ?? null,
     color: String(row.color ?? 'var(--spore)'),
+    permissions: Array.isArray(row.permissions) ? (row.permissions as string[]) : [],
   }))
 }
 

@@ -157,6 +157,22 @@ export function TopNav({ compact = false }: TopNavProps) {
         {/* Notificaciones */}
         <NotificationBell />
 
+        {/* Carrito */}
+        {pathname.startsWith('/tienda') && (
+          <Link
+            href="/tienda/carrito"
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: pathname === '/tienda/carrito' ? 'var(--spore)' : 'var(--text-mute)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: 8, transition: 'color 0.2s',
+            }}
+            title="Ver carrito"
+          >
+            <span style={{ fontSize: 20 }}>🛒</span>
+          </Link>
+        )}
+
         {/* Usuario / Sesión */}
         {user ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

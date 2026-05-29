@@ -76,6 +76,24 @@ export function ChatWidget({ currentUserId }: { currentUserId: string }) {
     }
   }, [activeConv, mutateConvs])
 
+  useEffect(() => {
+    function handleOpenChat(e: Event) {
+      const customEvent = e as CustomEvent<{ partnerId: string; name: string | null; username: string | null }>
+      const { partnerId, name, username } = customEvent.detail
+      setOpen(true)
+      setActiveConv({
+        userId: partnerId,
+        name,
+        username,
+        avatarUrl: null,
+        lastMessage: null,
+        unreadCount: 0,
+      })
+    }
+    window.addEventListener('open-chat', handleOpenChat)
+    return () => window.removeEventListener('open-chat', handleOpenChat)
+  }, [])
+
   const handleSend = useCallback(async () => {
     if (!activeConv || !input.trim() || sending) return
     setSending(true)

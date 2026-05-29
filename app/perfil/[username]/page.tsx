@@ -230,38 +230,47 @@ export default async function ProfilePage({ params, searchParams }: Props) {
           <StatCard value={unlockedCount.toString()} label={`logros · de ${achievements.length}`}       color="var(--amethyst)" />
         </div>
 
-        {/* ── Barra de nivel ──────────────────────────────── */}
+        {/* ── Nivel y Misiones en Paralelo ─────────────────── */}
         <div style={{
-          background: 'var(--bg-card)', border: '1px solid var(--border-soft)',
-          borderRadius: 'var(--r-lg)', padding: 24, marginBottom: 32,
-          position: 'relative', overflow: 'hidden', maxWidth: 760,
+          display: 'grid',
+          gridTemplateColumns: isOwnProfile ? 'repeat(auto-fit, minmax(300px, 1fr))' : '1fr',
+          gap: 24,
+          marginBottom: 32,
+          maxWidth: isOwnProfile ? '100%' : 760
         }}>
-          <div style={{ position: 'absolute', right: 24, top: 12, fontFamily: 'var(--font-display)', fontSize: 120, color: levelInfo.color, opacity: 0.08, lineHeight: 1 }}>
-            {levelInfo.rune}
+          {/* Barra de nivel */}
+          <div style={{
+            background: 'var(--bg-card)', border: '1px solid var(--border-soft)',
+            borderRadius: 'var(--r-lg)', padding: '20px 24px',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{ position: 'absolute', right: 20, top: 12, fontFamily: 'var(--font-display)', fontSize: 90, color: levelInfo.color, opacity: 0.08, lineHeight: 1 }}>
+              {levelInfo.rune}
+            </div>
+            <span style={{ fontFamily: 'var(--font-ui)', fontSize: 11, textTransform: 'uppercase', letterSpacing: 2, color: levelInfo.color }}>
+              Nivel actual
+            </span>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 600, margin: '4px 0 14px' }}>
+              {level} · {levelInfo.name}
+            </div>
+            <div style={{ height: 8, background: 'var(--moss-800)', borderRadius: 99, marginBottom: 8, overflow: 'hidden' }}>
+              <div className="xp-bar-fill" style={{
+                width: `${xpProgress.progressPct}%`, height: '100%',
+                background: `linear-gradient(90deg, ${levelInfo.color}99, ${levelInfo.color})`,
+                boxShadow: `0 0 12px ${levelInfo.color}66`,
+              }} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-mute)', flexWrap: 'wrap', gap: 4 }}>
+              <span>{profile.xp.toLocaleString('es-ES')} XP</span>
+              {xpProgress.xpToNext !== null
+                ? <span>· {xpProgress.xpToNext.toLocaleString('es-ES')} para {xpProgress.next?.name}</span>
+                : <span>· Nivel máximo alcanzado</span>
+              }
+            </div>
           </div>
-          <span style={{ fontFamily: 'var(--font-ui)', fontSize: 11, textTransform: 'uppercase', letterSpacing: 2, color: levelInfo.color }}>
-            Nivel actual
-          </span>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 600, margin: '4px 0 14px' }}>
-            {level} · {levelInfo.name}
-          </div>
-          <div style={{ height: 8, background: 'var(--moss-800)', borderRadius: 99, marginBottom: 8, overflow: 'hidden' }}>
-            <div className="xp-bar-fill" style={{
-              width: `${xpProgress.progressPct}%`, height: '100%',
-              background: `linear-gradient(90deg, ${levelInfo.color}99, ${levelInfo.color})`,
-              boxShadow: `0 0 12px ${levelInfo.color}66`,
-            }} />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-mute)', flexWrap: 'wrap', gap: 4 }}>
-            <span>{profile.xp.toLocaleString('es-ES')} XP</span>
-            {xpProgress.xpToNext !== null
-              ? <span>· {xpProgress.xpToNext.toLocaleString('es-ES')} para {xpProgress.next?.name}</span>
-              : <span>· Nivel máximo alcanzado</span>
-            }
-          </div>
-        </div>
 
-        {isOwnProfile && <MissionsWidget userId={profile.id} />}
+          {isOwnProfile && <MissionsWidget userId={profile.id} compact={true} />}
+        </div>
 
         {/* ── Lecturas recomendadas (escaparate) ───────────── */}
         {featuredEntries.length > 0 && (
@@ -281,7 +290,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
         )}
 
         {/* ── Tabs ─────────────────────────────────────────── */}
-        <div style={{ display: 'flex', gap: 28, borderBottom: '1px solid var(--border)', marginBottom: 32, maxWidth: 900 }}>
+        <div style={{ display: 'flex', gap: 28, borderBottom: '1px solid var(--border)', marginBottom: 32, maxWidth: '100%' }}>
           {(['logros', 'actividad'] as const).map(t => (
             <Link
               key={t}
@@ -345,7 +354,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
 
         {/* ── Actividad ────────────────────────────────────── */}
         {tab === 'actividad' && (
-          <div style={{ maxWidth: 760, marginBottom: 64 }}>
+          <div style={{ maxWidth: '100%', marginBottom: 64 }}>
             {recentActivity.length === 0 ? (
               <div style={{
                 padding: 40, background: 'var(--bg-card)', border: '1px solid var(--border-soft)',

@@ -209,6 +209,14 @@ export async function sendMessage(senderId: string, receiverId: string, body: st
     .single()
 
   if (error) throw error
+
+  await createNotification({
+    userId:  receiverId,
+    actorId: senderId,
+    type:    'direct_message',
+    data:    { messageId: data.id, body: body.trim().substring(0, 60) },
+  }).catch(e => console.error('[social] direct_message notification failed:', e.message))
+
   return data
 }
 

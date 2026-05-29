@@ -132,7 +132,7 @@ function ActivityItemRow({ item }: { item: ActivityItem }) {
   )
 }
 
-function SocialItemRow({ item }: { item: SocialItem }) {
+function SocialItemRow({ item, onClose }: { item: SocialItem; onClose: () => void }) {
   if (item.type === 'friend_accepted') {
     return (
       <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-soft)' }}>
@@ -150,6 +150,73 @@ function SocialItemRow({ item }: { item: SocialItem }) {
       </div>
     )
   }
+
+  if (item.type === 'direct_message') {
+    const body = String(item.data?.body || '')
+    return (
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-soft)' }}>
+        <button
+          type="button"
+          onClick={() => {
+            onClose()
+            window.dispatchEvent(new CustomEvent('open-chat', {
+              detail: {
+                partnerId: item.actorId,
+                name: item.actorName,
+                username: item.actorUsername
+              }
+            }))
+          }}
+          style={{
+            display: 'flex', gap: 10, textDecoration: 'none', background: 'none', border: 'none',
+            textAlign: 'left', cursor: 'pointer', padding: 0, width: '100%'
+          }}
+        >
+          <span style={{ color: 'var(--spore)', fontSize: 16, marginTop: 2 }}>✉</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4 }}>
+              Mensaje privado de <strong style={{ color: 'var(--spore)' }}>{actorLabel(item)}</strong>
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-soft)', marginTop: 2, fontStyle: 'italic', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: 220 }} title={body}>
+              &ldquo;{body}&rdquo;
+            </div>
+            <div style={{ fontSize: 10, color: 'var(--text-mute)', fontFamily: 'var(--font-mono)', marginTop: 4 }}>
+              {formatDate(item.createdAt)}
+            </div>
+          </div>
+        </button>
+      </div>
+    )
+  }
+
+  if (item.type === 'forum_reply') {
+    const threadSlug = String(item.data?.threadSlug || '')
+    const categorySlug = String(item.data?.categorySlug || '')
+    const title = String(item.data?.title || 'hilo')
+    return (
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-soft)' }}>
+        <Link
+          href={`/foro/${categorySlug}/${threadSlug}`}
+          onClick={onClose}
+          style={{ display: 'flex', gap: 10, textDecoration: 'none' }}
+        >
+          <span style={{ color: 'var(--spore)', fontSize: 16, marginTop: 2 }}>💬</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4 }}>
+              Novedades en <strong style={{ color: 'var(--spore)' }}>{title}</strong>
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-soft)', marginTop: 2 }}>
+              Respuesta de <strong style={{ color: 'var(--text)' }}>{actorLabel(item)}</strong>
+            </div>
+            <div style={{ fontSize: 10, color: 'var(--text-mute)', fontFamily: 'var(--font-mono)', marginTop: 4 }}>
+              {formatDate(item.createdAt)}
+            </div>
+          </div>
+        </Link>
+      </div>
+    )
+  }
+
   return null
 }
 
@@ -256,7 +323,7 @@ export function NotificationBell() {
                   return <FriendRequestItem key={item.id} item={item} onDone={() => mutate()} />
                 }
                 if (item.source === 'social') {
-                  return <SocialItemRow key={item.id} item={item} />
+                  return <SocialItemRow key={item.id} item={item} onClose={() => setIsOpen(false)} />
                 }
                 return <ActivityItemRow key={item.id} item={item as ActivityItem} />
               })

@@ -5,7 +5,7 @@ import { TopNav } from '@/components/layout/TopNav'
 import { Footer } from '@/components/layout/Footer'
 import { RuneDivider } from '@/components/ui/RuneDivider'
 import { isMarketplaceEnabled, getProducts } from '@/lib/supabase/queries/marketplace'
-import { ProductCard } from '@/components/marketplace/ProductCard'
+import { StoreClient } from '@/components/marketplace/StoreClient'
 import { auth } from '@/auth'
 
 export const metadata: Metadata = {
@@ -66,7 +66,7 @@ export default async function TiendaPage({ searchParams }: Props) {
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', letterSpacing: 3, color: 'var(--spore)', marginBottom: 14 }}>
             ◈ · Tienda
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(36px, 8vw, 64px)', fontWeight: 600, margin: '0 0 16px', letterSpacing: -1 }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 600, margin: '0 0 16px', letterSpacing: -0.5 }}>
             Mercado Arcano
           </h1>
           <p style={{ fontFamily: 'var(--font-body)', fontSize: 17, color: 'var(--text-soft)', lineHeight: 1.7, maxWidth: 560, margin: 0 }}>
@@ -84,18 +84,8 @@ export default async function TiendaPage({ searchParams }: Props) {
             </p>
           </div>
         ) : (
-          <div style={{ marginTop: 48, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 24 }}>
-            {products.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <StoreClient products={products} />
         )}
-
-        <div style={{ marginTop: 48 }}>
-          <Link href="/tienda/carrito" style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--mist)', textDecoration: 'none' }}>
-            🛒 Ver carrito
-          </Link>
-        </div>
       </main>
 
       <Footer />

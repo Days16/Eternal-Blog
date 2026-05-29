@@ -5,6 +5,7 @@ import { TopNav } from '@/components/layout/TopNav'
 import { Footer } from '@/components/layout/Footer'
 import { isMarketplaceEnabled, getProductBySlug } from '@/lib/supabase/queries/marketplace'
 import { AddToCartButton } from '@/components/marketplace/AddToCartButton'
+import { ProductImageGallery } from '@/components/marketplace/ProductImageGallery'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -23,6 +24,8 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound()
 
   const TYPE_LABELS = { merch: 'Merchan', book: 'Libro', digital: 'Digital' }
+  const TYPE_ICONS  = { merch: '◈', book: '📖', digital: '✦' }
+  const images = product.imageUrl ? product.imageUrl.split(',').map(s => s.trim()).filter(Boolean) : []
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', minHeight: '100vh' }} className="tex-canopy">
@@ -34,10 +37,12 @@ export default async function ProductPage({ params }: Props) {
         </Link>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, marginTop: 40, alignItems: 'start' }}>
-          {/* Imagen */}
-          <div style={{ aspectRatio: '1', background: 'var(--moss-700)', borderRadius: 'var(--r-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: 80, color: 'var(--spore)', opacity: 0.4 }}>
-            {product.type === 'book' ? '📖' : product.type === 'digital' ? '✦' : '◈'}
-          </div>
+          {/* Galería de imágenes */}
+          <ProductImageGallery
+            images={images}
+            alt={product.name}
+            typeIcon={TYPE_ICONS[product.type]}
+          />
 
           {/* Detalles */}
           <div>

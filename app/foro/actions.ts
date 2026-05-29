@@ -6,6 +6,8 @@ import { sanitizeCommentHtml, stripHtml } from '@/lib/utils/sanitize'
 import { awardXP } from '@/lib/xp/award'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { followThread, getThreadFollowers } from '@/lib/supabase/queries/forum'
+import { createNotification } from '@/lib/supabase/queries/notifications'
 
 const XP_THREAD = 10
 const XP_REPLY = 5
@@ -82,6 +84,12 @@ export async function createThreadAction(
     await awardXP(user.id, XP_THREAD, 'comment', thread.id)
   } catch {}
 
+  try {
+    await followThread(user.id, thread.id)
+  } catch (e) {
+    console.error('[forum] Auto-follow thread failed:', e)
+  }
+
   revalidateTag('forum')
   revalidatePath(`/foro/${categorySlug}`)
 
@@ -124,6 +132,40 @@ export async function createReplyAction(
     })
 
   if (error) return 'Error al enviar la respuesta. Inténtalo de nuevo.'
+
+  // Disparar notificaciones a los seguidores del hilo
+  try {
+    const followers = await getThreadFollowers(threadId)
+    const otherFollowers = followers.filter(f => f !== user.id)
+
+    if (otherFollowers.length > 0) {
+      const { data: tInfo } = await supabase
+        .from('forum_threads')
+        .select('title')
+        .eq('id', threadId)
+        .maybeSingle()
+
+      const title = tInfo?.title || 'un hilo que sigues'
+
+      await Promise.all(
+        otherFollowers.map(followerId =>
+          createNotification({
+            userId: followerId,
+            actorId: user.id,
+            type: 'forum_reply',
+            data: {
+              threadId,
+              threadSlug,
+              categorySlug,
+              title,
+            },
+          }).catch(e => console.error(`[forum] Error notifying user ${followerId}:`, e))
+        )
+      )
+    }
+  } catch (notifErr) {
+    console.error('[forum] Failed to process followers notifications:', notifErr)
+  }
 
   try {
     await awardXP(user.id, XP_REPLY, 'comment', threadId)
@@ -225,4 +267,14 @@ export async function toggleLockThreadAction(formData: FormData) {
 
   revalidatePath(`/foro/${categorySlug}`)
   revalidatePath(`/foro/${categorySlug}/${threadSlug}`)
+}
+
+export async function toggleFollowThreadAction(threadId: string, shouldFollow: boolean) {
+  const user = await requireAuth()
+  const { unfollowThread } = await import('@/lib/supabase/queries/forum')
+  if (shouldFollow) {
+    await followThread(user.id, threadId)
+  } else {
+    await unfollowThread(user.id, threadId)
+  }
 }
