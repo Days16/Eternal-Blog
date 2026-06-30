@@ -1,9 +1,9 @@
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { requireSupabase } from '@/lib/supabase/helpers'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ subscribed: false })
 
   const supabase = requireSupabase()
@@ -17,7 +17,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
 
   const body = (await request.json().catch(() => ({}))) as { subscribe?: boolean }

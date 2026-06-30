@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { TopNav } from '@/components/layout/TopNav'
 import { Footer } from '@/components/layout/Footer'
 import { RuneDivider } from '@/components/ui/RuneDivider'
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 }
 
 export default async function ColaborarPage() {
-  const session = await auth()
+  const session = await getSession()
   const isLoggedIn = !!session?.user?.id
   const isAlreadyCollaborator = session?.user?.role === 'collaborator'
     || session?.user?.role === 'admin'

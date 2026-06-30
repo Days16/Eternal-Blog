@@ -1,4 +1,4 @@
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { createComment } from '@/lib/supabase/queries/comments'
 import { awardXP } from '@/lib/xp/award'
 import { XP } from '@/lib/xp/events'
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   const limit = rateLimit(`comments:${ip}`, 30, 60_000)
   if (limit.limited) return NextResponse.json({ error: 'Demasiados comentarios. Espera un momento.' }, { status: 429 })
 
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ error: 'Debes iniciar sesión para comentar' }, { status: 401 })
 
   try {

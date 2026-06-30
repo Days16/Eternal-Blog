@@ -177,7 +177,7 @@ function SocialItemRow({ item, onClose }: { item: SocialItem; onClose: () => voi
             <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.4 }}>
               Mensaje privado de <strong style={{ color: 'var(--spore)' }}>{actorLabel(item)}</strong>
             </div>
-            <div style={{ fontSize: 11, color: 'var(--text-soft)', marginTop: 2, fontStyle: 'italic', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: 220 }} title={body}>
+            <div style={{ fontSize: 11, color: 'var(--text-soft)', marginTop: 2, fontStyle: 'italic', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '100%' }} title={body}>
               &ldquo;{body}&rdquo;
             </div>
             <div style={{ fontSize: 10, color: 'var(--text-mute)', fontFamily: 'var(--font-mono)', marginTop: 4 }}>
@@ -230,7 +230,7 @@ export function NotificationBell() {
   })
 
   useEffect(() => {
-    if (!items) return
+    if (!Array.isArray(items)) return
     const lastSeen   = parseInt(localStorage.getItem('last_notif_seen') ?? '0')
     const unreadCount = items.filter(n => new Date(n.createdAt).getTime() > lastSeen).length
     setUnread(unreadCount)
@@ -247,7 +247,7 @@ export function NotificationBell() {
   function handleOpen() {
     const next = !isOpen
     setIsOpen(next)
-    if (next && items && items.length > 0) {
+    if (next && Array.isArray(items) && items.length > 0) {
       localStorage.setItem('last_notif_seen', Date.now().toString())
       setUnread(0)
       fetch('/api/notifications', { method: 'POST' }).catch(() => {})
@@ -258,6 +258,8 @@ export function NotificationBell() {
     <div style={{ position: 'relative' }} ref={menuRef}>
       <button
         onClick={handleOpen}
+        aria-label={unread > 0 ? `Notificaciones (${unread} sin leer)` : 'Notificaciones'}
+        aria-expanded={isOpen}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
           color: unread > 0 ? 'var(--spore)' : 'var(--text-mute)',
@@ -285,7 +287,7 @@ export function NotificationBell() {
       {isOpen && (
         <div style={{
           position: 'absolute', top: '100%', right: 0, marginTop: 12,
-          width: 320, background: 'var(--bg-card)',
+          width: 'min(320px, calc(100vw - 32px))', background: 'var(--bg-card)',
           border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)',
           boxShadow: '0 10px 40px rgba(0,0,0,0.5)', zIndex: 100,
           overflow: 'hidden', backdropFilter: 'blur(16px)',
@@ -313,7 +315,7 @@ export function NotificationBell() {
                   Reintentar
                 </button>
               </div>
-            ) : !items || items.length === 0 ? (
+            ) : !Array.isArray(items) || items.length === 0 ? (
               <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-mute)', fontStyle: 'italic', fontSize: 13 }}>
                 El silencio reina en el bosque...
               </div>

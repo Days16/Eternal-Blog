@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useAppSession } from '@/components/auth/SessionContext'
 import { Mushroom } from '@/components/ui/Mushroom'
 import { LevelBadge } from '@/components/ui/LevelBadge'
 import { Btn } from '@/components/ui/Btn'
@@ -26,9 +26,9 @@ interface TopNavProps {
 
 export function TopNav({ compact = false }: TopNavProps) {
   const pathname   = usePathname()
-  const { data: session } = useSession()
+  const session = useAppSession()
   const { stats }  = useUserStats(!!session?.user)
-  const user = session?.user as { name?: string; level?: number; xp?: number; role?: string } | undefined
+  const user = session?.user
   const level = (stats?.level ?? user?.level ?? 1) as LevelNumber
   const xp    = stats?.xp ?? user?.xp ?? 0
   const canAccessAdmin = user?.role === 'admin' || user?.role === 'moderator' || user?.role === 'dev'

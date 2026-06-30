@@ -332,6 +332,19 @@ code, pre {
   -webkit-overflow-scrolling: touch;
 }
 
+.admin-entry-row {
+  display: grid;
+  grid-template-columns: 1fr 120px 90px 80px 90px;
+}
+
+@media (max-width: 768px) {
+  .admin-entry-row {
+    grid-template-columns: 1fr;
+    gap: 4px !important;
+    padding: 12px 4px !important;
+  }
+}
+
 /* ── Public: page with sidebar ──────────────────────────── */
 .page-with-sidebar {
   display: flex;
@@ -629,6 +642,24 @@ code, pre {
   .hero-title { font-size: 34px; }
   .page-hero  { padding: 24px 16px 24px; }
   .page-layout { padding: 0 16px 32px; }
+}
+
+/* ── Auth (login/registro) ──────────────────────────────── */
+.auth-decor-panel {
+  flex: 1;
+}
+.auth-form-panel {
+  flex-basis: 480px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .auth-decor-panel { display: none; }
+  .auth-form-panel  { flex-basis: auto; width: 100%; padding: 40px 24px !important; }
+}
+
+@media (max-width: 480px) {
+  .auth-form-panel { padding: 32px 18px !important; }
 }
 
 /* ── Mobile menu entrance ───────────────────────────────── */
@@ -1017,6 +1048,30 @@ button:active:not(:disabled) {
 .reply-node:nth-child(4)    { animation-delay: 210ms; }
 .reply-node:nth-child(5)    { animation-delay: 280ms; }
 .reply-node:nth-child(n+6)  { animation-delay: 350ms; }
+
+/* ── Tiptap editor ──────────────────────────────────────── */
+.tiptap-editor:focus {
+  outline: none;
+}
+.tiptap-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--text-mute);
+  pointer-events: none;
+  float: left;
+  height: 0;
+  font-style: italic;
+}
+.tiptap-editor h2 { font-family: var(--font-display); font-size: 1.7em; font-weight: 600; margin: 1.2em 0 0.5em; }
+.tiptap-editor h3 { font-family: var(--font-display); font-size: 1.3em; font-weight: 600; margin: 1em 0 0.4em; }
+.tiptap-editor p  { margin: 0 0 0.8em; }
+.tiptap-editor blockquote { border-left: 3px solid var(--spore); padding-left: 1em; color: var(--text-mute); margin: 1em 0; font-style: italic; }
+.tiptap-editor ul, .tiptap-editor ol { padding-left: 1.5em; margin: 0 0 0.8em; }
+.tiptap-editor code { background: var(--moss-800); border-radius: 3px; padding: 1px 5px; font-family: var(--font-mono); font-size: 0.9em; }
+.tiptap-editor pre { background: var(--moss-800); border-radius: var(--r-md); padding: 14px 16px; margin: 1em 0; overflow-x: auto; }
+.tiptap-editor pre code { background: none; padding: 0; }
+.tiptap-editor hr { border: none; border-top: 1px solid var(--border-soft); margin: 1.5em 0; }
+.tiptap-editor a { color: var(--mist); text-decoration: underline; }
+.tiptap-editor img { max-width: 100%; border-radius: var(--r-md); }
 
 /* ── Activity item stagger ──────────────────────────────── */
 .activity-item {

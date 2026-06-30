@@ -1,3 +1,7 @@
+'use client'
+
+import { useActionState } from 'react'
+import { useFormStatus } from 'react-dom'
 import { TiptapEditor } from '@/components/editor/TiptapEditor'
 import { Btn } from '@/components/ui/Btn'
 import { CODEX_CATEGORIES } from '@/lib/supabase/queries/entries'
@@ -21,10 +25,36 @@ function tagsToText(tags?: string) {
   try { return JSON.parse(tags ?? '[]').join(', ') } catch { return '' }
 }
 
-export function EntryForm({ entry }: EntryFormProps) {
+function SubmitBtn() {
+  const { pending } = useFormStatus()
   return (
-    <form action={saveEntryAction} style={{ display: 'grid', gap: 18, maxWidth: 920 }}>
+    <Btn type="submit" variant="rune" disabled={pending}>
+      {pending ? 'Guardando…' : 'Guardar entrada'}
+    </Btn>
+  )
+}
+
+export function EntryForm({ entry }: EntryFormProps) {
+  const [state, formAction] = useActionState(saveEntryAction, null)
+
+  return (
+    <form action={formAction} style={{ display: 'grid', gap: 18, maxWidth: 920 }}>
       {entry && <input type="hidden" name="id" value={entry.id} />}
+
+      {state?.error && (
+        <div style={{
+          padding: '10px 16px',
+          background: 'rgba(168,50,50,.15)',
+          border: '1px solid var(--ember)',
+          borderRadius: 'var(--r-md)',
+          fontFamily: 'var(--font-ui)',
+          fontSize: 13,
+          color: 'var(--ember)',
+        }}>
+          {state.error}
+        </div>
+      )}
+
       <label style={labelStyle}>Título<input name="title" defaultValue={entry?.title} required style={inputStyle} /></label>
       <label style={labelStyle}>Slug<input name="slug" defaultValue={entry?.slug} placeholder="se-autogenera-si-lo-dejas-vacio" style={inputStyle} /></label>
       <label style={labelStyle}>Extracto<textarea name="excerpt" defaultValue={entry?.excerpt ?? ''} rows={3} style={inputStyle} /></label>
@@ -36,7 +66,7 @@ export function EntryForm({ entry }: EntryFormProps) {
       </div>
       <TiptapEditor defaultValue={entry?.body} />
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
-        <Btn type="submit" variant="rune">Guardar entrada</Btn>
+        <SubmitBtn />
       </div>
     </form>
   )

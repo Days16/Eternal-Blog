@@ -1,4 +1,4 @@
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { isModeratorOrAbove } from '@/lib/auth/roles'
 import { setMarketplaceEnabled } from '@/lib/supabase/queries/marketplace'
 import { NextResponse } from 'next/server'
@@ -7,7 +7,7 @@ import { z } from 'zod'
 const schema = z.object({ enabled: z.boolean() })
 
 export async function POST(request: Request) {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user || !isModeratorOrAbove(session.user.role)) {
     return NextResponse.json({ error: 'Sin permisos.' }, { status: 403 })
   }

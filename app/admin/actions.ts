@@ -1,6 +1,6 @@
 'use server'
 
-import { auth } from '@/auth'
+import { requireRole } from '@/lib/auth/session'
 import { requireSupabase } from '@/lib/supabase/helpers'
 import { awardXP } from '@/lib/xp/award'
 import { slugify } from '@/lib/utils/slugify'
@@ -47,13 +47,14 @@ function wordCount(value: string) {
 }
 
 async function requireAdminUser() {
-  const session = await auth()
-  const role = session?.user?.role
-  if (!session?.user?.id || (role !== 'admin' && role !== 'moderator' && role !== 'dev')) redirect('/login')
+  const session = await requireRole('admin', 'moderator', 'dev')
   return session.user
 }
 
-export async function saveEntryAction(formData: FormData) {
+export async function saveEntryAction(
+  _prevState: { error: string } | null,
+  formData: FormData,
+): Promise<{ error: string } | null> {
   const user = await requireAdminUser()
   const supabase = requireSupabase()
   const id = text(formData, 'id')
@@ -65,22 +66,52 @@ export async function saveEntryAction(formData: FormData) {
   const excerpt = text(formData, 'excerpt') || null
   const category = type === 'codex' ? text(formData, 'category') || null : null
   const tags = JSON.stringify(text(formData, 'tags').split(',').map(tag => tag.trim()).filter(Boolean))
-  const body = tiptapDocFromText(rawBody)
-  const words = wordCount(rawBody)
+  // If rawBody is already Tiptap JSON (from the WYSIWYG editor), use it directly; otherwise wrap plain text
+  const isTiptapJson = rawBody.startsWith('{"type":"doc"')
+  const body = isTiptapJson ? rawBody : tiptapDocFromText(rawBody)
+  const bodyText = isTiptapJson
+    ? (() => { try { return JSON.parse(rawBody).content?.flatMap((n: {content?: {text?: string}[]}) => (n.content ?? []).map(c => c.text ?? '')).join(' ') ?? '' } catch { return '' } })()
+    : rawBody
+  const words = wordCount(bodyText)
   const now = new Date()
 
-  if (!title || !slug) throw new Error('Título y slug son obligatorios')
+  if (!title || !slug) return { error: 'Título y slug son obligatorios' }
 
-  if (id) {
-    const { data: existing } = await supabase
-      .from('entries')
-      .select('status,type,author_id')
-      .eq('id', id)
-      .maybeSingle()
+  try {
+    if (id) {
+      const { data: existing } = await supabase
+        .from('entries')
+        .select('status,type,author_id')
+        .eq('id', id)
+        .maybeSingle()
 
-    await supabase
-      .from('entries')
-      .update({
+      const { error: updateError } = await supabase
+        .from('entries')
+        .update({
+          title,
+          slug,
+          type,
+          excerpt,
+          category,
+          tags,
+          body,
+          status,
+          word_count: words,
+          published_at: status === 'published' ? now.toISOString() : null,
+          updated_at: now.toISOString(),
+        })
+        .eq('id', id)
+
+      if (updateError) return { error: `Error al guardar: ${updateError.message}` }
+
+      if (status === 'published' && existing?.status !== 'published') {
+        await awardXP(existing?.author_id ?? user.id, type === 'chronicle' ? 50 : 40, 'entry_published', id).catch(() => {})
+        void notifySubscribers(title, slug, type, excerpt)
+      }
+    } else {
+      const newId = crypto.randomUUID()
+      const { error: insertError } = await supabase.from('entries').insert({
+        id: newId,
         title,
         slug,
         type,
@@ -90,37 +121,22 @@ export async function saveEntryAction(formData: FormData) {
         body,
         status,
         word_count: words,
+        author_id: user.id,
         published_at: status === 'published' ? now.toISOString() : null,
+        created_at: now.toISOString(),
         updated_at: now.toISOString(),
       })
-      .eq('id', id)
 
-    if (status === 'published' && existing?.status !== 'published') {
-      await awardXP(existing?.author_id ?? user.id, type === 'chronicle' ? 50 : 40, 'entry_published', id)
-      void notifySubscribers(title, slug, type, excerpt)
+      if (insertError) return { error: `Error al crear: ${insertError.message}` }
+
+      if (status === 'published') {
+        await awardXP(user.id, type === 'chronicle' ? 50 : 40, 'entry_published', newId).catch(() => {})
+        void notifySubscribers(title, slug, type, excerpt)
+      }
     }
-  } else {
-    const newId = crypto.randomUUID()
-    await supabase.from('entries').insert({
-      id: newId,
-      title,
-      slug,
-      type,
-      excerpt,
-      category,
-      tags,
-      body,
-      status,
-      word_count: words,
-      author_id: user.id,
-      published_at: status === 'published' ? now.toISOString() : null,
-      created_at: now.toISOString(),
-      updated_at: now.toISOString(),
-    })
-    if (status === 'published') {
-      await awardXP(user.id, type === 'chronicle' ? 50 : 40, 'entry_published', newId)
-      void notifySubscribers(title, slug, type, excerpt)
-    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Error interno del servidor'
+    return { error: message }
   }
 
   revalidatePath('/admin/entradas')

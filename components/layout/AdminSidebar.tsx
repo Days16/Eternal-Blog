@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { AdminNav, type AdminNavItem } from './AdminNav'
 import { requireSupabase } from '@/lib/supabase/helpers'
 
@@ -28,7 +28,7 @@ async function getNavCounts() {
 }
 
 export async function AdminSidebar() {
-  const [session, counts] = await Promise.all([auth(), getNavCounts()])
+  const [session, counts] = await Promise.all([getSession(), getNavCounts()])
   const isMod = session?.user?.role === 'moderator'
   const isDev = session?.user?.role === 'dev'
 

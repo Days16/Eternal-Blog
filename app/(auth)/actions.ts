@@ -1,8 +1,8 @@
 'use server'
 
-import { signIn, signOut } from '@/auth'
-import { AuthError } from 'next-auth'
+import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
+import { createSupabaseServerClient } from '@/lib/supabase/ssr'
 import { getSupabaseServerClient, getSupabaseAuthClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
 
@@ -16,7 +16,9 @@ async function resolveIp(): Promise<string> {
 }
 
 export async function signOutAction() {
-  await signOut({ redirectTo: '/login' })
+  const supabase = await createSupabaseServerClient()
+  await supabase.auth.signOut()
+  redirect('/login')
 }
 
 export async function requestPasswordResetAction(
@@ -106,15 +108,14 @@ export async function loginAction(
   const { limited } = rateLimit(`login:${ip}`, 10, 60_000)  // 10 intentos / minuto
   if (limited) return 'Demasiados intentos. Espera un minuto e inténtalo de nuevo.'
 
-  try {
-    await signIn('credentials', { email, password, redirectTo: callbackUrl })
-  } catch (err) {
-    if (err instanceof AuthError) {
-      return 'Credenciales incorrectas. Prueba de nuevo.'
-    }
-    throw err  // propaga el NEXT_REDIRECT
+  const supabase = await createSupabaseServerClient()
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+  if (error) {
+    return 'Credenciales incorrectas. Prueba de nuevo.'
   }
-  return null
+
+  redirect(callbackUrl)
 }
 
 export async function registerAction(
@@ -178,13 +179,12 @@ export async function registerAction(
 
   if (profileError) return profileError.message
 
-  try {
-    await signIn('credentials', { email, password, redirectTo: '/' })
-  } catch (err) {
-    if (err instanceof AuthError) {
-      return 'Cuenta creada, pero Supabase requiere confirmar el correo antes de entrar.'
-    }
-    throw err
+  // Sign in with the SSR client so session cookies are set
+  const ssrSupabase = await createSupabaseServerClient()
+  const { error: signInError } = await ssrSupabase.auth.signInWithPassword({ email, password })
+  if (signInError) {
+    return 'Cuenta creada, pero Supabase requiere confirmar el correo antes de entrar.'
   }
-  return null
+
+  redirect('/')
 }

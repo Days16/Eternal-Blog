@@ -43,6 +43,8 @@ export function ImagePlaceholder({
   const [a, b] = TONES[tone]
   return (
     <div
+      role="img"
+      aria-label={label}
       style={{
         width,
         height,

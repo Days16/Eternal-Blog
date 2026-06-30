@@ -1,4 +1,4 @@
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { requireSupabase } from '@/lib/supabase/helpers'
 import { EASTER_EGGS } from '@/lib/achievements/easter-eggs'
 import { evaluateAchievements } from '@/lib/achievements/evaluator'
@@ -7,7 +7,7 @@ import { rateLimit } from '@/lib/rate-limit'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
 
   const { limited } = rateLimit(`xp:${session.user.id}`, 10, 60_000)  // 10 eventos / minuto

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { relativeTime } from '@/lib/utils/dates'
+import { sanitizeForDisplay } from '@/lib/utils/sanitize'
 import { LevelBadge } from '@/components/ui/LevelBadge'
 import { ReplyForm } from './ReplyForm'
 import { deleteReplyAction } from '@/app/foro/actions'
@@ -86,7 +87,7 @@ export function ReplyNode({
 
             <div
               style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--text-soft)', lineHeight: 1.65 }}
-              dangerouslySetInnerHTML={{ __html: reply.body }}
+              dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(reply.body) }}
             />
 
             <div style={{ display: 'flex', gap: 14, marginTop: 10, alignItems: 'center' }}>

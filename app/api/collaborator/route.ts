@@ -1,4 +1,4 @@
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { applyAsCollaborator, reviewCollaboratorApplication } from '@/lib/supabase/queries/collaborator'
 import { isModeratorOrAbove } from '@/lib/auth/roles'
 import { NextResponse } from 'next/server'
@@ -15,7 +15,7 @@ const reviewSchema = z.object({
 })
 
 export async function POST(request: Request) {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
   }
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id || !isModeratorOrAbove(session.user.role)) {
     return NextResponse.json({ error: 'Sin permisos.' }, { status: 403 })
   }

@@ -4,7 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Providers } from '@/components/Providers'
 import { ChatWidget } from '@/components/social/ChatWidget'
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import '@/styles/globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -40,6 +40,11 @@ export const metadata: Metadata = {
   },
   description: 'Bitácora arcana de un escritor en formación. Crónicas, Codex y mundos en construcción.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_URL ?? 'http://localhost:3000'),
+  icons: {
+    icon: [{ url: '/icon-192.png', type: 'image/png', sizes: '192x192' }],
+    apple: [{ url: '/icon-192.png', type: 'image/png', sizes: '192x192' }],
+    shortcut: '/icon-192.png',
+  },
   openGraph: {
     siteName: 'ETERNIDAD',
     type: 'website',
@@ -53,7 +58,7 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth()
+  const session = await getSession()
 
   return (
     <html

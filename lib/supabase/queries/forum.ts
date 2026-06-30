@@ -194,6 +194,17 @@ export async function getForumThread(
   categorySlug: string,
   threadSlug: string,
 ): Promise<(ForumThread & { category: ForumCategory; replies: ForumReply[] }) | null> {
+  try {
+    return await getForumThreadUnsafe(categorySlug, threadSlug)
+  } catch {
+    return null
+  }
+}
+
+async function getForumThreadUnsafe(
+  categorySlug: string,
+  threadSlug: string,
+): Promise<(ForumThread & { category: ForumCategory; replies: ForumReply[] }) | null> {
   const supabase = requireSupabase()
 
   const { data: catRow } = await supabase

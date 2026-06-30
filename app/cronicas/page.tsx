@@ -13,7 +13,8 @@ import {
   getAuthorWordCount,
 } from '@/lib/supabase/queries/entries'
 import { getTopReaders } from '@/lib/supabase/queries/users'
-import { auth } from '@/auth'
+import { getReadEntryIds } from '@/lib/supabase/queries/reading'
+import { getSession } from '@/lib/auth/session'
 import type { LevelNumber } from '@/components/ui/constants'
 
 export const metadata: Metadata = {
@@ -39,10 +40,11 @@ export default async function CronicasPage({ searchParams }: { searchParams: Sea
     getPublishedChronicles({ page, tag }),
     getTopReaders(3),
     getAuthorWordCount(process.env.NEXT_PUBLIC_AUTHOR_ID ?? 'admin-001'),
-    auth(),
+    getSession(),
   ])
 
   const userId = session?.user?.id ?? null
+  const readIds = userId ? await getReadEntryIds(userId).catch(() => new Set<string>()) : new Set<string>()
 
   const GOAL = Number(process.env.NEXT_PUBLIC_WORD_GOAL ?? 90_000)
   const progress = Math.min(100, Math.round((authorWords / GOAL) * 100))
@@ -101,6 +103,7 @@ export default async function CronicasPage({ searchParams }: { searchParams: Sea
                   entry={entry}
                   index={i}
                   isLast={i === chronicles.rows.length - 1}
+                  isRead={readIds.has(entry.id)}
                 />
               ))}
             </div>

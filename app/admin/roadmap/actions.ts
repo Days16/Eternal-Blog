@@ -1,6 +1,6 @@
 'use server'
 
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { requireSupabase } from '@/lib/supabase/helpers'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -13,7 +13,7 @@ function text(formData: FormData, key: string) {
 }
 
 async function requireAdminUser() {
-  const session = await auth()
+  const session = await getSession()
   const role = session?.user?.role
   if (!session?.user?.id || (role !== 'admin' && role !== 'dev')) redirect('/login')
   return session.user

@@ -1,10 +1,10 @@
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { setActiveBadge, getUserAchievements, getUserActiveBadge } from '@/lib/supabase/queries/users'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
 export async function GET() {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
   }
@@ -21,7 +21,7 @@ const schema = z.object({
 })
 
 export async function PATCH(request: Request) {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
   }

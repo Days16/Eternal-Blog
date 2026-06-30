@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { TopNav } from '@/components/layout/TopNav'
 import { Footer } from '@/components/layout/Footer'
 import { EntryBody } from '@/components/content/EntryBody'
+import { ReadTracker } from '@/components/content/ReadTracker'
 import { CommentForm } from '@/components/comments/CommentForm'
 import { CommentTree } from '@/components/comments/CommentTree'
 import { Tag } from '@/components/ui/Tag'
@@ -18,8 +19,9 @@ import { getEntryBySlug, getAllPublishedSlugs } from '@/lib/supabase/queries/ent
 import { getCommentTree } from '@/lib/supabase/queries/comments'
 import { formatDateLong, readingTime } from '@/lib/utils/dates'
 import { extractHeadings } from '@/lib/utils/tiptap'
+import { parseTags } from '@/lib/utils/tags'
 import type { LevelNumber } from '@/components/ui/constants'
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -58,9 +60,9 @@ export default async function EntryPage({ params }: Props) {
   const entry = await getEntryBySlug(slug)
   if (!entry) notFound()
 
-  const session  = await auth()
+  const session  = await getSession()
   const comments = await getCommentTree(entry.id).catch(() => [])
-  const tags: string[] = (() => { try { return JSON.parse(entry.tags) } catch { return [] } })()
+  const tags = parseTags(entry.tags)
   const headings = extractHeadings(entry.body)
 
   return (
@@ -149,6 +151,7 @@ export default async function EntryPage({ params }: Props) {
         {/* Cuerpo principal */}
         <main style={{ maxWidth: 760, margin: '0 auto', width: '100%' }}>
           <EntryBody body={entry.body} />
+          <ReadTracker entryId={entry.id} enabled={!!session?.user?.id} />
         </main>
 
         {/* Reacciones */}

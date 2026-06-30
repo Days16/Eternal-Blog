@@ -1,9 +1,10 @@
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { awardXP } from '@/lib/xp/award'
 import { XP } from '@/lib/xp/events'
 import { apiError } from '@/lib/utils/api-error'
 import { rateLimit } from '@/lib/rate-limit'
+import { ReactionSchema } from '@/lib/schemas'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -11,7 +12,7 @@ export async function GET(request: Request) {
   const entryId = searchParams.get('entryId')
   if (!entryId) return NextResponse.json({ error: 'Falta entryId' }, { status: 400 })
 
-  const session = await auth()
+  const session = await getSession()
   const supabase = getSupabaseServerClient()
   if (!supabase) return NextResponse.json({ error: 'Servidor no configurado' }, { status: 500 })
 
@@ -48,20 +49,16 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
   const { limited } = rateLimit(`react:${session.user.id}`, 30, 60_000)  // 30 reacciones / minuto
   if (limited) return NextResponse.json({ error: 'Demasiadas reacciones. Espera un momento.' }, { status: 429 })
 
   try {
-    const { entryId, kind } = await request.json()
-    if (!entryId || !kind) return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
-
-    const ALLOWED_REACTION_KINDS = new Set(['magic', 'bright', 'uneasy', 'dreamer'])
-    if (!ALLOWED_REACTION_KINDS.has(kind)) {
-      return NextResponse.json({ error: 'Tipo de reacción no válido' }, { status: 400 })
-    }
+    const parsed = ReactionSchema.safeParse(await request.json().catch(() => ({})))
+    if (!parsed.success) return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 })
+    const { entryId, kind } = parsed.data
 
     const supabase = getSupabaseServerClient()
     if (!supabase) return NextResponse.json({ error: 'Servidor no configurado' }, { status: 500 })

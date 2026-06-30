@@ -1,14 +1,14 @@
 'use client'
 
-import { SessionProvider } from 'next-auth/react'
-import type { Session } from 'next-auth'
 import type { ReactNode } from 'react'
+import type { AppSession } from '@/lib/auth/session'
+import { SessionProvider } from '@/components/auth/SessionContext'
 import { AchievementToast } from '@/components/gamification/AchievementToast'
 import { EasterEggClient } from '@/components/gamification/EasterEggClient'
 
-export function Providers({ children, session }: { children: ReactNode; session: Session | null }) {
+export function Providers({ children, session }: { children: ReactNode; session: AppSession | null }) {
   return (
-    <SessionProvider session={session} refetchOnWindowFocus refetchInterval={30}>
+    <SessionProvider session={session}>
       {children}
       <EasterEggClient />
       <AchievementToast />

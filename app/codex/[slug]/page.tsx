@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { TopNav } from '@/components/layout/TopNav'
 import { Footer } from '@/components/layout/Footer'
 import { EntryBody } from '@/components/content/EntryBody'
+import { ReadTracker } from '@/components/content/ReadTracker'
 import { CommentForm } from '@/components/comments/CommentForm'
 import { CommentTree } from '@/components/comments/CommentTree'
 import { Tag } from '@/components/ui/Tag'
@@ -20,7 +21,8 @@ import {
 } from '@/lib/supabase/queries/entries'
 import { getCommentTree } from '@/lib/supabase/queries/comments'
 import { formatDate, formatWords, relativeTime } from '@/lib/utils/dates'
-import { auth } from '@/auth'
+import { parseTags } from '@/lib/utils/tags'
+import { getSession } from '@/lib/auth/session'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -58,12 +60,12 @@ export default async function CodexArticlePage({ params }: Props) {
   const entry = await getCodexArticle(slug)
   if (!entry) notFound()
 
-  const session = await auth()
+  const session = await getSession()
   const [comments, related] = await Promise.all([
     getCommentTree(entry.id).catch(() => []),
-    getRelatedCodexEntries(entry.id, entry.category, 3),
+    getRelatedCodexEntries(entry.id, entry.category, 3).catch(() => []),
   ])
-  const tags: string[] = (() => { try { return JSON.parse(entry.tags) } catch { return [] } })()
+  const tags = parseTags(entry.tags)
   const cat = CODEX_CATEGORIES.find(c => c.id === entry.category)
 
   return (
@@ -104,6 +106,7 @@ export default async function CodexArticlePage({ params }: Props) {
           </div>
 
           <EntryBody body={entry.body} />
+          <ReadTracker entryId={entry.id} enabled={!!session?.user?.id} />
 
           {/* Entradas relacionadas */}
           {related.length > 0 && (

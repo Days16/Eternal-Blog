@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { redirect } from 'next/navigation'
 import { isModeratorOrAbove } from '@/lib/auth/roles'
 import {
@@ -8,7 +8,7 @@ import {
 import { MarketplaceToggle } from './MarketplaceToggle'
 
 export default async function AdminTiendaPage() {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user || !isModeratorOrAbove(session.user.role)) redirect('/admin')
 
   const [enabled, products, orders] = await Promise.all([

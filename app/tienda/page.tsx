@@ -6,7 +6,7 @@ import { Footer } from '@/components/layout/Footer'
 import { RuneDivider } from '@/components/ui/RuneDivider'
 import { isMarketplaceEnabled, getProducts } from '@/lib/supabase/queries/marketplace'
 import { StoreClient } from '@/components/marketplace/StoreClient'
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 
 export const metadata: Metadata = {
   title: 'Tienda · ETERNIDAD',
@@ -21,7 +21,7 @@ export default async function TiendaPage({ searchParams }: Props) {
   const [enabled, { preview }, session] = await Promise.all([
     isMarketplaceEnabled(),
     searchParams,
-    auth(),
+    getSession(),
   ])
 
   const role = session?.user?.role as string | undefined

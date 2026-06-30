@@ -1,6 +1,18 @@
 import { unstable_cache } from 'next/cache'
 import { mapAchievement, mapActivity, mapUser, requireSupabase } from '@/lib/supabase/helpers'
 
+export async function getUserCount() {
+  return unstable_cache(
+    async () => {
+      const supabase = requireSupabase()
+      const { count } = await supabase.from('users').select('id', { count: 'exact', head: true })
+      return count ?? 0
+    },
+    ['user-count'],
+    { revalidate: 300 },
+  )().catch(() => 0)
+}
+
 export async function getTopReaders(limit = 3) {
   return unstable_cache(
     async () => {

@@ -1,10 +1,10 @@
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { getUserFeaturedEntries, upsertFeaturedEntry, removeFeaturedEntry } from '@/lib/supabase/queries/users'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
 export async function GET() {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
   }
@@ -22,7 +22,7 @@ const removeSchema = z.object({
 })
 
 export async function POST(request: Request) {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
   }
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
   }

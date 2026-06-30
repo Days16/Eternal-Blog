@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { TopNav } from '@/components/layout/TopNav'
 import { Footer } from '@/components/layout/Footer'
 import { Tag } from '@/components/ui/Tag'
@@ -26,7 +26,9 @@ import { FollowButton } from '@/components/social/FollowButton'
 import { FriendButton } from '@/components/social/FriendButton'
 import { isFollowing, getFriendshipStatus, getFollowCounts } from '@/lib/supabase/queries/social'
 import { getXpProgress } from '@/lib/xp/events'
-import { relativeTime } from '@/lib/utils/dates'
+import { relativeTime, formatDate } from '@/lib/utils/dates'
+import { getReadHistory } from '@/lib/supabase/queries/reading'
+import { unmarkReadAction } from '@/app/perfil/actions'
 
 type Props = {
   params: Promise<{ username: string }>
@@ -52,6 +54,7 @@ const ACTIVITY_LABELS: Record<string, string> = {
   easter_egg_found:     'Encontró un huevo de pascua',
   mission_completed:    'Completó una misión',
   daily_streak:         'Reavivó su racha diaria',
+  entry_read:           'Leyó una entrada',
 }
 
 export default async function ProfilePage({ params, searchParams }: Props) {
@@ -60,11 +63,11 @@ export default async function ProfilePage({ params, searchParams }: Props) {
 
   let profile = await getUserProfile(username)
   if (!profile) notFound()
-  const session = await auth()
+  const session = await getSession()
   const isOwnProfile = session?.user?.id === profile.id
 
   const viewerId = session?.user?.id
-  const [profileStats, achievements, recentActivity, featuredEntries, activeBadge, followCounts, viewerFollowing, viewerFriendship] = await Promise.all([
+  const [profileStats, achievements, recentActivity, featuredEntries, activeBadge, followCounts, viewerFollowing, viewerFriendship, readHistory] = await Promise.all([
     getUserStats(profile.id),
     getUserAchievements(profile.id),
     getUserActivity(profile.id, 15),
@@ -73,6 +76,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
     getFollowCounts(profile.id),
     viewerId && !isOwnProfile ? isFollowing(viewerId, profile.id) : Promise.resolve(false),
     viewerId && !isOwnProfile ? getFriendshipStatus(viewerId, profile.id) : Promise.resolve(null),
+    isOwnProfile ? getReadHistory(profile.id, 50).catch(() => []) : Promise.resolve([]),
   ])
 
   if (isOwnProfile && (!profile.name || !profile.username || !profile.email)) {
@@ -291,7 +295,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
 
         {/* ── Tabs ─────────────────────────────────────────── */}
         <div style={{ display: 'flex', gap: 28, borderBottom: '1px solid var(--border)', marginBottom: 32, maxWidth: '100%' }}>
-          {(['logros', 'actividad'] as const).map(t => (
+          {([...(['logros', 'actividad'] as const), ...(isOwnProfile ? (['lecturas'] as const) : [])]).map(t => (
             <Link
               key={t}
               href={`/perfil/${username}?tab=${t}`}
@@ -347,6 +351,65 @@ export default async function ProfilePage({ params, searchParams }: Props) {
                     ◌ por desbloquear
                   </div>
                 )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── Historial de lectura ─────────────────────────── */}
+        {tab === 'lecturas' && isOwnProfile && (
+          <div style={{ maxWidth: 760, marginBottom: 64 }}>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, textTransform: 'uppercase', letterSpacing: 2, color: 'var(--text-mute)', marginBottom: 20 }}>
+              {readHistory.length} entrada{readHistory.length !== 1 ? 's' : ''} leída{readHistory.length !== 1 ? 's' : ''}
+            </div>
+            {readHistory.length === 0 ? (
+              <div style={{
+                padding: 40, background: 'var(--bg-card)', border: '1px solid var(--border-soft)',
+                borderRadius: 'var(--r-lg)', textAlign: 'center',
+                fontFamily: 'var(--font-body)', color: 'var(--text-mute)', fontStyle: 'italic',
+              }}>
+                Aún no has marcado ninguna entrada como leída.
+              </div>
+            ) : readHistory.map((item) => (
+              <div
+                key={item.entryId}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 14,
+                  padding: '14px 0',
+                  borderBottom: '1px solid var(--border-soft)',
+                }}
+              >
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: 'var(--spore)', flexShrink: 0 }}>✓</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {item.entry ? (
+                    <Link
+                      href={item.entry.type === 'codex' ? `/codex/${item.entry.slug}` : `/cronicas/${item.entry.slug}`}
+                      style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--text)', textDecoration: 'none' }}
+                    >
+                      {item.entry.title}
+                    </Link>
+                  ) : (
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--text-mute)' }}>Entrada eliminada</span>
+                  )}
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-mute)', marginTop: 3 }}>
+                    {item.readAt ? formatDate(item.readAt) : ''}
+                  </div>
+                </div>
+                <form action={unmarkReadAction}>
+                  <input type="hidden" name="entryId" value={item.entryId} />
+                  <button
+                    type="submit"
+                    style={{
+                      background: 'none', border: '1px solid var(--border-soft)',
+                      borderRadius: 'var(--r-sm)', color: 'var(--text-mute)',
+                      fontFamily: 'var(--font-ui)', fontSize: 10, padding: '4px 10px',
+                      cursor: 'pointer', letterSpacing: 0.5, flexShrink: 0,
+                    }}
+                    title="Desmarcar como leído"
+                  >
+                    Desmarcar
+                  </button>
+                </form>
               </div>
             ))}
           </div>

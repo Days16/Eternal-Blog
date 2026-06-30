@@ -14,7 +14,8 @@ import { formatDateLong } from '@/lib/utils/dates'
 import { togglePinThreadAction, toggleLockThreadAction } from '@/app/foro/actions'
 import { FollowThreadButton } from '@/components/forum/FollowThreadButton'
 import { DeleteThreadButton } from '@/components/forum/DeleteThreadButton'
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
+import { sanitizeForDisplay } from '@/lib/utils/sanitize'
 import type { LevelNumber } from '@/components/ui/constants'
 
 type Props = { params: Promise<{ categoria: string; slug: string }> }
@@ -33,7 +34,7 @@ export default async function ForoThreadPage({ params }: Props) {
   const { categoria, slug } = await params
   const [thread, session] = await Promise.all([
     getForumThread(categoria, slug),
-    auth(),
+    getSession(),
   ])
 
   if (!thread) notFound()
@@ -42,7 +43,7 @@ export default async function ForoThreadPage({ params }: Props) {
   const role = session?.user?.role
   const canModerate = role === 'admin' || role === 'dev' || role === 'moderator'
   const isAuthor = userId === thread.authorId
-  const isFollowing = userId ? await isFollowingThread(userId, thread.id) : false
+  const isFollowing = userId ? await isFollowingThread(userId, thread.id).catch(() => false) : false
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', minHeight: '100vh' }} className="tex-canopy">
@@ -158,7 +159,7 @@ export default async function ForoThreadPage({ params }: Props) {
           }}>
             <div
               style={{ fontFamily: 'var(--font-body)', fontSize: 16, color: 'var(--text-soft)', lineHeight: 1.7 }}
-              dangerouslySetInnerHTML={{ __html: thread.body }}
+              dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(thread.body) }}
             />
           </div>
         </div>

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { redirect } from 'next/navigation'
 import { getAdminForumStats, getForumCategories } from '@/lib/supabase/queries/forum'
 import { relativeTime } from '@/lib/utils/dates'
@@ -23,7 +23,7 @@ const sectionLabelStyle: React.CSSProperties = {
 }
 
 export default async function AdminForoPage() {
-  const session = await auth()
+  const session = await getSession()
   const role = session?.user?.role
   if (!session?.user?.id || (role !== 'admin' && role !== 'dev' && role !== 'moderator')) {
     redirect('/login')

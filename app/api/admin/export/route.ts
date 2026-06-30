@@ -1,9 +1,9 @@
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { requireSupabase } from '@/lib/supabase/helpers'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
-  const session = await auth()
+  const session = await getSession()
   const role = session?.user?.role
   if (!session?.user?.id || (role !== 'admin' && role !== 'dev')) {
     return NextResponse.json({ error: 'Sin permiso' }, { status: 403 })

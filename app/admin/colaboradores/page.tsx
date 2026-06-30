@@ -1,4 +1,4 @@
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { redirect } from 'next/navigation'
 import { isModeratorOrAbove } from '@/lib/auth/roles'
 import { getCollaboratorApplications } from '@/lib/supabase/queries/collaborator'
@@ -13,7 +13,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 }
 
 export default async function AdminColaboradoresPage({ searchParams }: Props) {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user || !isModeratorOrAbove(session.user.role)) redirect('/admin')
 
   const { status } = await searchParams

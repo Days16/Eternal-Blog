@@ -3,10 +3,10 @@ import { KPICard } from '@/components/admin/KPICard'
 import { ActivityChart } from '@/components/admin/ActivityChart'
 import { getAdminDashboard } from '@/lib/supabase/queries/admin'
 import { relativeTime } from '@/lib/utils/dates'
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 
 export default async function AdminPage() {
-  const [session, data] = await Promise.all([auth(), getAdminDashboard()])
+  const [session, data] = await Promise.all([getSession(), getAdminDashboard()])
   const isMod = session?.user?.role === 'moderator'
 
   return (
@@ -186,17 +186,14 @@ export default async function AdminPage() {
               key={entry.id}
               href={`/admin/entradas/${entry.id}`}
               style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 120px 90px 80px 90px',
                 alignItems: 'center',
                 gap: 16,
                 padding: '13px 4px',
                 borderBottom: i < data.recentEntries.length - 1 ? '1px solid var(--border-soft)' : 'none',
                 textDecoration: 'none',
                 color: 'var(--text)',
-                minWidth: 560,
               }}
-              className="hover-row"
+              className="hover-row admin-entry-row"
             >
               <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--text)', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                 {entry.title}

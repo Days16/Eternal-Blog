@@ -7,7 +7,7 @@ import { RuneDivider } from '@/components/ui/RuneDivider'
 import { Btn } from '@/components/ui/Btn'
 import { ThreadCard } from '@/components/forum/ThreadCard'
 import { getForumCategoryBySlug, getForumThreads } from '@/lib/supabase/queries/forum'
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 
 type Props = { params: Promise<{ categoria: string }>; searchParams: Promise<{ page?: string }> }
 
@@ -28,7 +28,7 @@ export default async function ForoCategoriaPage({ params, searchParams }: Props)
 
   const [category, session] = await Promise.all([
     getForumCategoryBySlug(categoria),
-    auth(),
+    getSession(),
   ])
 
   if (!category) notFound()

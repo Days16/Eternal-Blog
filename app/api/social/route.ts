@@ -1,4 +1,4 @@
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import {
   followUser, unfollowUser, isFollowing,
   sendFriendRequest, respondFriendRequest, cancelFriendRequest,
@@ -20,7 +20,7 @@ const actionSchema = z.discriminatedUnion('action', [
 
 export async function POST(request: Request) {
   let session
-  try { session = await auth() } catch { return NextResponse.json({ error: 'Error de sesión.' }, { status: 500 }) }
+  try { session = await getSession() } catch { return NextResponse.json({ error: 'Error de sesión.' }, { status: 500 }) }
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
   }
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   let session
-  try { session = await auth() } catch { return NextResponse.json({ error: 'Error de sesión.' }, { status: 500 }) }
+  try { session = await getSession() } catch { return NextResponse.json({ error: 'Error de sesión.' }, { status: 500 }) }
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
   }

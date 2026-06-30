@@ -1,6 +1,6 @@
 'use server'
 
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { requireSupabase } from '@/lib/supabase/helpers'
 import { sanitizeCommentHtml, stripHtml } from '@/lib/utils/sanitize'
 import { awardXP } from '@/lib/xp/award'
@@ -23,7 +23,7 @@ function slugify(text: string) {
 }
 
 async function requireAuth() {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) redirect('/login')
   return session.user
 }
@@ -178,7 +178,7 @@ export async function createReplyAction(
 
 export async function deleteThreadAction(formData: FormData) {
   const user = await requireAuth()
-  const session = await auth()
+  const session = await getSession()
   const isAdmin = session?.user?.role === 'admin' || session?.user?.role === 'dev' || session?.user?.role === 'moderator'
   const supabase = requireSupabase()
 
@@ -204,7 +204,7 @@ export async function deleteThreadAction(formData: FormData) {
 
 export async function deleteReplyAction(formData: FormData) {
   const user = await requireAuth()
-  const session = await auth()
+  const session = await getSession()
   const isAdmin = session?.user?.role === 'admin' || session?.user?.role === 'dev' || session?.user?.role === 'moderator'
   const supabase = requireSupabase()
 
@@ -230,7 +230,7 @@ export async function deleteReplyAction(formData: FormData) {
 }
 
 export async function togglePinThreadAction(formData: FormData) {
-  const session = await auth()
+  const session = await getSession()
   const isAdmin = session?.user?.role === 'admin' || session?.user?.role === 'dev' || session?.user?.role === 'moderator'
   if (!isAdmin) return
 
@@ -250,7 +250,7 @@ export async function togglePinThreadAction(formData: FormData) {
 }
 
 export async function toggleLockThreadAction(formData: FormData) {
-  const session = await auth()
+  const session = await getSession()
   const isAdmin = session?.user?.role === 'admin' || session?.user?.role === 'dev' || session?.user?.role === 'moderator'
   if (!isAdmin) return
 

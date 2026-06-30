@@ -3,7 +3,7 @@ import { evaluateMissions } from '@/lib/missions/evaluator'
 import { requireSupabase } from '@/lib/supabase/helpers'
 import { checkAndUpdateStreak } from '@/lib/xp/streak'
 
-type ActivityKind = 'comment' | 'reaction' | 'entry_published' | 'achievement_unlocked' | 'easter_egg_found' | 'mission_completed' | 'daily_streak'
+type ActivityKind = 'comment' | 'reaction' | 'entry_published' | 'achievement_unlocked' | 'easter_egg_found' | 'mission_completed' | 'daily_streak' | 'entry_read'
 
 type XpRpcRow = {
   new_xp: number

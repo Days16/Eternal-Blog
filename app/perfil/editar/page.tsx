@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAppSession } from '@/components/auth/SessionContext'
 import Link from 'next/link'
 import { TopNav } from '@/components/layout/TopNav'
 import { Footer } from '@/components/layout/Footer'
@@ -35,8 +35,8 @@ const labelStyle: React.CSSProperties = {
 }
 
 export default function EditarPerfilPage() {
-  const { data: session } = useSession()
-  const user = session?.user as { name?: string; username?: string; bio?: string; avatar_url?: string } | undefined
+  const session = useAppSession()
+  const user = session?.user
   const [error, formAction, isPending] = useActionState(updateProfileAction, null)
 
   return (

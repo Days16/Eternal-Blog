@@ -15,8 +15,8 @@ export default function RegistroPage() {
       fontFamily: 'var(--font-body)',
     }}>
       {/* Panel decorativo */}
-      <div style={{
-        flex: 1, position: 'relative',
+      <div className="auth-decor-panel" style={{
+        position: 'relative',
         background: 'linear-gradient(135deg, var(--moss-800), var(--moss-950))',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         overflow: 'hidden',
@@ -46,8 +46,7 @@ export default function RegistroPage() {
       </div>
 
       {/* Formulario */}
-      <div style={{
-        flexBasis: 480, flexShrink: 0,
+      <div className="auth-form-panel" style={{
         padding: '64px 56px',
         display: 'flex', flexDirection: 'column', justifyContent: 'center',
         background: 'var(--bg)',

@@ -9,6 +9,7 @@ export const XP = {
   FORUM_REPLY:       5,
   FOLLOW_SOMEONE:    1,
   PROFILE_COMPLETE: 25,
+  ENTRY_READ:        5,
 } as const
 
 export const LEVEL_THRESHOLDS = [

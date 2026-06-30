@@ -5,7 +5,7 @@ import { TopNav } from '@/components/layout/TopNav'
 import { Footer } from '@/components/layout/Footer'
 import { NewThreadForm } from '@/components/forum/NewThreadForm'
 import { getForumCategoryBySlug } from '@/lib/supabase/queries/forum'
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 
 type Props = { params: Promise<{ categoria: string }> }
 
@@ -20,7 +20,7 @@ export default async function NuevoHiloPage({ params }: Props) {
   const { categoria } = await params
   const [category, session] = await Promise.all([
     getForumCategoryBySlug(categoria),
-    auth(),
+    getSession(),
   ])
 
   if (!category) notFound()

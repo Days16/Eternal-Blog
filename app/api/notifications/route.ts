@@ -1,11 +1,11 @@
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { mapActivity } from '@/lib/supabase/helpers'
 import { getUserNotifications, markAllNotificationsRead } from '@/lib/supabase/queries/notifications'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
   const supabase = getSupabaseServerClient()
@@ -41,7 +41,7 @@ export async function GET() {
 }
 
 export async function POST() {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   await markAllNotificationsRead(session.user.id)
   return NextResponse.json({ ok: true })

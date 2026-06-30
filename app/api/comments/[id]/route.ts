@@ -1,4 +1,4 @@
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { deleteComment, toggleSealComment } from '@/lib/supabase/queries/comments'
 import { NextResponse } from 'next/server'
 
@@ -9,7 +9,7 @@ function canModerate(role: string | undefined) {
 }
 
 export async function DELETE(request: Request, { params }: Context) {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
 
   const { searchParams } = new URL(request.url)
@@ -27,7 +27,7 @@ export async function DELETE(request: Request, { params }: Context) {
 }
 
 export async function PATCH(request: Request, { params }: Context) {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
   if (!canModerate(session.user.role)) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
 

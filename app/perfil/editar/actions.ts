@@ -1,6 +1,6 @@
 'use server'
 
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { requireSupabase } from '@/lib/supabase/helpers'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -9,7 +9,7 @@ export async function updateProfileAction(
   _prev: string | null,
   formData: FormData,
 ): Promise<string | null> {
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) redirect('/login')
 
   const name     = String(formData.get('name')     ?? '').trim()

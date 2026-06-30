@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { auth } from '@/auth'
+import { getSession } from '@/lib/auth/session'
 import { TopNav } from '@/components/layout/TopNav'
 import { Footer } from '@/components/layout/Footer'
 import { isMarketplaceEnabled, getCartItems } from '@/lib/supabase/queries/marketplace'
@@ -13,7 +13,7 @@ export default async function CarritoPage() {
   const enabled = await isMarketplaceEnabled()
   if (!enabled) notFound()
 
-  const session = await auth()
+  const session = await getSession()
   if (!session?.user?.id) redirect('/login?callbackUrl=/tienda/carrito')
 
   const items = await getCartItems(session.user.id)

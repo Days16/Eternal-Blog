@@ -3,9 +3,11 @@ import { Tag } from '@/components/ui/Tag'
 import { Mushroom } from '@/components/ui/Mushroom'
 import { ImagePlaceholder } from '@/components/ui/ImagePlaceholder'
 import { formatDate, readingTime } from '@/lib/utils/dates'
+import { parseTags } from '@/lib/utils/tags'
 
 interface EntryCardProps {
   entry: {
+    id?: string
     slug: string
     title: string
     excerpt: string | null
@@ -15,6 +17,7 @@ interface EntryCardProps {
   }
   index?: number
   isLast?: boolean
+  isRead?: boolean
 }
 
 const TAG_COLORS: Record<string, string> = {
@@ -32,8 +35,8 @@ function getTagColor(tag: string): string {
 
 const IMG_TONES = ['forest', 'mist', 'ember', 'sky'] as const
 
-export function EntryCard({ entry, index = 0, isLast = false }: EntryCardProps) {
-  const tags: string[] = (() => { try { return JSON.parse(entry.tags) } catch { return [] } })()
+export function EntryCard({ entry, index = 0, isLast = false, isRead = false }: EntryCardProps) {
+  const tags = parseTags(entry.tags)
   const firstTag  = tags[0] ?? ''
   const tagColor  = getTagColor(firstTag)
   const xpReward  = Math.max(10, Math.ceil(entry.wordCount / 100))
@@ -57,6 +60,11 @@ export function EntryCard({ entry, index = 0, isLast = false }: EntryCardProps) 
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-mute)' }}>
             · {readingTime(entry.wordCount)}
           </span>
+          {isRead && (
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--spore)', display: 'flex', alignItems: 'center', gap: 4 }} title="Leída">
+              ✓ leída
+            </span>
+          )}
           <span style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--spore)', display: 'flex', alignItems: 'center', gap: 4 }}>
             <Mushroom size={10} /> +{xpReward} XP
           </span>
