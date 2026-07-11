@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import useSWR from 'swr'
 import Link from 'next/link'
+import { useAppSession } from '@/components/auth/SessionContext'
 import { formatDate } from '@/lib/utils/dates'
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
@@ -224,10 +225,13 @@ export function NotificationBell() {
   const [isOpen, setIsOpen]   = useState(false)
   const [unread, setUnread]   = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
+  const session = useAppSession()
 
-  const { data: items, mutate, isLoading, error } = useSWR<NotifItem[]>('/api/notifications', fetcher, {
-    refreshInterval: 30_000,
-  })
+  const { data: items, mutate, isLoading, error } = useSWR<NotifItem[]>(
+    session?.user ? '/api/notifications' : null,
+    fetcher,
+    { refreshInterval: 30_000 },
+  )
 
   useEffect(() => {
     if (!Array.isArray(items)) return
