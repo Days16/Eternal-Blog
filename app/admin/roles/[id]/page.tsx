@@ -2,10 +2,12 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { RoleForm } from '@/components/admin/RoleForm'
 import { getCustomRoles } from '@/lib/supabase/queries/admin'
+import { requireRole } from '@/lib/auth/session'
 
 type Props = { params: Promise<{ id: string }> }
 
 export default async function EditarRolPage({ params }: Props) {
+  await requireRole('admin')
   const { id } = await params
   const roles = await getCustomRoles()
   const role = roles.find(r => r.id === id)

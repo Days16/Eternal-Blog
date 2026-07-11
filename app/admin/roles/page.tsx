@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Btn } from '@/components/ui/Btn'
 import { getCustomRoles } from '@/lib/supabase/queries/admin'
 import { DeleteRoleButton } from '@/components/admin/DeleteRoleButton'
+import { getSession } from '@/lib/auth/session'
 
 const BUILTIN_ROLES = [
   { name: 'visitor',   label: 'Visitante',    desc: 'Solo lectura, sin cuenta registrada',                color: 'var(--text-mute)' },
@@ -13,7 +14,9 @@ const BUILTIN_ROLES = [
 ]
 
 export default async function AdminRolesPage() {
-  const customRoles = await getCustomRoles()
+  const [customRoles, session] = await Promise.all([getCustomRoles(), getSession()])
+  // Solo 'admin' puede reasignar roles o gestionar roles personalizados.
+  const canManageRoles = session?.user?.role === 'admin'
 
   return (
     <div>
@@ -27,9 +30,11 @@ export default async function AdminRolesPage() {
             Roles del sistema y roles personalizados para la comunidad
           </p>
         </div>
-        <Link href="/admin/roles/nuevo">
-          <Btn variant="rune">+ Nuevo rol</Btn>
-        </Link>
+        {canManageRoles && (
+          <Link href="/admin/roles/nuevo">
+            <Btn variant="rune">+ Nuevo rol</Btn>
+          </Link>
+        )}
       </div>
 
       {/* KPIs */}
@@ -191,25 +196,27 @@ export default async function AdminRolesPage() {
                   </div>
 
                   {/* Acciones */}
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <Link
-                      href={`/admin/roles/${role.id}`}
-                      style={{
-                        flex: 1,
-                        padding: '7px 0',
-                        border: '1px solid var(--border-soft)',
-                        borderRadius: 'var(--r-sm)',
-                        color: 'var(--text-soft)',
-                        fontFamily: 'var(--font-ui)',
-                        fontSize: 12,
-                        textDecoration: 'none',
-                        textAlign: 'center',
-                      }}
-                    >
-                      Editar
-                    </Link>
-                    <DeleteRoleButton id={role.id} name={role.name} label={role.label} />
-                  </div>
+                  {canManageRoles && (
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <Link
+                        href={`/admin/roles/${role.id}`}
+                        style={{
+                          flex: 1,
+                          padding: '7px 0',
+                          border: '1px solid var(--border-soft)',
+                          borderRadius: 'var(--r-sm)',
+                          color: 'var(--text-soft)',
+                          fontFamily: 'var(--font-ui)',
+                          fontSize: 12,
+                          textDecoration: 'none',
+                          textAlign: 'center',
+                        }}
+                      >
+                        Editar
+                      </Link>
+                      <DeleteRoleButton id={role.id} name={role.name} label={role.label} />
+                    </div>
+                  )}
                 </div>
               )
             })}

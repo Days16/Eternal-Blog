@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAppSession } from '@/components/auth/SessionContext'
 import { Mushroom } from '@/components/ui/Mushroom'
-import { LevelBadge } from '@/components/ui/LevelBadge'
+import { UserAvatar } from '@/components/ui/UserAvatar'
 import { Btn } from '@/components/ui/Btn'
 import { TopNavSearch } from '@/components/search/TopNavSearch'
 import { NotificationBell } from '@/components/layout/NotificationBell'
@@ -176,7 +176,7 @@ export function TopNav({ compact = false }: TopNavProps) {
         {/* Usuario / Sesión */}
         {user ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <LevelBadge level={level} size={28} />
+            <UserAvatar avatarUrl={user.avatarUrl} level={level} name={user.name} size={28} />
             {!compact && (
               <Link href="/perfil" style={{ textDecoration: 'none' }} className="topnav-user-info">
                 <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12 }}>
@@ -243,7 +243,7 @@ export function TopNav({ compact = false }: TopNavProps) {
             {/* Usuario */}
             {user ? (
               <Link href="/perfil" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', padding: '12px 0' }} onClick={() => setMenuOpen(false)}>
-                <LevelBadge level={level} size={36} />
+                <UserAvatar avatarUrl={user.avatarUrl} level={level} name={user.name} size={36} />
                 <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13 }}>
                   <div style={{ color: 'var(--text)', fontWeight: 500 }}>{user.name}</div>
                   <div style={{ color: 'var(--text-mute)', fontSize: 11 }}>{xp.toLocaleString('es-ES')} XP</div>

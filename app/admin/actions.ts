@@ -51,6 +51,14 @@ async function requireAdminUser() {
   return session.user
 }
 
+// Gestión de roles (asignar rol a un usuario, crear/editar/borrar roles
+// personalizados): reservado a 'admin'. Ni moderadores ni devs pueden
+// escalar o reasignar roles, aunque tengan acceso al resto del panel.
+async function requireAdminOnly() {
+  const session = await requireRole('admin')
+  return session.user
+}
+
 export async function saveEntryAction(
   _prevState: { error: string } | null,
   formData: FormData,
@@ -146,7 +154,7 @@ export async function saveEntryAction(
 }
 
 export async function updateUserRoleAction(formData: FormData) {
-  await requireAdminUser()
+  await requireAdminOnly()
   const supabase = requireSupabase()
   const id = text(formData, 'id')
   const role = text(formData, 'role')
@@ -239,7 +247,7 @@ export async function deleteAchievementAction(formData: FormData) {
 }
 
 export async function createRoleAction(formData: FormData) {
-  await requireAdminUser()
+  await requireAdminOnly()
   const supabase = requireSupabase()
   const name = slugify(text(formData, 'name'))
   const label = text(formData, 'label')
@@ -253,7 +261,7 @@ export async function createRoleAction(formData: FormData) {
 }
 
 export async function updateRoleAction(formData: FormData) {
-  await requireAdminUser()
+  await requireAdminOnly()
   const supabase = requireSupabase()
   const id = text(formData, 'id')
   const label = text(formData, 'label')
@@ -267,7 +275,7 @@ export async function updateRoleAction(formData: FormData) {
 }
 
 export async function deleteRoleAction(formData: FormData) {
-  await requireAdminUser()
+  await requireAdminOnly()
   const supabase = requireSupabase()
   const id = text(formData, 'id')
   const name = text(formData, 'name')

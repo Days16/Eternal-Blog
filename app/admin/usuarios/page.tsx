@@ -9,6 +9,7 @@ import {
 import { Btn } from '@/components/ui/Btn'
 import { Pagination } from '@/components/admin/Pagination'
 import { getAdminUsers, getCustomRoles } from '@/lib/supabase/queries/admin'
+import { getSession } from '@/lib/auth/session'
 
 type Props = { searchParams: Promise<{ edit?: string; page?: string }> }
 
@@ -24,8 +25,10 @@ const SYSTEM_ROLES = [
 export default async function AdminUsersPage({ searchParams }: Props) {
   const { edit, page: pageStr } = await searchParams
   const page = Math.max(1, Number(pageStr) || 1)
-  const [usersResult, customRoles] = await Promise.all([getAdminUsers({ page }), getCustomRoles()])
+  const [usersResult, customRoles, session] = await Promise.all([getAdminUsers({ page }), getCustomRoles(), getSession()])
   const { rows: users, total, pageSize } = usersResult
+  // Solo 'admin' puede reasignar roles o gestionar roles personalizados.
+  const canManageRoles = session?.user?.role === 'admin'
 
   return (
     <div>
@@ -53,7 +56,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
           <div style={{ display: 'grid', gap: 8, marginBottom: 20 }}>
             <p style={mutedLabel}>Roles personalizados</p>
             {customRoles.map(role => (
-              edit === role.id ? (
+              edit === role.id && canManageRoles ? (
                 /* Formulario edición */
                 <form key={role.id} action={updateRoleAction}
                   style={{
@@ -111,18 +114,20 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                       <span style={{ marginLeft: 12, fontSize: 12, color: 'var(--text-soft)' }}>{role.description}</span>
                     )}
                   </div>
-                  <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-                    <Link href={`/admin/usuarios?edit=${role.id}`}>
-                      <Btn variant="ghost" size="sm">Editar</Btn>
-                    </Link>
-                    <form action={deleteRoleAction} style={{ display: 'contents' }}>
-                      <input type="hidden" name="id"   value={role.id} />
-                      <input type="hidden" name="name" value={role.name} />
-                      <Btn type="submit" variant="ghost" size="sm" style={{ color: 'var(--ember)', borderColor: 'var(--ember)' }}>
-                        Eliminar
-                      </Btn>
-                    </form>
-                  </div>
+                  {canManageRoles && (
+                    <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                      <Link href={`/admin/usuarios?edit=${role.id}`}>
+                        <Btn variant="ghost" size="sm">Editar</Btn>
+                      </Link>
+                      <form action={deleteRoleAction} style={{ display: 'contents' }}>
+                        <input type="hidden" name="id"   value={role.id} />
+                        <input type="hidden" name="name" value={role.name} />
+                        <Btn type="submit" variant="ghost" size="sm" style={{ color: 'var(--ember)', borderColor: 'var(--ember)' }}>
+                          Eliminar
+                        </Btn>
+                      </form>
+                    </div>
+                  )}
                 </div>
               )
             ))}
@@ -130,39 +135,45 @@ export default async function AdminUsersPage({ searchParams }: Props) {
         )}
 
         {/* Formulario nuevo rol */}
-        <details style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)', padding: '12px 16px' }}>
-          <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 13, fontWeight: 600, color: 'var(--spore)', userSelect: 'none' }}>
-            + Añadir nuevo rol
-          </summary>
-          <form action={createRoleAction}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-              gap: 8,
-              alignItems: 'end',
-              marginTop: 16,
-            }}>
-            <label style={labelStyle}>
-              Identificador <span style={{ color: 'var(--ember)' }}>*</span>
-              <input name="name" placeholder="oraculo" required style={inputStyle} />
-            </label>
-            <label style={labelStyle}>
-              Nombre visible <span style={{ color: 'var(--ember)' }}>*</span>
-              <input name="label" placeholder="Oráculo" required style={inputStyle} />
-            </label>
-            <label style={labelStyle}>
-              Descripción
-              <input name="description" placeholder="Rol especial de sabios" style={inputStyle} />
-            </label>
-            <label style={labelStyle}>
-              Color
-              <input name="color" placeholder="var(--spore)" defaultValue="var(--spore)" style={inputStyle} />
-            </label>
-            <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-              <Btn type="submit" variant="rune" size="sm">Crear</Btn>
-            </div>
-          </form>
-        </details>
+        {canManageRoles ? (
+          <details style={{ background: 'var(--bg-card)', border: '1px solid var(--border-soft)', borderRadius: 'var(--r-lg)', padding: '12px 16px' }}>
+            <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 13, fontWeight: 600, color: 'var(--spore)', userSelect: 'none' }}>
+              + Añadir nuevo rol
+            </summary>
+            <form action={createRoleAction}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                gap: 8,
+                alignItems: 'end',
+                marginTop: 16,
+              }}>
+              <label style={labelStyle}>
+                Identificador <span style={{ color: 'var(--ember)' }}>*</span>
+                <input name="name" placeholder="oraculo" required style={inputStyle} />
+              </label>
+              <label style={labelStyle}>
+                Nombre visible <span style={{ color: 'var(--ember)' }}>*</span>
+                <input name="label" placeholder="Oráculo" required style={inputStyle} />
+              </label>
+              <label style={labelStyle}>
+                Descripción
+                <input name="description" placeholder="Rol especial de sabios" style={inputStyle} />
+              </label>
+              <label style={labelStyle}>
+                Color
+                <input name="color" placeholder="var(--spore)" defaultValue="var(--spore)" style={inputStyle} />
+              </label>
+              <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                <Btn type="submit" variant="rune" size="sm">Crear</Btn>
+              </div>
+            </form>
+          </details>
+        ) : (
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontStyle: 'italic', color: 'var(--text-mute)' }}>
+            Solo un Admin puede crear, editar o reasignar roles.
+          </p>
+        )}
       </section>
 
       {/* ── Lista de usuarios ────────────────────────────── */}
@@ -191,11 +202,17 @@ export default async function AdminUsersPage({ searchParams }: Props) {
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 <form action={updateUserRoleAction} style={{ display: 'flex', gap: 8, flex: '1 1 200px', minWidth: 0 }}>
                   <input type="hidden" name="id" value={user.id} />
-                  <select name="role" defaultValue={user.role ?? undefined} style={{ ...inputStyle, flex: 1 }}>
+                  <select
+                    name="role"
+                    defaultValue={user.role ?? undefined}
+                    disabled={!canManageRoles}
+                    title={canManageRoles ? undefined : 'Solo un Admin puede reasignar roles'}
+                    style={{ ...inputStyle, flex: 1, opacity: canManageRoles ? 1 : 0.5, cursor: canManageRoles ? 'pointer' : 'not-allowed' }}
+                  >
                     {SYSTEM_ROLES.map(r => <option key={r.name} value={r.name}>{r.label}</option>)}
                     {customRoles.map(r => <option key={r.name} value={r.name}>{r.label}</option>)}
                   </select>
-                  <Btn type="submit" size="sm" variant="ghost">Guardar</Btn>
+                  <Btn type="submit" size="sm" variant="ghost" disabled={!canManageRoles}>Guardar</Btn>
                 </form>
                 <form action={adjustUserXpAction} style={{ display: 'flex', gap: 8, flex: '1 1 160px', minWidth: 0 }}>
                   <input type="hidden" name="id" value={user.id} />

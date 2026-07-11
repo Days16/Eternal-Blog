@@ -1,7 +1,10 @@
 import Link from 'next/link'
 import { RoleForm } from '@/components/admin/RoleForm'
+import { requireRole } from '@/lib/auth/session'
 
-export default function NuevoRolPage() {
+export default async function NuevoRolPage() {
+  await requireRole('admin')
+
   return (
     <div>
       <div style={{ marginBottom: 24 }}>
