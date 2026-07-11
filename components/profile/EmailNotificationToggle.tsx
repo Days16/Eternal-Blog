@@ -9,8 +9,8 @@ export function EmailNotificationToggle() {
 
   useEffect(() => {
     fetch('/api/newsletter')
-      .then(r => r.json())
-      .then((data: { subscribed?: boolean }) => setSubscribed(!!data.subscribed))
+      .then(r => (r.ok ? r.json() : null))
+      .then((data: { subscribed?: boolean } | null) => setSubscribed(!!data?.subscribed))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
@@ -23,6 +23,7 @@ export function EmailNotificationToggle() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ subscribe: !subscribed }),
       })
+      if (!res.ok) return
       const data = (await res.json()) as { subscribed?: boolean }
       setSubscribed(!!data.subscribed)
     } catch {

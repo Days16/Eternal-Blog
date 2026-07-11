@@ -20,7 +20,14 @@ export async function middleware(req: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // Fail-closed: si Supabase no responde (blip de red), tratamos al usuario
+  // como no autenticado y las ramas de redirect existentes hacen el resto.
+  let user: Awaited<ReturnType<typeof supabase.auth.getUser>>['data']['user'] = null
+  try {
+    ({ data: { user } } = await supabase.auth.getUser())
+  } catch (err) {
+    console.error('[middleware] auth.getUser failed:', err instanceof Error ? err.message : err)
+  }
   const { pathname } = req.nextUrl
 
   if (pathname.startsWith('/admin')) {
@@ -29,9 +36,14 @@ export async function middleware(req: NextRequest) {
       loginUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(loginUrl)
     }
-    // get role from users table
-    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle()
-    const role = (profile as { role?: string } | null)?.role ?? null
+    // get role from users table (fail-closed: sin role → redirect a /)
+    let role: string | null = null
+    try {
+      const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle()
+      role = (profile as { role?: string } | null)?.role ?? null
+    } catch (err) {
+      console.error('[middleware] role lookup failed:', err instanceof Error ? err.message : err)
+    }
     if (role !== 'admin' && role !== 'moderator' && role !== 'dev') {
       return NextResponse.redirect(new URL('/', req.url))
     }

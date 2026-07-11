@@ -1,8 +1,9 @@
 import { getSession } from '@/lib/auth/session'
 import { requireSupabase } from '@/lib/supabase/helpers'
+import { withRouteErrors } from '@/lib/utils/api-error'
 import { NextResponse } from 'next/server'
 
-export async function GET() {
+export const GET = withRouteErrors('admin/export:GET', async () => {
   const session = await getSession()
   const role = session?.user?.role
   if (!session?.user?.id || (role !== 'admin' && role !== 'dev')) {
@@ -40,4 +41,4 @@ export async function GET() {
       'Content-Disposition': `attachment; filename="${filename}"`,
     },
   })
-}
+})

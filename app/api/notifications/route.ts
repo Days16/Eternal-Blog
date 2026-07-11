@@ -2,9 +2,10 @@ import { getSession } from '@/lib/auth/session'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { mapActivity } from '@/lib/supabase/helpers'
 import { getUserNotifications, markAllNotificationsRead } from '@/lib/supabase/queries/notifications'
+import { withRouteErrors } from '@/lib/utils/api-error'
 import { NextResponse } from 'next/server'
 
-export async function GET() {
+export const GET = withRouteErrors('notifications:GET', async () => {
   const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
@@ -38,11 +39,11 @@ export async function GET() {
   )
 
   return NextResponse.json(merged)
-}
+})
 
-export async function POST() {
+export const POST = withRouteErrors('notifications:POST', async () => {
   const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   await markAllNotificationsRead(session.user.id)
   return NextResponse.json({ ok: true })
-}
+})

@@ -2,17 +2,12 @@
 
 import useSWR from 'swr'
 import type { Mission, UpcomingMission } from '@/lib/missions/evaluator'
+import { fetcher } from '@/lib/utils/fetcher'
 
 interface MissionsResponse {
   active: Mission[]
   completed: string[]
   upcoming: UpcomingMission[]
-}
-
-async function fetcher(url: string): Promise<MissionsResponse> {
-  const response = await fetch(url)
-  if (!response.ok) throw new Error('No se pudieron cargar las misiones')
-  return response.json() as Promise<MissionsResponse>
 }
 
 function criteriaLabel(mission: Mission) {

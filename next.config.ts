@@ -28,6 +28,12 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   compress: true,
   serverExternalPackages: ['jose', '@auth/core', 'bcryptjs', '@supabase/supabase-js'],
+  experimental: {
+    serverActions: {
+      // La subida de avatar (hasta 2 MB) viaja en el FormData de una server action
+      bodySizeLimit: '3mb',
+    },
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],

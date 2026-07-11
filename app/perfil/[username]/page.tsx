@@ -134,8 +134,17 @@ export default async function ProfilePage({ params, searchParams }: Props) {
               fontFamily: 'var(--font-display)',
               fontSize: 'clamp(40px, 10vw, 64px)',
               color: levelInfo.color,
+              overflow: 'hidden',
             }}>
-              {levelInfo.rune}
+              {profile.avatarUrl ? (
+                <img
+                  src={profile.avatarUrl}
+                  alt={`Avatar de ${displayName}`}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                />
+              ) : (
+                levelInfo.rune
+              )}
             </div>
             <div style={{ position: 'absolute', bottom: 4, right: 4, background: 'var(--bg)', borderRadius: '50%', padding: 4 }}>
               <LevelBadge level={level} size={36} />

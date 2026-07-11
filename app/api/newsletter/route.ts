@@ -1,8 +1,9 @@
 import { getSession } from '@/lib/auth/session'
 import { requireSupabase } from '@/lib/supabase/helpers'
+import { withRouteErrors } from '@/lib/utils/api-error'
 import { NextResponse } from 'next/server'
 
-export async function GET() {
+export const GET = withRouteErrors('newsletter:GET', async () => {
   const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ subscribed: false })
 
@@ -14,9 +15,9 @@ export async function GET() {
     .maybeSingle()
 
   return NextResponse.json({ subscribed: !!(data as { notify_new_posts?: boolean } | null)?.notify_new_posts })
-}
+})
 
-export async function POST(request: Request) {
+export const POST = withRouteErrors('newsletter:POST', async (request: Request) => {
   const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
 
@@ -32,4 +33,4 @@ export async function POST(request: Request) {
   if (error) return NextResponse.json({ error: 'No se pudo actualizar' }, { status: 500 })
 
   return NextResponse.json({ subscribed: subscribe })
-}
+})

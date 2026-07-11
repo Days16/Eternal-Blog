@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import useSWR from 'swr'
+import { fetcher } from '@/lib/utils/fetcher'
 
 interface FeaturedEntry {
   position: number
@@ -17,8 +18,6 @@ interface SearchResult {
   title: string
   type: string
 }
-
-const fetcher = (url: string) => fetch(url).then(r => r.json())
 
 function Slot({
   position,

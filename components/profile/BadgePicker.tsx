@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import useSWR from 'swr'
+import { fetcher } from '@/lib/utils/fetcher'
 
 interface BadgeAchievement {
   id: string
@@ -9,8 +10,6 @@ interface BadgeAchievement {
   badgeIcon: string | null
   description: string | null
 }
-
-const fetcher = (url: string) => fetch(url).then(r => r.json())
 
 export function BadgePicker() {
   const { data, mutate } = useSWR<{ badges: BadgeAchievement[]; activeId: string | null }>(

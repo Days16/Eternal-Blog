@@ -6,6 +6,7 @@ export interface SocialNotification {
   actorId: string | null
   actorName: string | null
   actorUsername: string | null
+  actorAvatarUrl: string | null
   data: Record<string, unknown>
   readAt: string | null
   createdAt: string
@@ -45,27 +46,28 @@ export async function getUserNotifications(userId: string): Promise<SocialNotifi
 
   // Fetch actor names in a second query to avoid FK name ambiguity
   const actorIds = [...new Set((data ?? []).map(r => r.actor_id).filter(Boolean))] as string[]
-  const actorMap: Record<string, { name: string | null; username: string | null }> = {}
+  const actorMap: Record<string, { name: string | null; username: string | null; avatarUrl: string | null }> = {}
 
   if (actorIds.length > 0) {
     const { data: actors } = await supabase
       .from('users')
-      .select('id,name,username')
+      .select('id,name,username,avatar_url')
       .in('id', actorIds)
     for (const a of actors ?? []) {
-      actorMap[a.id] = { name: a.name ?? null, username: a.username ?? null }
+      actorMap[a.id] = { name: a.name ?? null, username: a.username ?? null, avatarUrl: a.avatar_url ?? null }
     }
   }
 
   return (data ?? []).map(row => ({
-    id:            String(row.id),
-    type:          String(row.type),
-    actorId:       row.actor_id ?? null,
-    actorName:     row.actor_id ? (actorMap[row.actor_id]?.name ?? null) : null,
-    actorUsername: row.actor_id ? (actorMap[row.actor_id]?.username ?? null) : null,
-    data:          (row.data ?? {}) as Record<string, unknown>,
-    readAt:        row.read_at ?? null,
-    createdAt:     String(row.created_at),
+    id:             String(row.id),
+    type:           String(row.type),
+    actorId:        row.actor_id ?? null,
+    actorName:      row.actor_id ? (actorMap[row.actor_id]?.name ?? null) : null,
+    actorUsername:  row.actor_id ? (actorMap[row.actor_id]?.username ?? null) : null,
+    actorAvatarUrl: row.actor_id ? (actorMap[row.actor_id]?.avatarUrl ?? null) : null,
+    data:           (row.data ?? {}) as Record<string, unknown>,
+    readAt:         row.read_at ?? null,
+    createdAt:      String(row.created_at),
   }))
 }
 

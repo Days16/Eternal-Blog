@@ -5,6 +5,7 @@ import {
   sendMessage, getMessages, markMessagesRead,
   getConversations,
 } from '@/lib/supabase/queries/social'
+import { withRouteErrors } from '@/lib/utils/api-error'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
@@ -18,14 +19,13 @@ const actionSchema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('mark_read'),        partnerId: z.string().uuid() }),
 ])
 
-export async function POST(request: Request) {
-  let session
-  try { session = await getSession() } catch { return NextResponse.json({ error: 'Error de sesión.' }, { status: 500 }) }
+export const POST = withRouteErrors('social:POST', async (request: Request) => {
+  const session = await getSession()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
   }
 
-  const parsed = actionSchema.safeParse(await request.json())
+  const parsed = actionSchema.safeParse(await request.json().catch(() => ({})))
   if (!parsed.success) {
     return NextResponse.json({ error: 'Payload inválido', errors: parsed.error.flatten().fieldErrors }, { status: 400 })
   }
@@ -64,15 +64,15 @@ export async function POST(request: Request) {
         await markMessagesRead(userId, data.partnerId)
         return NextResponse.json({ ok: true })
     }
+    return NextResponse.json({ error: 'Acción no reconocida.' }, { status: 400 })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Error al procesar la acción.'
     return NextResponse.json({ error: message }, { status: 400 })
   }
-}
+})
 
-export async function GET(request: Request) {
-  let session
-  try { session = await getSession() } catch { return NextResponse.json({ error: 'Error de sesión.' }, { status: 500 }) }
+export const GET = withRouteErrors('social:GET', async (request: Request) => {
+  const session = await getSession()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
   }
@@ -106,4 +106,4 @@ export async function GET(request: Request) {
     const message = error instanceof Error ? error.message : 'Error.'
     return NextResponse.json({ error: message }, { status: 400 })
   }
-}
+})

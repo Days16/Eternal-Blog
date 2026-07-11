@@ -1,9 +1,10 @@
 import { getSession } from '@/lib/auth/session'
 import { setActiveBadge, getUserAchievements, getUserActiveBadge } from '@/lib/supabase/queries/users'
+import { withRouteErrors } from '@/lib/utils/api-error'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
-export async function GET() {
+export const GET = withRouteErrors('profile/badge:GET', async () => {
   const session = await getSession()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
@@ -14,13 +15,13 @@ export async function GET() {
   ])
   const badgeAchievements = achievements.filter(a => a.unlocked && a.hasNameBadge)
   return NextResponse.json({ badges: badgeAchievements, activeId: active?.id ?? null })
-}
+})
 
 const schema = z.object({
   achievementId: z.string().uuid().nullable(),
 })
 
-export async function PATCH(request: Request) {
+export const PATCH = withRouteErrors('profile/badge:PATCH', async (request: Request) => {
   const session = await getSession()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
@@ -38,4 +39,4 @@ export async function PATCH(request: Request) {
     const message = error instanceof Error ? error.message : 'No se pudo actualizar el badge.'
     return NextResponse.json({ error: message }, { status: 400 })
   }
-}
+})

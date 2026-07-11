@@ -1,8 +1,9 @@
 import { getSession } from '@/lib/auth/session'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { withRouteErrors } from '@/lib/utils/api-error'
 import { NextResponse } from 'next/server'
 
-export async function GET() {
+export const GET = withRouteErrors('user/stats:GET', async () => {
   const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
@@ -23,4 +24,4 @@ export async function GET() {
     role: data.role,
     username: data.username,
   })
-}
+})

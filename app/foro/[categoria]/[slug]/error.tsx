@@ -11,7 +11,7 @@ export default function ForoThreadError({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error('[foro/thread]', error)
+    console.error('[foro/thread]', error?.message ?? 'unknown', error?.digest ?? 'no-digest')
   }, [error])
 
   return (

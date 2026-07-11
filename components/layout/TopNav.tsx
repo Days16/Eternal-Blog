@@ -36,8 +36,8 @@ export function TopNav({ compact = false }: TopNavProps) {
   const [marketplaceEnabled, setMarketplaceEnabled] = useState(false)
   useEffect(() => {
     fetch('/api/marketplace-status')
-      .then(r => r.json())
-      .then((d: { enabled?: boolean }) => setMarketplaceEnabled(d.enabled ?? false))
+      .then(r => (r.ok ? r.json() : null))
+      .then((d: { enabled?: boolean } | null) => setMarketplaceEnabled(d?.enabled ?? false))
       .catch(() => {})
   }, [])
 

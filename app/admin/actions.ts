@@ -150,8 +150,17 @@ export async function updateUserRoleAction(formData: FormData) {
   const supabase = requireSupabase()
   const id = text(formData, 'id')
   const role = text(formData, 'role')
-  
-  if (!id || !isValidRole(role)) return
+
+  if (!id || !role) return
+
+  if (!isValidRole(role)) {
+    const { data: customRole } = await supabase
+      .from('custom_roles')
+      .select('name')
+      .eq('name', role)
+      .maybeSingle()
+    if (!customRole) return
+  }
 
   try {
     const { error } = await supabase

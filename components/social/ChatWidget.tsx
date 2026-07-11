@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import useSWR from 'swr'
 import { EmojiPicker } from '@/components/ui/EmojiPicker'
+import { fetcher } from '@/lib/utils/fetcher'
 
 interface Conversation {
   userId: string
@@ -21,8 +22,6 @@ interface Message {
   readAt: Date | null
   createdAt: Date | null
 }
-
-const fetcher = (url: string) => fetch(url).then(r => r.json())
 
 function initials(name: string | null, username: string | null) {
   const src = name ?? username ?? '?'
@@ -78,14 +77,14 @@ export function ChatWidget({ currentUserId }: { currentUserId: string }) {
 
   useEffect(() => {
     function handleOpenChat(e: Event) {
-      const customEvent = e as CustomEvent<{ partnerId: string; name: string | null; username: string | null }>
-      const { partnerId, name, username } = customEvent.detail
+      const customEvent = e as CustomEvent<{ partnerId: string; name: string | null; username: string | null; avatarUrl?: string | null }>
+      const { partnerId, name, username, avatarUrl } = customEvent.detail
       setOpen(true)
       setActiveConv({
         userId: partnerId,
         name,
         username,
-        avatarUrl: null,
+        avatarUrl: avatarUrl ?? null,
         lastMessage: null,
         unreadCount: 0,
       })

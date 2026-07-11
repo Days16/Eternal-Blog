@@ -11,7 +11,7 @@ export default function AdminError({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error('[admin]', error)
+    console.error('[admin]', error?.message ?? 'unknown', error?.digest ?? 'no-digest')
   }, [error])
 
   return (

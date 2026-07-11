@@ -1,6 +1,5 @@
 import useSWR from 'swr'
-
-const fetcher = (url: string) => fetch(url).then(res => res.json())
+import { fetcher } from '@/lib/utils/fetcher'
 
 export type UserStats = {
   level: number

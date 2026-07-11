@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import { useAppSession } from '@/components/auth/SessionContext'
 import Link from 'next/link'
 import { TopNav } from '@/components/layout/TopNav'
@@ -38,6 +38,19 @@ export default function EditarPerfilPage() {
   const session = useAppSession()
   const user = session?.user
   const [error, formAction, isPending] = useActionState(updateProfileAction, null)
+  const [fileError, setFileError] = useState<string | null>(null)
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) { setFileError(null); return }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setFileError('El avatar debe ser JPG, PNG o WebP.')
+    } else if (file.size > 2 * 1024 * 1024) {
+      setFileError('El avatar no puede superar los 2 MB.')
+    } else {
+      setFileError(null)
+    }
+  }
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', minHeight: '100vh' }}>
@@ -77,7 +90,7 @@ export default function EditarPerfilPage() {
               id="pe-username"
               name="username"
               required
-              defaultValue={(user as { username?: string })?.username ?? ''}
+              defaultValue={user?.username ?? ''}
               placeholder="solo_letras_y_numeros"
               pattern="[a-z0-9_]{3,20}"
               style={fieldStyle}
@@ -95,26 +108,67 @@ export default function EditarPerfilPage() {
               name="bio"
               rows={4}
               maxLength={300}
-              defaultValue={(user as { bio?: string })?.bio ?? ''}
+              defaultValue={user?.bio ?? ''}
               placeholder="Cuéntale al bosque quién eres (máx. 300 caracteres)."
               style={{ ...fieldStyle, resize: 'vertical', lineHeight: 1.6 }}
             />
           </div>
 
-          {/* Avatar URL */}
+          {/* Avatar */}
           <div>
-            <label style={labelStyle} htmlFor="pe-avatar">URL del avatar</label>
+            <label style={labelStyle} htmlFor="pe-avatar-file">Avatar</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+              <div style={{
+                width: 64, height: 64, borderRadius: '50%', flexShrink: 0,
+                background: 'var(--moss-700)', border: '1px solid var(--border)',
+                overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {user?.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt="Avatar actual"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <span style={{ fontFamily: 'var(--font-display)', fontSize: 26, color: 'var(--spore)' }}>ᛝ</span>
+                )}
+              </div>
+              <div style={{ flex: 1 }}>
+                <input
+                  id="pe-avatar-file"
+                  name="avatar"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleFileChange}
+                  style={{ ...fieldStyle, padding: '10px 12px', fontSize: 13 }}
+                />
+                <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-mute)', marginTop: 5 }}>
+                  JPG, PNG o WebP. Máximo 2 MB.
+                </div>
+              </div>
+            </div>
+            {fileError && (
+              <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--ember)', marginBottom: 10 }}>
+                {fileError}
+              </div>
+            )}
             <input
               id="pe-avatar"
               name="avatar_url"
               type="url"
-              defaultValue={(user as { avatar_url?: string })?.avatar_url ?? ''}
+              defaultValue={user?.avatarUrl ?? ''}
               placeholder="https://..."
               style={fieldStyle}
             />
             <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-mute)', marginTop: 5 }}>
-              La carga directa de imágenes estará disponible próximamente.
+              O pega una URL externa (si subes un archivo, este tiene prioridad).
             </div>
+            {user?.avatarUrl && (
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-soft)' }}>
+                <input type="checkbox" name="remove_avatar" style={{ accentColor: 'var(--ember)' }} />
+                Quitar avatar actual
+              </label>
+            )}
           </div>
 
           {error && (
@@ -126,8 +180,8 @@ export default function EditarPerfilPage() {
           <div style={{ display: 'flex', gap: 12 }}>
             <button
               type="submit"
-              disabled={isPending}
-              style={{ flex: 1, padding: '14px', background: isPending ? 'var(--moss-700)' : 'var(--spore)', color: 'var(--accent-ink)', border: 'none', borderRadius: 'var(--r-md)', cursor: isPending ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 600, letterSpacing: 0.5 }}
+              disabled={isPending || !!fileError}
+              style={{ flex: 1, padding: '14px', background: isPending || fileError ? 'var(--moss-700)' : 'var(--spore)', color: 'var(--accent-ink)', border: 'none', borderRadius: 'var(--r-md)', cursor: isPending || fileError ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 600, letterSpacing: 0.5 }}
             >
               {isPending ? 'Guardando…' : 'Guardar cambios'}
             </button>

@@ -1,16 +1,17 @@
 import { getSession } from '@/lib/auth/session'
 import { getUserFeaturedEntries, upsertFeaturedEntry, removeFeaturedEntry } from '@/lib/supabase/queries/users'
+import { withRouteErrors } from '@/lib/utils/api-error'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
-export async function GET() {
+export const GET = withRouteErrors('profile/featured:GET', async () => {
   const session = await getSession()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
   }
   const entries = await getUserFeaturedEntries(session.user.id)
   return NextResponse.json({ entries })
-}
+})
 
 const addSchema = z.object({
   entryId:  z.string().uuid('entryId inválido'),
@@ -21,7 +22,7 @@ const removeSchema = z.object({
   position: z.number().int().min(1).max(3),
 })
 
-export async function POST(request: Request) {
+export const POST = withRouteErrors('profile/featured:POST', async (request: Request) => {
   const session = await getSession()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
@@ -39,9 +40,9 @@ export async function POST(request: Request) {
     const message = error instanceof Error ? error.message : 'No se pudo destacar el artículo.'
     return NextResponse.json({ error: message }, { status: 400 })
   }
-}
+})
 
-export async function DELETE(request: Request) {
+export const DELETE = withRouteErrors('profile/featured:DELETE', async (request: Request) => {
   const session = await getSession()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Debes iniciar sesión.' }, { status: 401 })
@@ -59,4 +60,4 @@ export async function DELETE(request: Request) {
     const message = error instanceof Error ? error.message : 'No se pudo quitar el artículo.'
     return NextResponse.json({ error: message }, { status: 400 })
   }
-}
+})

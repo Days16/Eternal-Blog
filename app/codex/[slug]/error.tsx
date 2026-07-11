@@ -11,7 +11,7 @@ export default function CodexArticleError({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error('[codex/[slug]]', error)
+    console.error('[codex/[slug]]', error?.message ?? 'unknown', error?.digest ?? 'no-digest')
   }, [error])
 
   return (

@@ -11,7 +11,7 @@ export default function PerfilError({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error('[perfil/[username]]', error)
+    console.error('[perfil/[username]]', error?.message ?? 'unknown', error?.digest ?? 'no-digest')
   }, [error])
 
   return (

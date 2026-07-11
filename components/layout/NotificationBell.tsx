@@ -5,8 +5,7 @@ import useSWR from 'swr'
 import Link from 'next/link'
 import { useAppSession } from '@/components/auth/SessionContext'
 import { formatDate } from '@/lib/utils/dates'
-
-const fetcher = (url: string) => fetch(url).then(r => r.json())
+import { fetcher } from '@/lib/utils/fetcher'
 
 type ActivityItem = {
   source: 'activity'
@@ -23,6 +22,7 @@ type SocialItem = {
   actorId: string | null
   actorName: string | null
   actorUsername: string | null
+  actorAvatarUrl: string | null
   data: Record<string, unknown>
   readAt: string | null
   createdAt: string
@@ -164,7 +164,8 @@ function SocialItemRow({ item, onClose }: { item: SocialItem; onClose: () => voi
               detail: {
                 partnerId: item.actorId,
                 name: item.actorName,
-                username: item.actorUsername
+                username: item.actorUsername,
+                avatarUrl: item.actorAvatarUrl,
               }
             }))
           }}

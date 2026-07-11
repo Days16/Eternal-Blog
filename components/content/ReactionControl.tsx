@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import useSWR from 'swr'
-
-const fetcher = (url: string) => fetch(url).then(res => res.json())
+import { fetcher } from '@/lib/utils/fetcher'
 
 type ReactionControlProps = {
   entryId: string
@@ -21,7 +20,10 @@ export function ReactionControl({ entryId, currentUserId }: ReactionControlProps
     { icon: '☾',  label: 'Soñador',  kind: 'dreamer', color: 'var(--amethyst)' },
   ]
 
-  const { data: counts, mutate } = useSWR(`/api/reactions?entryId=${entryId}`, fetcher)
+  const { data: counts, mutate } = useSWR<Record<string, number> & { userReactions?: string[] }>(
+    `/api/reactions?entryId=${entryId}`,
+    fetcher,
+  )
 
   async function handleReact(kind: string) {
     if (!currentUserId || busy) return

@@ -9,6 +9,8 @@ export type AppUser = {
   role: string
   level: number
   xp: number
+  avatarUrl: string | null
+  bio: string | null
 }
 
 export type AppSession = { user: AppUser }
@@ -21,7 +23,7 @@ export async function getSession(): Promise<AppSession | null> {
 
     const { data: profile } = await supabase
       .from('users')
-      .select('id,name,username,email,role,level,xp')
+      .select('id,name,username,email,role,level,xp,avatar_url,bio')
       .eq('id', user.id)
       .maybeSingle()
 
@@ -36,6 +38,8 @@ export async function getSession(): Promise<AppSession | null> {
         role: profile.role ?? 'reader',
         level: profile.level ?? 1,
         xp: profile.xp ?? 0,
+        avatarUrl: profile.avatar_url ?? null,
+        bio: profile.bio ?? null,
       }
     }
   } catch {

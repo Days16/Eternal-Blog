@@ -2,12 +2,12 @@ import { getSession } from '@/lib/auth/session'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { awardXP } from '@/lib/xp/award'
 import { XP } from '@/lib/xp/events'
-import { apiError } from '@/lib/utils/api-error'
+import { apiError, withRouteErrors } from '@/lib/utils/api-error'
 import { rateLimit } from '@/lib/rate-limit'
 import { ReactionSchema } from '@/lib/schemas'
 import { NextResponse } from 'next/server'
 
-export async function GET(request: Request) {
+export const GET = withRouteErrors('reactions:GET', async (request: Request) => {
   const { searchParams } = new URL(request.url)
   const entryId = searchParams.get('entryId')
   if (!entryId) return NextResponse.json({ error: 'Falta entryId' }, { status: 400 })
@@ -46,9 +46,9 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json({ ...counts, userReactions })
-}
+})
 
-export async function POST(request: Request) {
+export const POST = withRouteErrors('reactions:POST', async (request: Request) => {
   const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
@@ -111,4 +111,4 @@ export async function POST(request: Request) {
     const message = error instanceof Error ? error.message : 'Error interno del servidor'
     return apiError(message, error, 500)
   }
-}
+})

@@ -4,9 +4,10 @@ import { EASTER_EGGS } from '@/lib/achievements/easter-eggs'
 import { evaluateAchievements } from '@/lib/achievements/evaluator'
 import { awardXP } from '@/lib/xp/award'
 import { rateLimit } from '@/lib/rate-limit'
+import { withRouteErrors } from '@/lib/utils/api-error'
 import { NextResponse } from 'next/server'
 
-export async function POST(request: Request) {
+export const POST = withRouteErrors('xp:POST', async (request: Request) => {
   const session = await getSession()
   if (!session?.user?.id) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
 
@@ -54,4 +55,4 @@ export async function POST(request: Request) {
   const unlockedAchievements = await evaluateAchievements(session.user.id)
 
   return NextResponse.json({ found: true, xp, unlockedAchievements })
-}
+})
